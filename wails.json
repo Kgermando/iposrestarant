@@ -1,0 +1,15 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "iposrestaurant",
+  "assetdir": "frontend/dist/browser",
+  "outputfilename": "iposrestarant",
+  "frontend:build": "npx ng build",
+  "frontend:install": "npm install",
+  "frontend:dev:watcher": "npx ng serve --port 4300",
+  "frontend:dev:serverUrl": "http://localhost:4300",
+  "wailsjsdir": "./frontend",
+  "author": {
+    "name": "KGermando",
+    "email": "katakugermain@gmail.com"
+  }
+}

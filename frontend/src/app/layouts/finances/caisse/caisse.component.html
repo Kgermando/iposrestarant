@@ -1,0 +1,229 @@
+<div class="page-wrapper notes-page-wrapper file-manager">
+    @if (loadUserData) {
+    <div class="spinner-border text-center d-flex justify-content-center align-items-center" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    }@else {
+    @if (currentUser) {
+    <div class="content">
+        <div class="page-header page-add-notes d-flex align-items-center justify-content-between">
+            <div class="add-item d-flex align-items-center">
+                <div class="page-title">
+                    <h4>Finances</h4>
+                    <p>Gestion des caisses</p>
+                </div>
+                <a id="toggle_btn2" class="notes-tog" href="javascript:void(0);" (click)="toggleChange()">
+                    @if (!appSidebar) {
+                    <i class="fas fa-chevron-right"></i>
+                    } @if (appSidebar) {
+                    <i class="fas fa-chevron-left"></i>
+                    }
+                </a>
+            </div>
+            <div class="d-sm-flex align-items-center">
+                <div class="head-icons">
+                    <app-reload></app-reload>
+                    <app-collapse-header></app-collapse-header>
+                </div> 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3 col-md-12 sidebars-right theiaStickySidebar section-bulk-widget"
+                [ngClass]="{ 'section-notes-dashboard': appSidebar === false }">
+                <div class="stickybar">
+                    <aside class="card file-manager-sidebar mb-0">
+                        <h5 class="d-flex align-items-center">
+                            <span class="me-2 d-flex align-items-center">
+                                <i class="feather icon-folder feather-20"></i>
+                            </span>
+                            Caisses
+                        </h5>
+                        @if (currentUser.role === 'Manager général' ||
+                            currentUser.role === 'Support') {
+                            <div class="dropdown">
+                                <a href="javascript:void(0);" aria-expanded="false"
+                                    class="dropset btn btn-danger mb-3 btn-icon" data-bs-toggle="modal"
+                                    data-bs-target="#upload-file">
+                                    <span class="me-2 btn-icon">
+                                        <i class="feather icon-plus-circle feather-16"></i>
+                                    </span>
+                                    New Caisse
+                                </a>
+                            </div> 
+                        }
+
+                        <ul class="mb-2">
+                            @if (isLoadingCaisse) {
+                                <div class="spinner-border text-center d-flex justify-content-center align-items-center" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            }@else {
+                                @for (item of dataList; track item.ID) {
+                                    <li>
+                                        <a [routerLink]="['/web/finances/caisse-list', item.ID!, 'items']"
+                                            routerLinkActive="active" (click)="getCaisseID(item.ID!)">
+                                          
+                                            {{ item.name.toLocaleUpperCase() }}
+                                        </a>
+                                    </li>
+                                }@empty {
+                                    <li>
+                                        Ajouter une caisse.
+                                    </li>
+                                }
+                            }
+                        </ul>
+                        @if(currentUser.role === 'Manager général' || currentUser.role === 'Support') {
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <span class="me-2 btn-icon"><i class="feather icon-hard-drive feather-16 "></i></span>
+                                    <h6>Etat global</h6>
+                                </div>
+                                <span>{{pourcent.toFixed(2)}}%</span>
+                            </div>
+                            <div class="progress my-2">
+                                <div class="progress-bar progress-bar bg-danger" role="progressbar" 
+                                    [ngStyle]="{ width: pourcent.toFixed(2) + '%'}" 
+                                    aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span>{{solde.toFixed(2)}} sur {{total.toFixed(2)}} Disponible</span>
+                        }
+                    </aside>
+                </div>
+            </div>
+
+            <div class="col-lg-9 budget-role-notes" [ngClass]="{ 'budgeted-role-notes': appSidebar === false }">
+                <!-- <app-caisse-item [caisseID]="caisseID" [currentUser]="currentUser"></app-caisse-item> -->
+                <router-outlet></router-outlet>
+            </div>
+        </div>
+    </div>
+    }
+    }
+
+</div>
+
+
+<!-- Upload File -->
+<div class="modal fade modal-default file-manager-modal upload-modal" id="upload-file" aria-labelledby="upload-file">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header p-4">
+          <h5>Nouvelle caisse</h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body p-4">
+            <form [formGroup]="formGroupCaisse" (ngSubmit)="newCaisse()">
+                <div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="col-form-label" for="name">Nom de la caisse <span
+                                            class="text-danger">*</span></label>
+                                </div>
+                                <input type="text" class="form-control" formControlName="name" required />
+                                <mat-error *ngIf="formGroupCaisse.controls['name'].hasError('required')">
+                                    Ce champs est obligatoire
+                                </mat-error>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-end">
+                    <a href="javascript:void(0);" class="btn btn-light me-2" data-bs-dismiss="modal">Annuler</a>
+                    @if (isLoading) {
+                    <button disabled class="btn btn-danger">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                    }
+                    @if (!isLoading) {
+                    <button type="submit" class="btn btn-danger" id="myModal" data-bs-dismiss="modal"
+                        data-bs-target="#create_success">Soumettre</button>
+                    }
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Upload File -->
+
+ 
+<!-- Upload File -->
+<div class="modal fade modal-default file-manager-modal upload-modal" id="upload-file-edit" aria-labelledby="upload-file">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header p-4">
+          <h5>Modification de la caisse</h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body p-4">
+            <form [formGroup]="formGroupCaisse" (ngSubmit)="editCaisse()">
+                <div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="col-form-label" for="name">Nom de la caisse <span
+                                            class="text-danger">*</span></label>
+                                </div>
+                                <input type="text" class="form-control" formControlName="name" required />
+                                <mat-error *ngIf="formGroupCaisse.controls['name'].hasError('required')">
+                                    Ce champs est obligatoire
+                                </mat-error>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-end">
+                    <a href="javascript:void(0);" class="btn btn-light me-2" data-bs-dismiss="modal">Annuler</a>
+                    @if (isLoading) {
+                    <button disabled class="btn btn-danger">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                    }
+                    @if (!isLoading) {
+                    <button type="submit" class="btn btn-danger" id="myModal" data-bs-dismiss="modal"
+                        data-bs-target="#create_success">Soumettre</button>
+                    }
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Upload File -->
+
+
+<!-- Delete data item -->
+<div class="modal fade" id="delete_contact" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="avatar avatar-xl bg-danger-light rounded-circle mb-3">
+                        <i class="ti ti-trash-x fs-36 text-danger"></i>
+                    </div>
+                    <h4 class="mb-2">Supprimer cet l'élément ?</h4>
+                    <p class="mb-0">Êtes-vous sûr de vouloir le supprimer ?</p>
+                    <div class="d-flex align-items-center justify-content-center mt-4">
+                        <a href="javascript:void(0);" class="btn btn-light me-2" data-bs-dismiss="modal">Annuler</a>
+                        <button (click)="delete()" class="btn btn-danger" data-bs-dismiss="modal">
+                            Oui, supprimez-le
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /Delete data item -->
