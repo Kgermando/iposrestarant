@@ -114,28 +114,28 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	token, err := utils.GenerateJwt(strconv.Itoa(int(u.ID)))
-	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
+	// token, err := utils.GenerateJwt(strconv.Itoa(int(u.ID)))
+	// if err != nil {
+	// 	return c.SendStatus(fiber.StatusInternalServerError)
+	// }
 
-	cookie := fiber.Cookie{
-		Name:     "token",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24), // 1 day,
-		Secure:   true,
-		HTTPOnly: true,
-		SameSite: "none",
-		Domain:   "localhost", // ".railway.app",
-		Path:     "/",
-	}
+	// cookie := fiber.Cookie{
+	// 	Name:     "token",
+	// 	Value:    token,
+	// 	Expires:  time.Now().Add(time.Hour * 24), // 1 day,
+	// 	Secure:   true,
+	// 	HTTPOnly: true,
+	// 	SameSite: "none",
+	// 	Domain:   "localhost", // ".railway.app",
+	// 	Path:     "/",
+	// }
 
-	c.Cookie(&cookie)
+	// c.Cookie(&cookie)
 
 	return c.JSON(fiber.Map{
 		"message": "success",
-		"token":   token,
-		"u":       u,
+		// "token":   token,
+		"data":       u,
 	})
 }
 

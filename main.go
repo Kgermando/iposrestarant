@@ -40,9 +40,9 @@ func main() {
 
 	// Middleware
 	fiberApp.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:4300, https://i-pos-restaurant-api.up.railway.app",
+		AllowOrigins:  "*"  // "http://localhost:4300, https://i-pos-restaurant-api.up.railway.app",
 		AllowHeaders:     "Origin, Content-Type, Accept",
-		AllowCredentials: true,
+		AllowCredentials: false,
 		AllowMethods: strings.Join([]string{
 			fiber.MethodGet,
 			fiber.MethodPost,

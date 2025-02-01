@@ -28,18 +28,18 @@ export class AuthService {
     return this.http.post<any>(`${environment.apiUrlCloud}/auth/entreprise`, data);
   } 
   
-  // user(): Observable<IUser> {
-  //   var user_id = localStorage.getItem("auth_id");
-  //   let params = new HttpParams();
-  //   if (user_id) {
-  //     params = params.set("user_id", user_id);
-  //   }
-  //   return this.http.get<IUser>(`${environment.apiUrl}/auth/user`, { params });
-  // }
-
-  user(): Observable<IUser> { 
-    return this.http.get<IUser>(`${environment.apiUrl}/auth/user`);
+  user(): Observable<IUser> {
+    var user_id = localStorage.getItem("auth_id");
+    let params = new HttpParams();
+    if (user_id) {
+      params = params.set("user_id", user_id);
+    }
+    return this.http.get<IUser>(`${environment.apiUrl}/auth/user`, { params });
   }
+
+  // user(): Observable<IUser> { 
+  //   return this.http.get<IUser>(`${environment.apiUrl}/auth/user`);
+  // }
 
   logout(): Observable<void> {
     localStorage.removeItem('token');
