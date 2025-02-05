@@ -14,6 +14,131 @@ export class DataService {
     this.collapseSubject.next(!this.collapseSubject.value);
   }
 
+  public sidebarDataPartenaire = [
+    {
+      tittle: 'Partenaires',
+      showAsTab: true,
+      separateRoute: false,
+      menu: [
+        {
+          menuValue: 'Clients',
+          icon: 'user-up',
+          base: 'clients',
+          route: routes.clientList,
+          hasSubRoute: false,
+          showSubRoute: false,
+        },
+        {
+          menuValue: 'Livreurs',
+          icon: 'user-up',
+          base: 'livreurs',
+          route: routes.livreurList, 
+          hasSubRoute: false,
+          showSubRoute: false,
+        }, 
+        {
+          menuValue: 'Fournisseurs',
+          icon: 'user-down',
+          base: 'fournisseurs',
+          route: routes.fournisseurList, 
+          hasSubRoute: false,
+          showSubRoute: false,
+        },
+        {
+          menuValue: 'Zones',
+          icon: 'map',
+          base: 'areas',
+          route: routes.areaList, 
+          hasSubRoute: false,
+          showSubRoute: false,
+        },
+      ],
+    },
+  ];
+
+  public sidebarDataCaisse = [
+    {
+      tittle: 'TRESORERIE',
+      showAsTab: true,
+      separateRoute: false,
+      menu: [ 
+        {
+          menuValue: 'Caisse',
+          icon: 'receipt',
+          base: 'finances',
+          hasSubRoute: false,
+          showSubRoute: false,
+          route: routes.caisseList,
+        },
+      ],
+    }, 
+  ];
+
+  public sidebarDataServeur = [
+    {
+      tittle: 'Gestion de commandes',
+      showAsTab: true,
+      separateRoute: false,
+      menu: [
+        {
+          menuValue: 'Tables',
+          icon: 'list-check',
+          base: 'table-box',
+          route: routes.tableBoxList,
+          hasSubRoute: false,
+          showSubRoute: false, 
+        },
+        {
+          menuValue: 'Livraisons',
+          icon: 'truck',
+          base: 'livraisons',
+          route: routes.livraisonList, 
+          hasSubRoute: false,
+          showSubRoute: false,
+        },
+      ],
+    },
+    {
+      tittle: 'Partenaires',
+      showAsTab: true,
+      separateRoute: false,
+      menu: [
+        {
+          menuValue: 'Clients',
+          icon: 'user-up',
+          base: 'clients',
+          route: routes.clientList,
+          hasSubRoute: false,
+          showSubRoute: false,
+        },
+        {
+          menuValue: 'Livreurs',
+          icon: 'user-up',
+          base: 'livreurs',
+          route: routes.livreurList, 
+          hasSubRoute: false,
+          showSubRoute: false,
+        }, 
+        {
+          menuValue: 'Fournisseurs',
+          icon: 'user-down',
+          base: 'fournisseurs',
+          route: routes.fournisseurList, 
+          hasSubRoute: false,
+          showSubRoute: false,
+        },
+        {
+          menuValue: 'Zones',
+          icon: 'map',
+          base: 'areas',
+          route: routes.areaList, 
+          hasSubRoute: false,
+          showSubRoute: false,
+        },
+      ],
+    },
+  ];
+
   public sidebarDataGestion = [
     {
       tittle: 'Gestion de commandes',

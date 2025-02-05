@@ -69,6 +69,9 @@ func GetPaginatedTableBox(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 	posId := c.Params("pos_id")
 
+	// Synchronisation des donnees avec l'API
+	go SyncDataWithAPI(codeEntreprise, posId)
+
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number
@@ -122,11 +125,15 @@ func GetPaginatedTableBox(c *fiber.Ctx) error {
 
 // Get All data
 func GetAllTableBox(c *fiber.Ctx) error {
-	codeEntreprise := c.Params("code_entreprise")
 	db := database.DB
 
+	codeEntreprise := c.Params("code_entreprise")
+	posId := c.Params("pos_id")
+	
+
 	var data []models.TableBox
-	db.Where("code_entreprise = ?", codeEntreprise).Preload("Commandes").Find(&data)
+	db.Where("code_entreprise = ?", codeEntreprise).
+	Where("pos_id = ?", posId).Preload("Commandes").Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All table_boxes",

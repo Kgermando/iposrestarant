@@ -69,6 +69,9 @@ func GetPaginatedIngredient(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 	posId := c.Params("pos_id")
 
+	// Sync data with API
+	go SyncDataWithAPI(codeEntreprise, posId)
+
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number

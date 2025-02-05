@@ -15,6 +15,9 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 	db := database.DB
 	productId := c.Params("product_id")
 
+	// Sync data with API
+	go SyncDataWithAPI(productId)
+
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number
@@ -101,8 +104,9 @@ func GetTotalStock(c *fiber.Ctx) error {
 // Get All data
 func GetAllStocks(c *fiber.Ctx) error {
 	db := database.DB
+	productId := c.Params("product_id")
 	var data []models.Stock
-	db.Find(&data)
+	db.Where("product_id = ?", productId).Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All stocks",

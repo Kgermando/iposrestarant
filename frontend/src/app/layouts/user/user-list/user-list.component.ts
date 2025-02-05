@@ -58,11 +58,11 @@ export class UserListComponent implements OnInit, AfterViewInit {
   isRoleList: string[] = [ 
     'Manager général',
     'Manager',
-    'Superviseur',
     'Caisse',
+    'Serveur',
     'Commercial',
-    'Support'
-  ];
+    'Partenaire', 
+  ]; // 'Support'
 
   permissionList: IPermission[] = permissions;
 

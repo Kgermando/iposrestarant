@@ -5,7 +5,7 @@ import { MenuItem, SubMenu, url } from '../../../shared/model/sidebar.model';
 import { NavigationStart, Router, Event as RouterEvent } from '@angular/router';
 import { SidebarService } from '../../../shared/sidebar/sidebar.service';
 import { DataService } from '../../../shared/data/data.service';
-import { CommonService } from '../../../shared/common/common.service'; 
+import { CommonService } from '../../../shared/common/common.service';
 import { Auth } from '../../../auth/classes/auth';
 import { IUser } from '../../../auth/models/user';
 
@@ -64,10 +64,17 @@ export class SidebarComponent {
           this.side_bar_data = this.data.sidebarDataSupport;
         } else if (this.currentUser.role == 'Manager général') {
           this.side_bar_data = this.data.sidebarData;
+        } else if (this.currentUser.role == 'Manager') {
+          this.side_bar_data = this.data.sidebarData;
+        } else if (this.currentUser.role == 'Caisse') {
+          this.side_bar_data = this.data.sidebarDataCaisse;
+        } else if (this.currentUser.role == 'Serveur') {
+          this.side_bar_data = this.data.sidebarDataServeur;
+        } else if (this.currentUser.role == 'Partenaire') {
+          this.side_bar_data = this.data.sidebarDataPartenaire;
         } else {
-          this.side_bar_data = this.data.sidebarDataGestion;
-        }
-        
+          this.side_bar_data = this.data.sidebarDataPartenaire;
+        } 
       }
     );
   }

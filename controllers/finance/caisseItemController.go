@@ -15,6 +15,9 @@ func GetPaginatedCaisseItems(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 	caisseId := c.Params("caisse_id")
 
+	//  Synchronize data from API to local
+	go SyncDataWithAPICaisseItem(caisseId)
+
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
 

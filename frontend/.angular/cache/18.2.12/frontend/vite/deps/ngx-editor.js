@@ -1,6 +1,7 @@
 import {
   DomSanitizer
 } from "./chunk-T53DNP2Y.js";
+import "./chunk-QNWWLAEP.js";
 import {
   CheckboxControlValueAccessor,
   DefaultValueAccessor,
@@ -15,7 +16,6 @@ import {
   Validators,
   ɵNgNoValidate
 } from "./chunk-2KEBMF2H.js";
-import "./chunk-QNWWLAEP.js";
 import {
   CommonModule,
   KeyValuePipe,

@@ -11,5 +11,12 @@
   "author": {
     "name": "KGermando",
     "email": "katakugermain@gmail.com"
+  },
+  "Info": {
+    "companyName": "ICTech",
+    "productName": "IPos Restaurant",
+    "productVersion": "1.0.1",
+    "copyright": "Copyright (c) 2025",
+    "comments": "Built using ICTech (https://ictech-dev.com)"
   }
 }

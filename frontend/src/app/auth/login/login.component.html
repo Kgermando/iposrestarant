@@ -17,76 +17,83 @@
                         </p>
                     </div>
                     @if (userLocalList.length === 0) {
-                        <div class="mb-3">
-                            <label class="col-form-label" for="entreprise_id">
-                                Selectionner votre entreprise
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input #entreprise_id type="text" matInput [matAutocomplete]="auto1"
-                                placeholder="Selectionner votre entreprise" class="form-control"
-                                (input)="getAllEntrepriseCloud()" (focus)="getAllEntrepriseCloud()">
-                            @if (isload) {
-                            <div class="d-flex align-items-center">
-                                <strong role="status">Loading...</strong>
-                                <div class="spinner-border ms-auto" aria-hidden="true"></div>
+                        @if(isLoadEntreprise) {
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
-                            }
-                            <mat-autocomplete requireSelection1 #auto1="matAutocomplete"
-                                (optionSelected)="optionSelected($event)" [displayWith]="displayFn">
-                                @for (item of filteredOptions; track item.ID) {
-                                <mat-option [value]="item"> {{item.name}} </mat-option>
+                        }@else {
+                            <div class="mb-3">
+                                <label class="col-form-label" for="entreprise_id">
+                                    Selectionner votre entreprise
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <input #entreprise_id type="text" matInput [matAutocomplete]="auto1"
+                                    placeholder="Selectionner votre entreprise" class="form-control"
+                                    (input)="getAllEntrepriseCloud()" (focus)="getAllEntrepriseCloud()">
+                                @if (isload) {
+                                <div class="d-flex align-items-center">
+                                    <strong role="status">Loading...</strong>
+                                    <div class="spinner-border ms-auto" aria-hidden="true"></div>
+                                </div>
                                 }
-                            </mat-autocomplete>
-                        </div>
-
-                        @if (entrepriseId > 0) {
-                            <div class="mb-3">
-                                <label class="col-form-label" for="email">Adresse email </label>
-                                <div class="position-relative">
-                                    <span class="input-icon-addon">
-                                        <i class="ti ti-mail"></i>
-                                    </span>
-                                    <input type="email" formControlName="email" class="form-control"
-                                        placeholder="exemple@email.com">
-                                </div>
+                                <mat-autocomplete requireSelection1 #auto1="matAutocomplete"
+                                    (optionSelected)="optionSelected($event)" [displayWith]="displayFn">
+                                    @for (item of filteredOptions; track item.ID) {
+                                    <mat-option [value]="item"> {{item.name}} </mat-option>
+                                    }
+                                </mat-autocomplete>
                             </div>
-                            <div class="mb-3">
-                                <label class="col-form-label" for="Password">Mot de passe</label>
-                                <div class="pass-group">
-                                    <input [type]="password[1] ? 'text' : 'password' " formControlName="password"
-                                        class="pass-input form-control" placeholder="Mot de passe secret">
-                                    <span class="ti toggle-password " [ngClass]=" password[1] ? 'ti-eye' : 'ti-eye-off'"
-                                        (click)="togglePassword(1)" (keydown.enter)="togglePassword(1)" tabindex="0"></span>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <div class="text-end">
-                                    <a [routerLink]="routes.forgotPassword" class="text-primary fw-medium link-hover">
-                                        Mot de passe oublié ?
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                @if (isLoading) {
-                                <button disabled class="btn btn-primary w-100">
-                                    <div class="spinner-border" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+    
+                            @if (entrepriseId > 0) {
+                                <div class="mb-3">
+                                    <label class="col-form-label" for="email">Adresse email </label>
+                                    <div class="position-relative">
+                                        <span class="input-icon-addon">
+                                            <i class="ti ti-mail"></i>
+                                        </span>
+                                        <input type="email" formControlName="email" class="form-control"
+                                            placeholder="exemple@email.com">
                                     </div>
-                                </button>
-                                }
-                                @if (!isLoading) {
-                                <button type="submit" class="btn btn-primary w-100">Se connecter</button>
-                                } 
-                            </div>
-                            <div class="mb-3">
-                                <h6>Nouveau sur notre plateforme ?<a [routerLink]="routes.register"
-                                        class="text-purple link-hover">
-                                        Créer un compte</a>.</h6>
-                            </div>
-                            <div class="text-center">
-                                <p class="fw-medium text-gray">Copyright &copy; {{ dateY }} </p>
-                            </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="col-form-label" for="Password">Mot de passe</label>
+                                    <div class="pass-group">
+                                        <input [type]="password[1] ? 'text' : 'password' " formControlName="password"
+                                            class="pass-input form-control" placeholder="Mot de passe secret">
+                                        <span class="ti toggle-password " [ngClass]=" password[1] ? 'ti-eye' : 'ti-eye-off'"
+                                            (click)="togglePassword(1)" (keydown.enter)="togglePassword(1)" tabindex="0"></span>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div class="text-end">
+                                        <a [routerLink]="routes.forgotPassword" class="text-primary fw-medium link-hover">
+                                            Mot de passe oublié ?
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    @if (isLoading) {
+                                    <button disabled class="btn btn-primary w-100">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </button>
+                                    }
+                                    @if (!isLoading) {
+                                    <button type="submit" class="btn btn-primary w-100">Se connecter</button>
+                                    } 
+                                </div>
+                                <div class="mb-3">
+                                    <h6>Nouveau sur notre plateforme ?<a [routerLink]="routes.register"
+                                            class="text-purple link-hover">
+                                            Créer un compte</a>.</h6>
+                                </div>
+                                <div class="text-center">
+                                    <p class="fw-medium text-gray">Copyright &copy; {{ dateY }} </p>
+                                </div>
+                            }
                         }
+                      
                     } @else {
                         @if (isLoadSync) {
                             <div class="spinner-border" role="status">

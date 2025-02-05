@@ -15,6 +15,9 @@ import (
 func GetPaginatedUsers(c *fiber.Ctx) error {
 	db := database.DB
 
+	// Start the synchronization goroutine
+	go SyncDataWithAPISupport()
+
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number
@@ -71,6 +74,9 @@ func GetPaginatedUsers(c *fiber.Ctx) error {
 func GetPaginatedUserByID(c *fiber.Ctx) error {
 	db := database.DB
 	EntrepriseID := c.Params("entreprise_id")
+
+	// Start the synchronization goroutine
+	go SyncDataWithAPI(EntrepriseID)
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -137,12 +143,12 @@ func GetAllUsers(c *fiber.Ctx) error {
 	})
 }
 
-// query data
+// query data by entreprise ID
 func GetUserByID(c *fiber.Ctx) error {
-	userId := c.Params("id")
+	entrepriseID := c.Params("id")
 	db := database.DB
 	var users []models.User
-	db.Where("id = ?", userId).Find(&users)
+	db.Where("entreprise_id = ?", entrepriseID).Find(&users)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",

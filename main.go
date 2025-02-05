@@ -2,6 +2,12 @@ package main
 
 import (
 	"embed"
+	"fmt"
+	"encoding/json" 
+    "io"
+	"net/http"
+	"os"
+    "runtime"
 
 	"iposrestaurant/database"
 	"iposrestaurant/routes"
@@ -16,19 +22,89 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
 
+const (
+    repoOwner = "kgermando"
+    repoName  = "iposrestaurant"
+)
+
+type Release struct {
+    TagName string `json:"tag_name"`
+    Assets  []struct {
+        Name               string `json:"name"`
+        BrowserDownloadURL string `json:"browser_download_url"`
+    } `json:"assets"`
+}
+
 //go:embed all:frontend/dist/browser
 var assets embed.FS
+ 
+func checkAndDownloadUpdates() {
+    url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", repoOwner, repoName)
+    resp, err := http.Get(url)
+    if err != nil {
+        fmt.Println("Error checking for updates:", err)
+        return
+    }
+    defer resp.Body.Close()
 
-func checkForUpdates() {
-	// Logique pour vérifier les mises à jour logicielles
-	log.Println("Vérification des mises à jour logicielles...")
-	// ...code pour vérifier et appliquer les mises à jour...
+    if resp.StatusCode != http.StatusOK {
+        fmt.Println("Error: unable to fetch release information")
+        return
+    }
+
+    var release Release
+    if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+        fmt.Println("Error decoding release information:", err)
+        return
+    }
+
+    fmt.Println("Latest version:", release.TagName)
+    for _, asset := range release.Assets {
+        if shouldDownloadAsset(asset.Name) {
+            fmt.Println("Downloading asset:", asset.Name)
+            if err := downloadFile(asset.BrowserDownloadURL, asset.Name); err != nil {
+                fmt.Println("Error downloading asset:", err)
+                return
+            }
+        }
+    }
+}
+
+func shouldDownloadAsset(assetName string) bool {
+    os := runtime.GOOS
+    switch os {
+    case "windows":
+        return strings.Contains(assetName, "windows")
+    case "darwin":
+        return strings.Contains(assetName, "macos")
+    case "linux":
+        return strings.Contains(assetName, "linux")
+    default:
+        return false
+    }
+}
+
+func downloadFile(url, fileName string) error {
+    resp, err := http.Get(url)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+
+    out, err := os.Create(fileName)
+    if err != nil {
+        return err
+    }
+    defer out.Close()
+
+    _, err = io.Copy(out, resp.Body)
+    return err
 }
 
 func main() {
- 
+
 	// Vérifier les mises à jour logicielles
-	checkForUpdates()
+	checkAndDownloadUpdates()
 
 	// Create an instance of the app structure
 	app := NewApp()
@@ -40,7 +116,7 @@ func main() {
 
 	// Middleware
 	fiberApp.Use(cors.New(cors.Config{
-		AllowOrigins:  "*"  // "http://localhost:4300, https://i-pos-restaurant-api.up.railway.app",
+		AllowOrigins:     "*", // "http://localhost:4300, https://i-pos-restaurant-api.up.railway.app",
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: false,
 		AllowMethods: strings.Join([]string{
@@ -67,7 +143,7 @@ func main() {
 	err := wails.Run(&options.App{
 		Title:  "iposrestaurant",
 		Width:  1024,
-		Height: 768,
+		Height: 600,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

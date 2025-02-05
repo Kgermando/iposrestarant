@@ -20,6 +20,7 @@ export class LoginComponent implements OnInit {
   dateY = "";
   public routes = routes;
   isLoading = false;
+  isLoadEntreprise = false; 
 
   form!: FormGroup;
 
@@ -39,7 +40,7 @@ export class LoginComponent implements OnInit {
   progress = 0;
   failedAttempts = 0;
 
-  @ViewChild('entreprise_id') entreprise_id!: ElementRef<HTMLInputElement>;
+  @ViewChild('entreprise_id') entreprise_id: ElementRef<HTMLInputElement> = {} as ElementRef<HTMLInputElement>;
 
   entrepriseId: number = 0;
 
@@ -60,30 +61,29 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required]
     });
 
-    this.getLocalUser();
-    this.getAllEntrepriseCloud();
+    this.getLocalUser(); 
   }
 
-  // Get all user cloud database
+  // Get all users cloud database
   getLocalUser() {
     this.userService.getAll().subscribe(res => {
       this.userLocalList = res.data;
+      if(this.userLocalList.length === 0) {
+        this.isLoadEntreprise = true;
+        this.getAllEntrepriseCloud();
+      }
     })
   }
 
   // Get all entreprise cloud database
   getAllEntrepriseCloud() {
-    if (this.entreprise_id && this.entreprise_id.nativeElement) {
-      const filterValue = this.entreprise_id.nativeElement.value.toLowerCase();
-      this.entrepriseService.getAllEntrepriseCloud().subscribe((res) => {
-        this.entrepriseList = res.data;
-        this.entrepriseListFilter = this.entrepriseList;
-        this.filteredOptions = this.entrepriseListFilter.filter(o => o.name.toLowerCase().includes(filterValue));
-      });
-    } else {
-      console.error('nativeElement est indéfini');
-    }
-
+    const filterValue = this.entreprise_id.nativeElement.value.toLowerCase();
+    this.entrepriseService.getAllEntrepriseCloud().subscribe((res) => {
+      this.entrepriseList = res.data;
+      this.entrepriseListFilter = this.entrepriseList;
+      this.filteredOptions = this.entrepriseListFilter.filter(o => o.name.toLowerCase().includes(filterValue));
+      this.isLoadEntreprise = false;
+    });
   }
 
 
@@ -170,10 +170,24 @@ export class LoginComponent implements OnInit {
                 this.router.navigate([this.routes.entrepriseList]);
               } else if (user.role == 'Manager général') {
                 this.router.navigate([this.routes.dashboard]);
+                this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
+              } else if(user.role == 'Manager') {
+                this.router.navigate([this.routes.dashboard]); // Faire le filtre sur les donnees only POS data
+                this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
+              } else if(user.role == 'Caisse') {
+                this.router.navigate([this.routes.caisseList]);
+                this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
+              } else if(user.role == 'Serveur') {
+                this.router.navigate([this.routes.commandeList]); 
+                this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
+              } else if(user.role == 'Commercial') {
+                this.router.navigate([this.routes.commandeList]); 
+                this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
               } else {
-                this.router.navigate([this.routes.commandeList]);
+                this.router.navigate(['/auth/login']);
+                this.toastr.success(`Desole chemin d'accès non trouvée! 😓`, 'Success!');
               }
-              this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
+             
               // this.router.navigate(['/web']); 
             },
             error: (error) => {

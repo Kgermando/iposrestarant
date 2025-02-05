@@ -32,11 +32,11 @@ registerLocaleData(localeFr, 'fr-FR');
 
   ],
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: CredentialInterceptor,
-      multi: true
-    }, 
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: CredentialInterceptor,
+    //   multi: true
+    // }, 
     provideAnimations(), // required animations providers
     provideToastr(), // Toastr providers
     CurrencyPipe, { provide: LOCALE_ID, useValue: 'fr-FR' }

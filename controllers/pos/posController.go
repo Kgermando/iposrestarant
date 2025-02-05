@@ -13,6 +13,9 @@ import (
 func GetPaginatedPos(c *fiber.Ctx) error {
 	db := database.DB
 
+	// Start the synchronization goroutine
+	go SyncDataWithAPISupport()
+
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number
@@ -68,6 +71,9 @@ func GetPaginatedPos(c *fiber.Ctx) error {
 func GetPaginatedPosByID(c *fiber.Ctx) error {
 	db := database.DB
 	EntrepriseID := c.Params("entreprise_id")
+
+	// Start the synchronization goroutine
+	go SyncDataWithAPI(EntrepriseID)
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {

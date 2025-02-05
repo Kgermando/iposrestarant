@@ -16,7 +16,7 @@ import {
   CheckIcon,
   Ripple,
   RippleModule
-} from "./chunk-SSUWVPW3.js";
+} from "./chunk-JJULC2KW.js";
 import {
   BaseIcon,
   TimesIcon

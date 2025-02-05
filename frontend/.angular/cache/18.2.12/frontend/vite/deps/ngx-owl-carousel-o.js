@@ -4,6 +4,7 @@ import {
   Router
 } from "./chunk-2AJOQKFB.js";
 import "./chunk-T53DNP2Y.js";
+import "./chunk-QNWWLAEP.js";
 import {
   animate,
   state,
@@ -11,7 +12,6 @@ import {
   transition,
   trigger
 } from "./chunk-GOAWTDOA.js";
-import "./chunk-QNWWLAEP.js";
 import {
   CommonModule,
   LocationStrategy,

@@ -1,15 +1,14 @@
 module iposrestaurant
 
-go 1.21
+go 1.23
 
-toolchain go1.23.4
+toolchain go1.23.5
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/gofiber/fiber/v2 v2.52.6
 	github.com/joho/godotenv v1.5.1
-	github.com/lib/pq v1.10.9
 	github.com/subosito/gotenv v1.6.0
 	github.com/wailsapp/wails/v2 v2.9.2
 	golang.org/x/crypto v0.23.0

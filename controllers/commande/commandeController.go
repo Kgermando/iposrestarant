@@ -72,6 +72,9 @@ func GetPaginatedCommandeByTableBox(c *fiber.Ctx) error {
 	posId := c.Params("pos_id")
 	tableBoxId := c.Params("table_box_id")
 
+	// Sync data with API
+	go SyncDataWithAPI(codeEntreprise, posId)
+
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number
@@ -130,6 +133,9 @@ func GetAllCommandes(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
 	posId := c.Params("pos_id")
+
+	// Sync data with API
+	go SyncDataWithAPI(codeEntreprise, posId)
 
 	var data []models.Commande
 	db.Where("code_entreprise = ?", codeEntreprise).

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"iposrestaurant/models"
 
-	_ "github.com/lib/pq"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -41,5 +40,6 @@ func Connect() {
 		&models.Livraison{},
 		&models.Livreur{},
 		&models.Caisse{},
+		&models.CaisseItem{},
 	)
 }

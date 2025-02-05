@@ -72,6 +72,9 @@ func GetAllCaisseByPos(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 	posId := c.Params("pos_id")
 
+	// Synchronize data from API to local
+	go SyncDataWithAPI(codeEntreprise, posId)
+
 	var data []models.Caisse
 	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("pos_id = ?", posId).

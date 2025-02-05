@@ -14,6 +14,9 @@ func GetPaginatedArea(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
 
+	// Synchronize data with API
+	go SyncDataWithAPI(codeEntreprise)
+
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number

@@ -1,0 +1,194 @@
+package finance 
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "log"
+    "net"
+    "net/http"
+    "sync"
+    "time" 
+    "iposrestaurant/database"
+	"iposrestaurant/models"
+)
+
+var muCaisseItem sync.Mutex
+
+// SyncDataWithAPI synchronizes local data with an online API in both directions
+func SyncDataWithAPICaisseItem(caisse_id string) {
+    muCaisseItem.Lock()
+    defer muCaisseItem.Unlock()
+
+    if !isInternetAvailableCaisseItem() {
+        log.Println("No internet connection. Skipping synchronization.")
+        return
+    }
+
+    // Récupérer des données externes à partir de l'API
+    externalDataList, err := fetchExternalDataFromAPICaisseItem(caisse_id)
+    if err != nil {
+        log.Println("Error fetching external data:", err)
+        return
+    }
+
+    // Synchronize data from API to local
+    for _, externalData := range externalDataList {
+        var localData models.CaisseItem
+        if err := database.DB.Where("id = ?", externalData.ID).First(&localData).Error; err != nil {
+            // If user does not exist locally, create it
+            if err := database.DB.Create(&externalData).Error; err != nil {
+                log.Println("Error creating user:", err)
+            }
+        } else {
+            // Si l'utilisateur existe localement, mettez-le à jour uniquement si l'utilisateur externe est plus récent
+            if externalData.UpdatedAt.After(localData.UpdatedAt) {
+                if err := database.DB.Model(&localData).Updates(externalData).Error; err != nil {
+                    log.Println("Error updating user:", err)
+                }
+            }
+        }
+    }
+
+    // Fetch local data
+    var localDataList []models.CaisseItem
+    if err := database.DB.Find(&localDataList).Error; err != nil {
+        log.Println("Error fetching local data:", err)
+        return
+    }
+
+    // Synchroniser les données du local vers l'API
+    for _, localData := range localDataList {
+        // Check if the local user is newer than the external user
+        externalData, err := fetchExternalDataItemFromAPICaisseItem(localData.ID)
+        if err != nil {
+            // If user does not exist externally, create it
+            if err := sendLocalDataToAPICaisseItem(localData); err != nil {
+                log.Println("Error creating external user:", err)
+            }
+            continue
+        }
+
+        // Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
+        if localData.UpdatedAt.After(externalData.UpdatedAt) {
+            if err := updateExternalDataInAPICaisseItem(localData); err != nil {
+                log.Println("Error updating external data to API:", err)
+            }
+        }
+    }
+}
+
+func isInternetAvailableCaisseItem() bool {
+    _, err := net.DialTimeout("tcp", "google.com:80", 5*time.Second)
+    return err == nil
+}
+
+// Récupérer des données externes à partir de l'API
+func fetchExternalDataFromAPICaisseItem(caisse_id string) ([]models.CaisseItem, error) {
+    // Replace with the actual URL of your API
+    apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/caisse-itemss/all/%s", caisse_id)
+
+    resp, err := http.Get(apiURL)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
+    }
+
+    var dataList []models.CaisseItem
+    if err := json.NewDecoder(resp.Body).Decode(&dataList); err != nil {
+        return nil, err
+    }
+
+    return dataList, nil
+}
+
+// Récupérer une donnee externe à partir de l'API
+func fetchExternalDataItemFromAPICaisseItem(dataID uint) (models.CaisseItem, error) {
+    // URL de l'API
+    apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/caisse-itemss/get/%d", dataID)
+
+    resp, err := http.Get(apiURL)
+    if err != nil {
+        return models.CaisseItem{}, err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return models.CaisseItem{}, fmt.Errorf("failed to fetch data: %s", resp.Status)
+    }
+
+    var data models.CaisseItem
+    if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+        return models.CaisseItem{}, err
+    }
+
+    return data, nil
+}
+
+// Envoyer des données locales à l'API
+func sendLocalDataToAPICaisseItem(data models.CaisseItem) error {
+    // Soumission des données vers l'API
+    apiURL := "https://i-pos-restaurant-api.up.railway.app/api/caisse-itemss/create"
+
+    dataItem, err := json.Marshal(data)
+    if err != nil {
+        return err
+    }
+
+    // Création de la requête HTTP
+    req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
+    if err != nil {
+        return err
+    }
+    // Ajout des en-têtes
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return fmt.Errorf("failed to send data: %s", resp.Status)
+    }
+
+    return nil
+}
+
+// Update external data data in the API
+func updateExternalDataInAPICaisseItem(data models.CaisseItem) error {
+    // URL de l'API
+    apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/caisse-itemss/update/%d", data.ID)
+
+    dataItem, err := json.Marshal(data)
+    if err != nil {
+        return err
+    }
+
+    // Création de la requête HTTP
+    req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
+    if err != nil {
+        return err
+    }
+    // Ajout des en-têtes
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        return err
+    }
+    defer resp.Body.Close()
+
+    if resp.StatusCode != http.StatusOK {
+        return fmt.Errorf("failed to update data: %s", resp.Status)
+    }
+
+    return nil
+}
