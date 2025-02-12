@@ -37,8 +37,13 @@ type Release struct {
 
 //go:embed all:frontend/dist/browser
 var assets embed.FS
- 
-func checkAndDownloadUpdates() {
+
+func isInternetAvailable() bool {
+    _, err := http.Get("https://www.google.com")
+    return err == nil
+}
+
+func checkAndDownloadUpdates() {  
     url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", repoOwner, repoName)
     resp, err := http.Get(url)
     if err != nil {
@@ -103,8 +108,12 @@ func downloadFile(url, fileName string) error {
 
 func main() {
 
-	// Vérifier les mises à jour logicielles
-	checkAndDownloadUpdates()
+	// Vérifier si une connexion Internet est disponible
+	if isInternetAvailable() {
+		// Vérifier les mises à jour logicielles
+		checkAndDownloadUpdates()
+    }
+	
 
 	// Create an instance of the app structure
 	app := NewApp()
