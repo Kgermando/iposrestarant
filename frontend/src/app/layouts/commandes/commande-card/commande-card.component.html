@@ -78,17 +78,17 @@
                   <li class="task-wrap pending">
                     <div class="">
                       <h6>
-                        @if (item.status === 'Cash') {
+                        @if (item.status != 'Créance' && item.status != 'En cours') {
                         <a [routerLink]="['/web/table-box/commandes', item.ID, 'facture', item.ncommande ]">
                           #{{item.ncommande}}
                         </a>
                         } @else {
                         <a [routerLink]="['/web/table-box/commandes', item.ID, 'line' ]">
                           #{{item.ncommande}}
-                        </a>
+                        </a> 
                         }
                       </h6>
-                      @if (item.status === 'Cash') {
+                      @if (item.status != 'Créance' && item.status != 'En cours') {
                       <a [routerLink]="['/web/table-box/commandes', item.ID, 'facture', item.ncommande ]">
                         {{item.CreatedAt | date: 'dd/mm/yyy HH:mm' }}
                       </a>

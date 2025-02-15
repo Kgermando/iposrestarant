@@ -149,7 +149,7 @@ const date = new Date();
       // livreur_id: ['', Validators.required],
       // area_id: ['', Validators.required],
       cout_livraison: ['', Validators.required],
-      operator_name: ['', Validators.required],
+      // operator_name: ['', Validators.required],
     });
 
      // Appel de la méthode onChanges
@@ -300,7 +300,7 @@ const date = new Date();
           cout_livraison: parseFloat(this.formGroup.value.cout_livraison),
           client_id: parseInt(this.clientId.toString()),
           livreur_id: parseInt(this.livreurId.toString()),
-          operator_name: this.formGroup.value.operator_name,
+          operator_name: this.currentUser.fullname,
           pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
           status: 'En cours',
           signature: this.currentUser.fullname,
@@ -336,7 +336,7 @@ const date = new Date();
         cout_livraison: parseFloat(this.formGroup.value.cout_livraison),
         client_id: parseInt(this.clientId.toString()),
         livreur_id: parseInt(this.livreurId.toString()),
-        operator_name: this.formGroup.value.operator_name,
+        operator_name: this.currentUser.fullname,
         pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
         status: 'En cours',
         signature: this.currentUser.fullname,

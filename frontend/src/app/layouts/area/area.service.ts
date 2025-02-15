@@ -8,3 +8,4 @@ import { environment } from '../../../environments/environment';
 export class AreaService extends ApiService {
   endpoint: string = `${environment.apiUrl}/areas`;
 }
+ 

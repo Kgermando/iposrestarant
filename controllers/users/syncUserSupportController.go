@@ -69,11 +69,12 @@ func fetchExternalDataFromAPISupport() ([]models.User, error) {
         return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
     }
 
-    var users []models.User
-    if err := json.NewDecoder(resp.Body).Decode(&users); err != nil {
-        return nil, err
-    }
+    var response struct {
+		Data []models.User `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return nil, err
+	}
 
-    return users, nil
+	return response.Data, nil
 }
- 

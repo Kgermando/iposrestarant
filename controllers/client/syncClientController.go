@@ -33,22 +33,25 @@ func SyncDataWithAPI(code_entreprise string) {
     }
 
     // Synchronize data from API to local
-    for _, externalData := range externalDataList {
-        var localData models.Client
-        if err := database.DB.Where("id = ?", externalData.ID).First(&localData).Error; err != nil {
-            // If user does not exist locally, create it
-            if err := database.DB.Create(&externalData).Error; err != nil {
-                log.Println("Error creating user:", err)
-            }
-        } else {
-            // Si l'utilisateur existe localement, mettez-le à jour uniquement si l'utilisateur externe est plus récent
-            if externalData.UpdatedAt.After(localData.UpdatedAt) {
-                if err := database.DB.Model(&localData).Updates(externalData).Error; err != nil {
-                    log.Println("Error updating user:", err)
-                }
-            }
-        }
-    }
+    if  len(externalDataList) > 0 {
+		for _, externalData := range externalDataList {
+			var localData models.Client
+			if err := database.DB.Where("id = ?", externalData.ID).First(&localData).Error; err != nil {
+				// If data does not exist locally, create it
+				if err := database.DB.Create(&externalData).Error; err != nil {
+					log.Println("Error creating data:", err)
+				}
+			} else {
+				// Si l'utilisateur existe localement, mettez-le à jour uniquement si l'utilisateur externe est plus récent
+				if externalData.UpdatedAt.After(localData.UpdatedAt) {
+					if err := database.DB.Model(&localData).Updates(externalData).Error; err != nil {
+						log.Println("Error updating data:", err)
+					}
+				}
+			}
+		}
+	}
+  
 
     // Fetch local data
     var localDataList []models.Client
@@ -59,23 +62,35 @@ func SyncDataWithAPI(code_entreprise string) {
 
     // Synchroniser les données du local vers l'API
     for _, localData := range localDataList {
-        // Check if the local user is newer than the external user
+        // Check if the local data is newer than the external data
         externalData, err := fetchExternalDataItemFromAPI(localData.ID)
         if err != nil {
-            // If user does not exist externally, create it
+            // If data does not exist externally, create it
             if err := sendLocalDataToAPI(localData); err != nil {
-                log.Println("Error creating external user:", err)
+                log.Println("Error creating external data:", err)
             }
             continue
         }
 
-        // Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
-        if localData.UpdatedAt.After(externalData.UpdatedAt) {
-            if err := updateExternalDataInAPI(localData); err != nil {
-                log.Println("Error updating external data to API:", err)
-            }
-        }
-    }
+        if !isEqual(localData, externalData) {
+			// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
+			if localData.UpdatedAt.After(externalData.UpdatedAt) {
+				if err := updateExternalDataInAPI(localData); err != nil {
+					log.Println("Error updating external data to API:", err)
+				}
+			}
+		}
+	}
+
+	// Delete online data if it has been deleted locally
+	for _, externalData := range externalDataList {
+		var localData models.Client
+		if err := database.DB.Where("id = ?", externalData.ID).First(&localData).Error; err != nil {
+			if err := deleteExternalDataInAPI(externalData.ID); err != nil {
+				log.Println("Error deleting external data:", err)
+			}
+		}
+	}
 }
 
 func isInternetAvailable() bool {
@@ -98,12 +113,14 @@ func fetchExternalDataFromAPI(code_entreprise string) ([]models.Client, error) {
         return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
     }
 
-    var dataList []models.Client
-    if err := json.NewDecoder(resp.Body).Decode(&dataList); err != nil {
-        return nil, err
-    }
+    var response struct {
+		Data []models.Client `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return nil, err
+	}
 
-    return dataList, nil
+	return response.Data, nil 
 }
 
 // Récupérer une donnee externe à partir de l'API
@@ -121,12 +138,14 @@ func fetchExternalDataItemFromAPI(dataID uint) (models.Client, error) {
         return models.Client{}, fmt.Errorf("failed to fetch data: %s", resp.Status)
     }
 
-    var data models.Client
-    if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-        return models.Client{}, err
-    }
+    var response struct {
+		Data models.Client `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+		return models.Client{}, err
+	}
 
-    return data, nil
+	return response.Data, nil 
 }
 
 // Envoyer des données locales à l'API
@@ -135,28 +154,19 @@ func sendLocalDataToAPI(data models.Client) error {
     apiURL := "https://i-pos-restaurant-api.up.railway.app/api/clients/create"
 
     dataItem, err := json.Marshal(data)
-    if err != nil {
-        return err
-    }
+	if err != nil {
+		return err
+	}
 
-    // Création de la requête HTTP
-    req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
-    if err != nil {
-        return err
-    }
-    // Ajout des en-têtes
-    req.Header.Set("Content-Type", "application/json")
+	resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(dataItem))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        return err
-    }
-    defer resp.Body.Close()
-
-    if resp.StatusCode != http.StatusOK {
-        return fmt.Errorf("failed to send data: %s", resp.Status)
-    }
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to send data: %s", resp.Status)
+	}
 
     return nil
 }
@@ -170,25 +180,57 @@ func updateExternalDataInAPI(data models.Client) error {
     if err != nil {
         return err
     }
-
-    // Création de la requête HTTP
+    
     req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
-    if err != nil {
-        return err
-    }
-    // Ajout des en-têtes
-    req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        return err
-    }
-    defer resp.Body.Close()
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
 
-    if resp.StatusCode != http.StatusOK {
-        return fmt.Errorf("failed to update data: %s", resp.Status)
-    }
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to update data: %s", resp.Status)
+	}
 
     return nil
+}
+
+
+// Delete external data in the API
+func deleteExternalDataInAPI(dataID uint) error {
+	// URL de l'API
+	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/clients/delete/%d", dataID)
+
+	req, err := http.NewRequest(http.MethodDelete, apiURL, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to delete data: %s", resp.Status)
+	}
+
+	return nil
+}
+
+// isEqual compares two Area structs for equality
+func isEqual(a, b models.Client) bool {
+	return a.ID == b.ID &&
+		a.Fullname == b.Fullname &&
+		a.CodeEntreprise == b.CodeEntreprise &&
+		a.UpdatedAt.Equal(b.UpdatedAt)
 }

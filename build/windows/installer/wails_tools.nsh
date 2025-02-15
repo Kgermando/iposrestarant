@@ -11,10 +11,10 @@
     !define INFO_COMPANYNAME "ICTech"
 !endif
 !ifndef INFO_PRODUCTNAME
-    !define INFO_PRODUCTNAME "IPos Restaurant"
+    !define INFO_PRODUCTNAME "IPos-Restaurant"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "1.0.1"
+    !define INFO_PRODUCTVERSION "1.0.2"
 !endif
 !ifndef INFO_COPYRIGHT
     !define INFO_COPYRIGHT "Copyright (c) 2025"

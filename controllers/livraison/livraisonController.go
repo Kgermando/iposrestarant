@@ -81,6 +81,9 @@ func GetPaginatedLivraison(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 	posId := c.Params("pos_id")
 
+	// Sync data with API
+	go SyncDataWithAPI(codeEntreprise, posId)
+
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
 
@@ -149,6 +152,9 @@ func GetAllLivraisons(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 	posId := c.Params("pos_id")
 
+	// Sync data with API
+	go SyncDataWithAPI(codeEntreprise, posId)
+
 	var data []models.Livraison
 	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("pos_id = ?", posId).
@@ -169,6 +175,9 @@ func GetAllLivraisonBySearch(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
 	posId := c.Params("pos_id")
+
+	// Sync data with API
+	go SyncDataWithAPI(codeEntreprise, posId)
 
 	search := c.Query("search", "")
 
