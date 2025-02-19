@@ -1,12 +1,14 @@
 package models
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Plat struct {
 	gorm.Model
 
+	Uuid           uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();unique" json:"uuid"`
 	Reference      string         `gorm:"not null" json:"reference"`
 	Name           string         `gorm:"not null" json:"name"`
 	Description    string         `gorm:"not null" json:"description"`
@@ -17,6 +19,6 @@ type Plat struct {
 	PosID          uint           `json:"pos_id"`
 	Pos            Pos            `gorm:"foreignKey:PosID"`
 	CodeEntreprise uint64         `json:"code_entreprise"`
-	CommadeLines   []CommandeLine `gorm:"foreignKey:PlatID"`
-	Compositions   []Composition  `gorm:"foreignKey:PlatID"`
+	CommadeLines   []CommandeLine `gorm:"foreignKey:PlatUuid"`
+	Compositions   []Composition  `gorm:"foreignKey:PlatUuid"`
 }

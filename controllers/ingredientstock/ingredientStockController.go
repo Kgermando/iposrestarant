@@ -9,18 +9,19 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 // Paginate
 func GetPaginatedIngredientStock(c *fiber.Ctx) error {
 	db := database.DB
-	ingredientID := c.Params("ingredient_id")
+	ingredientUUID := c.Params("ingredient_uuid")
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
 
 	// Sync data with API
-	go SyncDataWithAPI(ingredientID)
+	go SyncDataWithAPI(ingredientUUID)
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -37,8 +38,8 @@ func GetPaginatedIngredientStock(c *fiber.Ctx) error {
 	var dataList []models.IngredientStock
 
 	var length int64
-	db.Model(&models.IngredientStock{}).Where("ingredient_id = ?", ingredientID).Count(&length)
-	db.Where("ingredient_id = ?", ingredientID).
+	db.Model(&models.IngredientStock{}).Where("ingredient_uuid = ?", ingredientUUID).Count(&length)
+	db.Where("ingredient_uuid = ?", ingredientUUID).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).
 		Where("created_at LIKE ?", "%"+search+"%").
 		Offset(offset).
@@ -77,7 +78,7 @@ func GetPaginatedIngredientStock(c *fiber.Ctx) error {
 func GetStatsIngredientStock(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	ingredientID := c.Params("ingredient_id")
+	ingredientUUID := c.Params("ingredient_uuid")
 
 	var montantTotalAchat float64
 	var stockTotal float64
@@ -86,7 +87,7 @@ func GetStatsIngredientStock(c *fiber.Ctx) error {
 	var pourcentQtyDispo float64 = 0
 
 	// Stock total
-	ingStocks, err := GetTotalIngredientStock(db, codeEntreprise, ingredientID)
+	ingStocks, err := GetTotalIngredientStock(db, codeEntreprise, ingredientUUID)
 	if err != nil {
 		log.Println("Erreur lors de la récupération du stock des ingrédients:", err)
 		return err
@@ -97,7 +98,7 @@ func GetStatsIngredientStock(c *fiber.Ctx) error {
 	}
 
 	// Stock used
-	ingredientUsages, err := GetTotalIngredientUsage(db, codeEntreprise, ingredientID)
+	ingredientUsages, err := GetTotalIngredientUsage(db, codeEntreprise, ingredientUUID)
 	if err != nil {
 		log.Println("Erreur lors de la récupération de l'utilisation des ingrédients:", err)
 		return err
@@ -130,7 +131,7 @@ func GetStatsIngredientStock(c *fiber.Ctx) error {
 func GetStatsParIngredientStock(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	ingredientID := c.Params("ingredient_id")
+	ingredientUUID := c.Params("ingredient_uuid")
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
 
@@ -141,7 +142,7 @@ func GetStatsParIngredientStock(c *fiber.Ctx) error {
 	var pourcentQtyDispo float64 = 0
 
 	// Stock total
-	ingStocks, err := GetTotalIngredientStockBetweenDate(db, codeEntreprise, ingredientID, start_date, end_date)
+	ingStocks, err := GetTotalIngredientStockBetweenDate(db, codeEntreprise, ingredientUUID, start_date, end_date)
 	if err != nil {
 		log.Println("Erreur lors de la récupération du stock des ingrédients:", err)
 		return err
@@ -152,7 +153,7 @@ func GetStatsParIngredientStock(c *fiber.Ctx) error {
 	}
 
 	// Stock used
-	ingredientUsages, err := GetTotalIngredientUsageBetweenDate(db, codeEntreprise, ingredientID, start_date, end_date)
+	ingredientUsages, err := GetTotalIngredientUsageBetweenDate(db, codeEntreprise, ingredientUUID, start_date, end_date)
 	if err != nil {
 		log.Println("Erreur lors de la récupération de l'utilisation des ingrédients:", err)
 		return err
@@ -200,7 +201,7 @@ func GetIngredientStock(c *fiber.Ctx) error {
 
 	var stock models.IngredientStock
 	db.Find(&stock, id)
-	if stock.IngredientID == 0 {
+	if stock.IngredientUuid == uuid.Nil {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -244,7 +245,7 @@ func UpdateIngredientStock(c *fiber.Ctx) error {
 
 	type UpdateData struct {
 		PosID          uint      `json:"pos_id"`
-		IngredientID   uint      `json:"ingredient_id"`
+		IngredientUuid uuid.UUID `json:"ingredient_uuid"`
 		Description    string    `json:"description"`
 		Quantity       uint64    `json:"quantity"`
 		FournisseurID  uint      `json:"fournisseur_id"`
@@ -270,7 +271,7 @@ func UpdateIngredientStock(c *fiber.Ctx) error {
 
 	db.First(&stock, id)
 	stock.PosID = updateData.PosID
-	stock.IngredientID = updateData.IngredientID
+	stock.IngredientUuid = updateData.IngredientUuid
 	stock.Description = updateData.Description
 	stock.FournisseurID = updateData.FournisseurID
 	stock.Quantity = updateData.Quantity
@@ -298,7 +299,7 @@ func DeleteIngredientStock(c *fiber.Ctx) error {
 
 	var stock models.IngredientStock
 	db.First(&stock, id)
-	if stock.IngredientID == 0 {
+	if stock.IngredientUuid == uuid.Nil {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -319,7 +320,7 @@ func DeleteIngredientStock(c *fiber.Ctx) error {
 	)
 }
 
-func GetTotalIngredientUsage(db *gorm.DB, code_entreprise string, ingredient_id string) ([]models.IngredientUsage, error) {
+func GetTotalIngredientUsage(db *gorm.DB, code_entreprise string, ingredient_uuid string) ([]models.IngredientUsage, error) {
 	var ingredientUsages []models.IngredientUsage
 	query := `
 		SELECT
@@ -331,20 +332,20 @@ func GetTotalIngredientUsage(db *gorm.DB, code_entreprise string, ingredient_id 
 		JOIN
 			compositions c ON cl.plat_id = c.plat_id
 		JOIN
-			ingredients i ON c.ingredient_id = i.id
+			ingredients i ON c.ingredient_uuid = i.uuid
 		WHERE
-            cl.code_entreprise = ? AND i.id = ?
+            cl.code_entreprise = ? AND i.uuid = ?
 		GROUP BY
 			i.name, i.unite;
     `
-	if err := db.Raw(query, code_entreprise, ingredient_id).Scan(&ingredientUsages).Error; err != nil {
+	if err := db.Raw(query, code_entreprise, ingredient_uuid).Scan(&ingredientUsages).Error; err != nil {
 		return nil, err
 	}
 
 	return ingredientUsages, nil
 }
 
-func GetTotalIngredientStock(db *gorm.DB, code_entreprise string, ingredient_id string) ([]models.IngredientUsage, error) {
+func GetTotalIngredientStock(db *gorm.DB, code_entreprise string, ingredient_uuid string) ([]models.IngredientUsage, error) {
 	var stock []models.IngredientUsage
 	query := `
         SELECT
@@ -355,13 +356,13 @@ func GetTotalIngredientStock(db *gorm.DB, code_entreprise string, ingredient_id 
         FROM
             ingredient_stocks si
         JOIN
-            ingredients i ON si.ingredient_id = i.id
+            ingredients i ON si.ingredient_uuid = i.uuid
 	 	WHERE
-            si.code_entreprise = ? AND i.id = ?
+            si.code_entreprise = ? AND i.uuid = ?
         GROUP BY
             i.name, i.unite, si.prix_achat;
     `
-	if err := db.Raw(query, code_entreprise, ingredient_id).Scan(&stock).Error; err != nil {
+	if err := db.Raw(query, code_entreprise, ingredient_uuid).Scan(&stock).Error; err != nil {
 		return nil, err
 	}
 	return stock, nil
@@ -369,7 +370,7 @@ func GetTotalIngredientStock(db *gorm.DB, code_entreprise string, ingredient_id 
 
 func GetTotalIngredientUsageBetweenDate(db *gorm.DB,
 	code_entreprise string,
-	ingredient_id string,
+	ingredient_uuid string,
 	start_date string,
 	end_date string,
 ) ([]models.IngredientUsage, error) {
@@ -384,13 +385,13 @@ func GetTotalIngredientUsageBetweenDate(db *gorm.DB,
 		JOIN
 			compositions c ON cl.plat_id = c.plat_id
 		JOIN
-			ingredients i ON c.ingredient_id = i.id
+			ingredients i ON c.ingredient_uuid = i.uuid
 		WHERE
-            cl.code_entreprise = ? AND i.id = ? AND cl.created_at BETWEEN ? AND ?
+            cl.code_entreprise = ? AND i.uuid = ? AND cl.created_at BETWEEN ? AND ?
 		GROUP BY
 			i.name, i.unite;
     `
-	if err := db.Raw(query, code_entreprise, ingredient_id, start_date, end_date).
+	if err := db.Raw(query, code_entreprise, ingredient_uuid, start_date, end_date).
 		Scan(&ingredientUsages).Error; err != nil {
 		return nil, err
 	}
@@ -400,7 +401,7 @@ func GetTotalIngredientUsageBetweenDate(db *gorm.DB,
 
 func GetTotalIngredientStockBetweenDate(db *gorm.DB,
 	code_entreprise string,
-	ingredient_id string,
+	ingredient_uuid string,
 	start_date string,
 	end_date string,
 ) ([]models.IngredientUsage, error) {
@@ -414,13 +415,13 @@ func GetTotalIngredientStockBetweenDate(db *gorm.DB,
         FROM
             ingredient_stocks si
         JOIN
-            ingredients i ON si.ingredient_id = i.id
+            ingredients i ON si.ingredient_uuid = i.uuid
 	 	WHERE
-            si.code_entreprise = ? AND i.id = ? AND si.created_at BETWEEN ? AND ?
+            si.code_entreprise = ? AND i.uuid = ? AND si.created_at BETWEEN ? AND ?
         GROUP BY
             i.name, i.unite, si.prix_achat;
     `
-	if err := db.Raw(query, code_entreprise, ingredient_id, start_date, end_date).
+	if err := db.Raw(query, code_entreprise, ingredient_uuid, start_date, end_date).
 		Scan(&stock).Error; err != nil {
 		return nil, err
 	}

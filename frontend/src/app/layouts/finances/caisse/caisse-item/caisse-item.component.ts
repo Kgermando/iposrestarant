@@ -53,7 +53,7 @@ export class CaisseItemComponent implements OnInit {
 
   type_transaction: string[] = ['Entrée', 'Sortie'];
 
-  caisseID!: number;
+  caisseUuid!: number;
   caisse!: ICaisse;
 
   constructor(
@@ -82,12 +82,12 @@ export class CaisseItemComponent implements OnInit {
     this.start_date = formatDate(this.dateRange.value.rangeValue[0], 'yyyy-MM-dd', 'en-US');
     this.end_date = formatDate(this.dateRange.value.rangeValue[1], 'yyyy-MM-dd', 'en-US');
     this.route.params.subscribe(routeParams => {
-      this.caisseID = routeParams['id'];
+      this.caisseUuid = routeParams['uuid'];
       this.authService.user().subscribe({
         next: (user) => {
           this.currentUser = user;
           this.loadUserData = false;
-          this.getProduct(this.caisseID);
+          this.getProduct(this.caisseUuid);
 
           this.caisseItemService.refreshDataList$.subscribe(() => {
             this.fetchProducts(this.currentUser);
@@ -145,7 +145,7 @@ export class CaisseItemComponent implements OnInit {
 
   fetchProducts(currentUser: IUser) {
     this.caisseItemService.getPaginatedCaisseItemByCaisseID(
-      currentUser.entreprise?.code!, this.caisseID,
+      currentUser.entreprise?.code!, this.caisseUuid,
       this.pageIndex, this.pageSize, this.search,
       this.start_date, this.end_date
     ).subscribe((res) => {
@@ -193,7 +193,7 @@ export class CaisseItemComponent implements OnInit {
         this.isLoading = true;
         var code = Math.floor(1000000000 + Math.random() * 90000000000);
         const body: ICaisseItem = {
-          caisse_id: parseInt(this.caisseID.toString()),
+          // caisse_uuid: parseInt(this.caisseID.toString()),
           type_transaction: 'Sortie', // this.formGroup.value.type_transaction,
           montant: parseFloat(this.formGroup.value.montant),
           libelle: this.formGroup.value.libelle,
@@ -218,7 +218,7 @@ export class CaisseItemComponent implements OnInit {
     try {
       this.isLoading = true;
       const body: ICaisseItem = {
-        caisse_id: parseInt(this.caisseID.toString()),
+        // caisse_id: parseInt(this.caisseID.toString()),
         type_transaction: this.dataItem.type_transaction, // this.formGroup.value.type_transaction,
         montant: parseFloat(this.formGroup.value.montant),
         libelle: this.formGroup.value.libelle,
@@ -243,7 +243,7 @@ export class CaisseItemComponent implements OnInit {
     this.caisseItemService.get(this.idItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
-        caisse_id: this.dataItem.caisse_id,
+        caisse_uuid: this.dataItem.caisse_uuid,
         type_transaction: this.dataItem.type_transaction,
         montant: this.dataItem.montant,
         libelle: this.dataItem.libelle,
@@ -274,7 +274,7 @@ export class CaisseItemComponent implements OnInit {
 
   deleteCaisse(): void {
     this.isLoading = true;
-    this.caisseService.delete(this.caisseID).subscribe(() => {
+    this.caisseService.delete(this.caisse.ID!).subscribe(() => {
       this.formGroupCaisse.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;
@@ -291,7 +291,7 @@ export class CaisseItemComponent implements OnInit {
           pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.caisseService.update(this.caisseID, body).subscribe((res) => {
+        this.caisseService.update(this.caisse.ID!, body).subscribe((res) => {
           this.isLoading = false;
           this.formGroupCaisse.reset();
           this.toastr.success(`Caisse ${res.data.type_transaction} crée avec succès!`, 'Success!');

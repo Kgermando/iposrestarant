@@ -93,11 +93,11 @@ const routes: Routes = [
         component: ProductComponent,
       },
       {
-        path: 'products/:id/stocks',
+        path: 'products/:uuid/stocks',
         component: StocksComponent,
       },
       {
-        path: 'stocks/:id/view',
+        path: 'stocks/:uuid/view',
         component: StockViewComponent,
       },
       {

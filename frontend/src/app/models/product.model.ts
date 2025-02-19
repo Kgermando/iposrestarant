@@ -2,6 +2,7 @@ import { IStock } from "./stock.model";
 
 export interface IProduct {
     ID?: number;
+    uuid?: string;
     reference: string;
     name: string;
     description: string;
@@ -14,4 +15,4 @@ export interface IProduct {
     updated_at?: Date; 
     signature: string; 
     stocks?: IStock[];
-} 
+}

@@ -7,9 +7,10 @@
 @import "ngx-owl-carousel-o/lib/styles/scss/owl.carousel";
 @import "ngx-owl-carousel-o/lib/styles/scss/owl.theme.default";
 
-@import url("https://cdn.jsdelivr.net/npm/lightgallery@2.0.0-beta.4/css/lightgallery.css");
-@import url("https://cdn.jsdelivr.net/npm/lightgallery@2.0.0-beta.4/css/lg-zoom.css");
-@import url("https://cdn.jsdelivr.net/npm/lightgallery@2.0.0-beta.4/css/lg-video.css");
+@import "./../public/scss/lightgallery.css";
+@import "./../public/scss/lg-zoom.css";
+@import "./../public/scss/lg-video.css";
+
 @import "@angular/material/prebuilt-themes/indigo-pink.css";
 
 @import "./../public/scss/main.scss";

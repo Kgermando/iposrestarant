@@ -231,7 +231,7 @@ func deleteExternalDataInAPI(dataID uint) error {
 // isEqual compares two Area structs for equality
 func isEqual(a, b models.Stock) bool {
 	return a.ID == b.ID &&
-		a.ProductID == b.ProductID &&
+		a.ProductUuid == b.ProductUuid &&
 		a.CodeEntreprise == b.CodeEntreprise &&
 		a.UpdatedAt.Equal(b.UpdatedAt)
 }

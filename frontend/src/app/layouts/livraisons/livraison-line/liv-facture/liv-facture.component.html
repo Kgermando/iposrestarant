@@ -128,11 +128,11 @@
     <button class="button btn btn-success btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
       id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
       Sélectionner le Paiement
-    </button>
+    </button> 
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
       <li>
-        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.ID!)">
+        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.uuid!)">
           {{ item.name }}
         </a>
       </li>
@@ -147,7 +147,7 @@
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
       <li>
-        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.ID!)">
+        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.uuid!)">
           {{ item.name }}
         </a>
       </li>

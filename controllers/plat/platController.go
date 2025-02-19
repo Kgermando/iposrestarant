@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -160,11 +161,11 @@ func GetAllPlatBySearch(c *fiber.Ctx) error {
 
 // Get one data
 func GetPlat(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var plat models.Plat
-	db.Find(&plat, id)
+	db.Find(&plat, uuid)
 	if plat.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -189,6 +190,11 @@ func CreatePlat(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&p); err != nil {
 		return err
+	}
+
+	// Generate UUID if not already set
+	if p.Uuid == uuid.Nil {
+		p.Uuid = uuid.New()
 	}
 
 	database.DB.Create(p)

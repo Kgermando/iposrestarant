@@ -230,7 +230,7 @@ func deleteExternalDataInAPICaiiseItem(dataID uint) error {
 // isEqual compares two Area structs for equality
 func isEqualCaisseItem(a, b models.CaisseItem) bool {
 	return a.ID == b.ID &&
-		a.CaisseID == b.CaisseID &&
+		a.CaisseUUID == b.CaisseUUID &&
 		a.CodeEntreprise == b.CodeEntreprise &&
 		a.UpdatedAt.Equal(b.UpdatedAt)
 }

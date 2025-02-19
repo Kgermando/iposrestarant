@@ -1,14 +1,14 @@
 package models
 
 import (
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Product struct {
 	gorm.Model
 
-	// ID              uuid.UUID         `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
+	Uuid           uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();unique" json:"uuid"`
 	Reference      string         `gorm:"not null" json:"reference"`
 	Name           string         `gorm:"not null" json:"name"`
 	Description    string         `gorm:"not null" json:"description"`
@@ -19,6 +19,6 @@ type Product struct {
 	PosID          uint           `json:"pos_id"`
 	Pos            Pos            `gorm:"foreignKey:PosID"`
 	CodeEntreprise uint64         `json:"code_entreprise"`
-	Stocks         []Stock        `gorm:"foreignKey:ProductID"`
-	CommadeLines   []CommandeLine `gorm:"foreignKey:ProductID"`
+	Stocks         []Stock        `gorm:"foreignKey:ProductUuid"`
+	CommadeLines   []CommandeLine `gorm:"foreignKey:ProductUuid"`
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -11,8 +12,9 @@ type Stock struct {
 
 	PosID          uint        `json:"pos_id"`
 	Pos            Pos         `gorm:"foreignKey:PosID"`
-	ProductID      uint        `json:"product_id"`
-	Product        Product     `gorm:"foreignKey:ProductID"`
+	ProductID      uint        `json:"product_id"`                             // Added foreign key for Product ID
+	ProductUuid    uuid.UUID   `json:"product_uuid"`                           // Added foreign key for Product Uuid
+	Product        Product     `gorm:"foreignKey:ProductUuid;references:Uuid"` // Updated foreign key reference
 	Description    string      `json:"description"`
 	Quantity       uint64      `gorm:"not null" json:"quantity"`
 	FournisseurID  uint        `json:"fournisseur_id"`

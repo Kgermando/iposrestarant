@@ -76,7 +76,7 @@ export class LivFactureComponent {
   }
  
 
-  onSubmitFacture(status: string, caissseID: number) {
+  onSubmitFacture(status: string, caissseUuid: string) {
     try {
       this.isLoading = true;
       var body: ILivraison = {
@@ -93,7 +93,7 @@ export class LivFactureComponent {
       this.livraisonService.update(this.livraison_id!, body).subscribe((res) => {
         var code = Math.floor(1000000000 + Math.random() * 90000000000);
         const body: ICaisseItem = {
-          caisse_id: caissseID,
+          caisse_uuid: caissseUuid,
           type_transaction: 'Entrée',
           montant: this.total,
           libelle: `Livraison ${this.livraison.Client!.fullname}`,

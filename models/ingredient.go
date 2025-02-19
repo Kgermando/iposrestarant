@@ -1,10 +1,14 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Ingredient struct {
 	gorm.Model
 
+	Uuid uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"uuid"`
 	Name        string `gorm:"not null" json:"name"`
 	Description string `gorm:"not null" json:"description"`
 	// PrixUnitaire   float64       `gorm:"not null" json:"prix_unitaire"`

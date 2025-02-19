@@ -138,7 +138,7 @@
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
         <li>
-          <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.ID!)">
+          <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.uuid!)">
             {{ item.name }}
           </a>
         </li>
@@ -153,14 +153,14 @@
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
         <li>
-          <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.ID!)">
+          <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.uuid!)">
             {{ item.name }}
           </a>
         </li>
       }
     </ul>
   </div>
-  <!-- <button class="button btn btn-warning btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Créance', item.ID!)"
+  <!-- <button class="button btn btn-warning btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Créance', item.uuid!)"
     data-bs-dismiss="offcanvas">
     Créance
   </button> -->

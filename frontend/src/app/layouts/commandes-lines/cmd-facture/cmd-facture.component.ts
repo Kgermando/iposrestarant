@@ -79,7 +79,7 @@ export class CmdFactureComponent {
   }
 
  
-  onSubmitFacture(status: string, caissseID: number) { 
+  onSubmitFacture(status: string, caissseUuid: string) { 
     try {
       this.isLoading = true; 
       const body: ICommande = {
@@ -102,7 +102,7 @@ export class CmdFactureComponent {
         this.tableBoxService.update(this.commande.TableBox!.ID!, body).subscribe(() => {
           var code = Math.floor(1000000000 + Math.random() * 90000000000);
           const body: ICaisseItem = {
-            caisse_id: caissseID,
+            caisse_uuid: caissseUuid,
             type_transaction: 'Entrée',
             montant: this.total,
             libelle: `Vente #${this.commande.ncommande}`,

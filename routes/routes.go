@@ -102,10 +102,10 @@ func Setup(app *fiber.App) {
 
 	// Stock controller
 	s := api.Group("/stocks")
-	s.Get("/all/:product_id", stock.GetAllStocks)
-	s.Get("/all/paginate/:product_id", stock.GetPaginatedStock)
-	s.Get("/all/total/:product_id", stock.GetTotalStock)
-	s.Get("/all/get/:product_id", stock.GetStockMargeBeneficiaire)
+	s.Get("/all/:product_uuid", stock.GetAllStocks)
+	s.Get("/all/paginate/:product_uuid", stock.GetPaginatedStock)
+	s.Get("/all/total/:product_uuid", stock.GetTotalStock)
+	s.Get("/all/get/:product_uuid", stock.GetStockMargeBeneficiaire)
 	s.Get("/get/:id", stock.GetStock)
 	s.Post("/create", stock.CreateStock)
 	s.Put("/update/:id", stock.UpdateStock)
@@ -161,7 +161,7 @@ func Setup(app *fiber.App) {
 	cmdl.Get("/all/:commande_id", commandeline.GetAllCommandeLineById)
 	cmdl.Get("/all/livraison/:livraison_id", commandeline.GetAllCommandeLineByIdLivraison)
 	cmdl.Get("/all/paginate/:commande_id", commandeline.GetPaginatedCommandeLineByID)
-	cmdl.Get("/all/total/:product_id", commandeline.GetTotalCommandeLine)
+	cmdl.Get("/all/total/:product_uuid", commandeline.GetTotalCommandeLine)
 	cmdl.Get("/get/:id", commandeline.GetCommandeLine)
 	cmdl.Post("/create", commandeline.CreateCommandeLine)
 	cmdl.Put("/update/:id", commandeline.UpdateCommandeLine)

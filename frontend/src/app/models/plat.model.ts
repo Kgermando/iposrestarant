@@ -3,6 +3,7 @@ import { IComposition } from "./composition.model";
 
 export interface IPlat {
     ID?: number;
+    uuid?: string;
     reference: string;
     name: string;
     description: string;

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -164,11 +165,11 @@ func GetAllIngredientBySearch(c *fiber.Ctx) error {
 
 // Get one data
 func GetIngredient(c *fiber.Ctx) error {
-	id := c.Params("id")
+	IngredientUuid := c.Params("uuid")
 	db := database.DB
 
 	var ingredient models.Ingredient
-	db.Find(&ingredient, id)
+	db.Find(&ingredient, IngredientUuid)
 	if ingredient.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -195,6 +196,11 @@ func CreateIngredient(c *fiber.Ctx) error {
 		return err
 	}
 
+	// Generate UUID if not already set
+	if p.Uuid == uuid.Nil {
+		p.Uuid = uuid.New()
+	}
+	
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -212,6 +218,7 @@ func UpdateIngredient(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
+		Uuid uuid.UUID `json:"uuid"`
 		Name           string `json:"name"`
 		Description    string `json:"description"`
 		Unite          string `json:"unite"`
@@ -235,6 +242,7 @@ func UpdateIngredient(c *fiber.Ctx) error {
 	ingredient := new(models.Ingredient)
 
 	db.First(&ingredient, id)
+	ingredient.Uuid = updateData.Uuid
 	ingredient.Name = updateData.Name
 	ingredient.Description = updateData.Description
 	ingredient.Unite = updateData.Unite

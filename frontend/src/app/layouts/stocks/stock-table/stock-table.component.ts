@@ -52,7 +52,7 @@ export class StockTableComponent implements OnInit, AfterViewInit {
   currentUser!: IUser;
   isLoading = false;
 
-  productId!: number;
+  productuuid!: number;
   product!: IProduct;
 
   fournisseurList: IFournisseur[] = [];
@@ -113,8 +113,8 @@ export class StockTableComponent implements OnInit, AfterViewInit {
     this.loadUserData = true;
     this.isLoadingData = true;
     this.route.params.subscribe(routeParams => {
-      this.productId = routeParams['id'];
-      this.getProduct(Number(this.productId));
+      this.productuuid = routeParams['uuid'];
+      this.getProduct(this.productuuid);
     });
 
     this.formGroup = this._formBuilder.group({
@@ -133,8 +133,8 @@ export class StockTableComponent implements OnInit, AfterViewInit {
     this.fetchProducts();
   }
 
-  getProduct(id: any) {
-    this.productService.get(Number.parseInt(id)).subscribe(item => {
+  getProduct(uuid: any) {
+    this.productService.get(uuid).subscribe(item => {
       this.product = item.data;
       this.prixVente.set(this.product.prix_vente);
     });
@@ -146,7 +146,7 @@ export class StockTableComponent implements OnInit, AfterViewInit {
   }
 
   fetchProducts() {
-    this.stockService.getPaginatedById(this.productId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+    this.stockService.getPaginatedById(this.productuuid, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
       this.dataList = res.data;
       this.totalItems = res.pagination.total_pages;
       this.length = res.pagination.length;
@@ -170,11 +170,11 @@ export class StockTableComponent implements OnInit, AfterViewInit {
   }
 
   getTotalQty() {
-    this.stockService.getTotalQty(this.productId).subscribe((res) => {
+    this.stockService.getTotalQty(this.productuuid).subscribe((res) => {
       this.stockQty.set(res.data);
-      this.commaneLineService.getTotalQty(this.productId).subscribe((line) => {
+      this.commaneLineService.getTotalQty(this.productuuid).subscribe((line) => {
         this.cmdLineQty.set(line.data);  
-        this.stockService.GetStockMargeBeneficiaire(this.productId).subscribe(r => { 
+        this.stockService.GetStockMargeBeneficiaire(this.productuuid).subscribe(r => { 
           const mbAttendu = (this.product.prix_vente - r.data.prix_achat) * r.data.quantity;
           const mbObtenu = (this.product.prix_vente - r.data.prix_achat) * line.data;
           this.profitAttendu.set(mbAttendu);
@@ -206,7 +206,7 @@ export class StockTableComponent implements OnInit, AfterViewInit {
       if (this.formGroup.valid) {
         this.isLoading = true;
         const body: IStock = {
-          product_id: parseInt(this.productId.toString()),
+          product_id: parseInt(this.productuuid.toString()),
           description: this.formGroup.value.description,
           fournisseur_id: parseInt(this.formGroup.value.fournisseur_id.toString()),
           quantity: this.formGroup.value.quantity,

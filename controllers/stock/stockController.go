@@ -8,15 +8,16 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
 func GetPaginatedStock(c *fiber.Ctx) error {
 	db := database.DB
-	productId := c.Params("product_id")
+	productUuid := c.Params("product_uuid") // Changed to product_uuid
 
 	// Sync data with API
-	go SyncDataWithAPI(productId)
+	go SyncDataWithAPI(productUuid)
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -33,16 +34,16 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 	var dataList []models.Stock
 
 	var length int64
-	db.Model(&models.Stock{}).Where("product_id = ?", productId).Count(&length)
-	db.Where("product_id = ?", productId).
-		Joins("JOIN products ON stocks.product_id=products.id").
-		Where("products.name LIKE ? OR products.reference LIKE ?", "%"+search+"%", "%"+search+"%").
-		Offset(offset).
-		Limit(limit).
-		Order("stocks.created_at DESC").
-		Preload("Product").
-		Preload("Fournisseur").
-		Find(&dataList)
+	db.Model(&models.Stock{}).Where("product_uuid = ?", productUuid).Count(&length) // Changed to product_uuid
+	db.Where("product_uuid = ?", productUuid).                                      // Changed to product_uuid
+											Joins("JOIN products ON stocks.product_uuid=products.uuid"). // Changed to product_uuid
+											Where("products.name LIKE ? OR products.reference LIKE ?", "%"+search+"%", "%"+search+"%").
+											Offset(offset).
+											Limit(limit).
+											Order("stocks.created_at DESC").
+											Preload("Product").
+											Preload("Fournisseur").
+											Find(&dataList)
 
 	if err != nil {
 		fmt.Println("error s'est produite: ", err)
@@ -72,11 +73,11 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 // Get data
 func GetStockMargeBeneficiaire(c *fiber.Ctx) error {
 	db := database.DB
-	productId := c.Params("product_id")
+	productUuid := c.Params("product_uuid") // Changed to product_uuid
 
 	var data models.Stock
 
-	db.Model(&models.Stock{}).Where("product_id = ?", productId).Preload("Product").Last(&data)
+	db.Model(&models.Stock{}).Where("product_uuid = ?", productUuid).Preload("Product").Last(&data) // Changed to product_uuid
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -88,11 +89,11 @@ func GetStockMargeBeneficiaire(c *fiber.Ctx) error {
 // Get Total data
 func GetTotalStock(c *fiber.Ctx) error {
 	db := database.DB
-	productId := c.Params("product_id")
+	productUuid := c.Params("product_uuid") // Changed to product_uuid
 
 	var totalQty int64
 
-	db.Model(&models.Stock{}).Where("product_id = ?", productId).Select("SUM(quantity)").Scan(&totalQty)
+	db.Model(&models.Stock{}).Where("product_uuid = ?", productUuid).Select("SUM(quantity)").Scan(&totalQty) // Changed to product_uuid
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -104,9 +105,9 @@ func GetTotalStock(c *fiber.Ctx) error {
 // Get All data
 func GetAllStocks(c *fiber.Ctx) error {
 	db := database.DB
-	productId := c.Params("product_id")
+	productUuid := c.Params("product_uuid") // Changed to product_uuid
 	var data []models.Stock
-	db.Where("product_id = ?", productId).Find(&data)
+	db.Where("product_uuid = ?", productUuid).Find(&data) // Changed to product_uuid
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All stocks",
@@ -121,7 +122,7 @@ func GetStock(c *fiber.Ctx) error {
 
 	var stock models.Stock
 	db.Find(&stock, id)
-	if stock.ProductID == 0 {
+	if stock.ProductUuid == uuid.Nil { // Changed to ProductUuid
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -165,7 +166,7 @@ func UpdateStock(c *fiber.Ctx) error {
 
 	type UpdateData struct {
 		PosID          uint      `json:"pos_id"`
-		ProductID      uint      `json:"product_id"`
+		ProductUuid    uuid.UUID `json:"product_uuid"` // Changed to ProductUuid
 		Description    string    `json:"description"`
 		FournisseurID  uint      `json:"fournisseur_id"`
 		Quantity       uint64    `json:"quantity"`
@@ -190,7 +191,7 @@ func UpdateStock(c *fiber.Ctx) error {
 
 	db.First(&stock, id)
 	stock.PosID = updateData.PosID
-	stock.ProductID = updateData.ProductID
+	stock.ProductUuid = updateData.ProductUuid // Changed to ProductUuid
 	stock.Description = updateData.Description
 	stock.FournisseurID = updateData.FournisseurID
 	stock.Quantity = updateData.Quantity
@@ -218,7 +219,7 @@ func DeleteStock(c *fiber.Ctx) error {
 
 	var stock models.Stock
 	db.First(&stock, id)
-	if stock.ProductID == 0 {
+	if stock.ProductUuid == uuid.Nil { // Changed to ProductUuid
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",

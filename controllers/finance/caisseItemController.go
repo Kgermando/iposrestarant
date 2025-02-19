@@ -7,16 +7,17 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
 func GetPaginatedCaisseItems(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	caisseId := c.Params("caisse_id")
+	caisseUUID := c.Params("caisse_uuid")
 
 	//  Synchronize data from API to local
-	go SyncDataWithAPICaisseItem(caisseId)
+	go SyncDataWithAPICaisseItem(caisseUUID)
 
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
@@ -37,10 +38,10 @@ func GetPaginatedCaisseItems(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.CaisseItem{}).Where("code_entreprise = ?", codeEntreprise).
-		Where("caisse_id = ?", caisseId).
+		Where("caisse_uuid = ?", caisseUUID).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).Count(&length)
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("caisse_id = ?", caisseId).
+		Where("caisse_uuid = ?", caisseUUID).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).
 		Where("libelle LIKE ? OR type_transaction LIKE ? OR reference LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
@@ -78,11 +79,11 @@ func GetPaginatedCaisseItems(c *fiber.Ctx) error {
 func GetAllCaisseItems(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	caisseId := c.Params("caisse_id")
+	caisseUUID := c.Params("caisse_uuid")
 
 	var data []models.CaisseItem
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("caisse_id = ?", caisseId).
+		Where("caisse_uuid = ?", caisseUUID).
 		Preload("Caisse").
 		Find(&data)
 	return c.JSON(fiber.Map{
@@ -96,13 +97,13 @@ func GetAllCaisseItems(c *fiber.Ctx) error {
 func GetAllCaisseItemBySearch(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	caisseId := c.Params("caisse_id")
+	caisseUUID := c.Params("caisse_uuid")
 
 	search := c.Query("search", "")
 
 	var data []models.CaisseItem
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("caisse_id = ?", caisseId).
+		Where("caisse_uuid = ?", caisseUUID).
 		Where("libelle LIKE ? OR type_transaction LIKE ? OR reference LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%").
 		Preload("Caisse").
 		Find(&data)
@@ -163,13 +164,13 @@ func UpdateCaisseItem(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		CaisseID        uint    `json:"caisse_id"`
-		TypeTransaction string  `json:"type_transaction"` // Entreé ou Sortie
-		Montant         float64 `json:"montant"`          // Montant de la transaction
-		Libelle         string  `json:"libelle"`          // Description de la transaction
-		Reference       string  `json:"reference"`        // Nombre aleatoire
-		Signature       string  `json:"signature"`        // Signature de la transaction
-		CodeEntreprise  uint64  `json:"code_entreprise"`
+		CaisseUUID      uuid.UUID `json:"caisse_uuid"`
+		TypeTransaction string    `json:"type_transaction"` // Entreé ou Sortie
+		Montant         float64   `json:"montant"`          // Montant de la transaction
+		Libelle         string    `json:"libelle"`          // Description de la transaction
+		Reference       string    `json:"reference"`        // Nombre aleatoire
+		Signature       string    `json:"signature"`        // Signature de la transaction
+		CodeEntreprise  uint64    `json:"code_entreprise"`
 	}
 
 	var updateData UpdateData
@@ -187,7 +188,7 @@ func UpdateCaisseItem(c *fiber.Ctx) error {
 	caisseItem := new(models.CaisseItem)
 
 	db.First(&caisseItem, id)
-	caisseItem.CaisseID = updateData.CaisseID
+	caisseItem.CaisseUUID = updateData.CaisseUUID
 	caisseItem.TypeTransaction = updateData.TypeTransaction
 	caisseItem.Montant = updateData.Montant
 	caisseItem.Libelle = updateData.Libelle

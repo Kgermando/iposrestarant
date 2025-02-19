@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -127,7 +128,7 @@ func GetPaginatedProduct(c *fiber.Ctx) error {
 func GetAllProducts(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id") 
+	posId := c.Params("pos_id")
 
 	var data []models.Product
 	db.Where("code_entreprise = ?", codeEntreprise).
@@ -162,11 +163,11 @@ func GetAllProductBySearch(c *fiber.Ctx) error {
 
 // Get one data
 func GetProduct(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var product models.Product
-	db.Find(&product, id)
+	db.Find(&product, uuid)
 	if product.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -193,6 +194,11 @@ func CreateProduct(c *fiber.Ctx) error {
 		return err
 	}
 
+	// Generate UUID if not already set
+	if p.Uuid == uuid.Nil {
+		p.Uuid = uuid.New()
+	}
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -210,6 +216,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
+		Uuid           uuid.UUID      `json:"uuid"`
 		Reference      string  `json:"reference"`
 		Name           string  `json:"name"`
 		Description    string  `json:"description"`
@@ -236,6 +243,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 	product := new(models.Product)
 
 	db.First(&product, id)
+	product.Uuid = updateData.Uuid
 	product.Reference = updateData.Reference
 	product.Name = updateData.Name
 	product.Description = updateData.Description

@@ -22,7 +22,7 @@ export class CaisseComponent implements OnInit {
   public routes = routes;
 
   dataList: ICaisse[] = [];
-  caisseID!: number; 
+  caisse!: any; 
 
   formGroupCaisse!: FormGroup; // Caisse
   currentUser!: IUser;
@@ -93,9 +93,9 @@ export class CaisseComponent implements OnInit {
     this.GetTotalAllCaisses(currentUser);
   }
 
-  getCaisseID(id: number) {
-    this.caisseID = id;
-    console.log("caisseID");
+  getCaisseUuid(c: any) {
+    this.caisse = c;
+    console.log("caisseUuid");
   }
 
   GetTotalAllCaisses(currentUser: IUser) {
@@ -147,7 +147,7 @@ export class CaisseComponent implements OnInit {
           pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.caisseService.update(this.caisseID, body).subscribe((res) => {
+        this.caisseService.update(this.caisse.ID!, body).subscribe((res) => {
           this.isLoadingCaisse = false;
           this.formGroupCaisse.reset();
           this.toastr.success(`Caisse ${res.data.type_transaction} crée avec succès!`, 'Success!');
@@ -163,7 +163,7 @@ export class CaisseComponent implements OnInit {
 
   delete(): void {
     this.isLoading = true;
-    this.caisseService.delete(this.caisseID).subscribe(() => {
+    this.caisseService.delete(this.caisse.ID!).subscribe(() => {
       this.formGroupCaisse.reset(); 
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

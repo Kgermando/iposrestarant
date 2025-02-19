@@ -83,7 +83,7 @@ func SyncDataWithAPI(entrepriseID string) {
 
     // Delete online data if it has been deleted locally
 	for _, externalUser := range externalData {
-		var localData models.Plat
+		var localData models.User
 		if err := database.DB.Where("id = ?", externalUser.ID).First(&localData).Error; err != nil {
 			if err := deleteExternalDataInAPI(externalUser.ID); err != nil {
 				log.Println("Error deleting external data:", err)
@@ -205,7 +205,7 @@ func updateExternalUserInAPI(user models.User) error {
 // Delete external data in the API
 func deleteExternalDataInAPI(dataID uint) error {
 	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/livraisons/delete/%d", dataID)
+	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/delete/%d", dataID)
 
 	req, err := http.NewRequest(http.MethodDelete, apiURL, nil)
 	if err != nil {

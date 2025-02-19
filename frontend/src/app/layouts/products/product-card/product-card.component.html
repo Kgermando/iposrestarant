@@ -106,13 +106,13 @@
                         }">
                     <div>
                       <h6>
-                        <a [routerLink]="['/web/products', item.ID!, 'stocks' ]">
+                        <a [routerLink]="['/web/products', item.uuid, 'stocks' ]">
                           #{{ item.reference }}
                         </a>
                       </h6>
-                      <a [routerLink]="['/web/products', item.ID!, 'stocks' ]">
+                      <a [routerLink]="['/web/products', item.uuid, 'stocks' ]">
                         {{ item.name }}
-                      </a>
+                      </a> 
                     </div>
                     <div class="task-actions">
                       <ul>

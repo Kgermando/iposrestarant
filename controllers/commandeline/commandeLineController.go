@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Query all data ID
@@ -158,7 +159,7 @@ func GetCommandeLine(c *fiber.Ctx) error {
 	db := database.DB
 	var commandeLine models.CommandeLine
 	db.Find(&commandeLine, id)
-	if commandeLine.ProductID == 0 {
+	if commandeLine.ProductUuid == uuid.Nil {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -203,7 +204,7 @@ func UpdateCommandeLine(c *fiber.Ctx) error {
 	type UpdateData struct {
 		CommandeID     uint   `json:"commande_id"`
 		LivraisonID    uint   `json:"livraison_id"`
-		ProductID      uint   `json:"product_id"`
+		ProductUuid    uuid.UUID `json:"product_uuid"`     
 		Quantity       uint64 `json:"quantity"`
 		CodeEntreprise uint64 `json:"code_entreprise"`
 	}
@@ -225,7 +226,7 @@ func UpdateCommandeLine(c *fiber.Ctx) error {
 	db.First(&commandeLine, id)
 	commandeLine.CommandeID = updateData.CommandeID
 	commandeLine.LivraisonID = updateData.LivraisonID
-	commandeLine.ProductID = updateData.ProductID
+	commandeLine.ProductUuid = updateData.ProductUuid
 	commandeLine.Quantity = updateData.Quantity
 	commandeLine.CodeEntreprise = updateData.CodeEntreprise
 

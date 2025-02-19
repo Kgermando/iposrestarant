@@ -41,7 +41,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
   currentUser!: IUser;
   isLoading = false;
 
-  ingredientId!: number;
+  ingredientUuid!: number;
   ingredient!: IIngredient;
 
   fournisseurList: IFournisseur[] = [];
@@ -96,8 +96,8 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
     this.loadUserData = true;
     this.isLoadingData = true;
     this.route.params.subscribe(routeParams => {
-      this.ingredientId = routeParams['id'];
-      this.getProduct(Number(this.ingredientId));
+      this.ingredientUuid = routeParams['uuid'];
+      this.getProduct(this.ingredientUuid);
     });
 
     const date = new Date();
@@ -140,8 +140,8 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
     this.fetchProducts();
   }
 
-  getProduct(id: any) {
-    this.ingredientService.get(Number.parseInt(id)).subscribe(item => {
+  getProduct(uuid: any) {
+    this.ingredientService.get(uuid).subscribe(item => {
       this.ingredient = item.data;
       // this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
     });
@@ -163,7 +163,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
 
   fetchProducts() {
     this.ingStockService.getPaginatedByIdRangeDate(
-      this.ingredientId, this.pageIndex, this.pageSize, this.search, 
+      this.ingredientUuid, this.pageIndex, this.pageSize, this.search, 
       this.start_date, this.end_date).subscribe((res) => {
       this.dataList = res.data;
       this.totalItems = res.pagination.total_pages;
@@ -191,7 +191,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
       if (this.formGroup.valid) {
         this.isLoading = true;
         const body: IIngredientStock = {
-          ingredient_id: parseInt(this.ingredientId.toString()),
+          ingredient_id: parseInt(this.ingredientUuid.toString()),
           description: this.formGroup.value.description,
           fournisseur_id: parseInt(this.formGroup.value.fournisseur_id.toString()),
           quantity: this.formGroup.value.quantity,

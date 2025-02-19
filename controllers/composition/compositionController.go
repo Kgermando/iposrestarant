@@ -7,12 +7,13 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
 func GetPaginatedComposition(c *fiber.Ctx) error {
 	db := database.DB
-	platId := c.Params("plat_id")
+	platUUID := c.Params("plat_uuid")
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -29,9 +30,9 @@ func GetPaginatedComposition(c *fiber.Ctx) error {
 	var dataList []models.Composition
 
 	var length int64
-	db.Model(&models.Composition{}).Where("plat_id = ?", platId).Count(&length)
-	db.Where("plat_id = ?", platId).
-		Joins("JOIN plats ON compositions.plat_id=plats.id").
+	db.Model(&models.Composition{}).Where("plat_uuid = ?", platUUID).Count(&length)
+	db.Where("plat_uuid = ?", platUUID).
+		Joins("JOIN plats ON compositions.plat_uuid=plats.uuid").
 		Where("plats.name LIKE ? OR plats.reference LIKE ?", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -68,11 +69,11 @@ func GetPaginatedComposition(c *fiber.Ctx) error {
 // Get data
 func GetCompositionMargeBeneficiaire(c *fiber.Ctx) error {
 	db := database.DB
-	platId := c.Params("plat_id")
+	platUUID := c.Params("plat_uuid")
 
 	var data models.Composition
 
-	db.Model(&models.Composition{}).Where("plat_id = ?", platId).Preload("Plat").Preload("Ingredient").Last(&data)
+	db.Model(&models.Composition{}).Where("plat_uuid = ?", platUUID).Preload("Plat").Preload("Ingredient").Last(&data)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -84,12 +85,12 @@ func GetCompositionMargeBeneficiaire(c *fiber.Ctx) error {
 // Get Total data
 func GetTotalComposition(c *fiber.Ctx) error {
 	db := database.DB
-	platId := c.Params("plat_id")
+	platUUID := c.Params("plat_uuid")
 
 	// var data []models.Composition
 	var totalQty int64
 
-	db.Model(&models.Composition{}).Where("plat_id = ?", platId).Select("SUM(quantity)").Scan(&totalQty)
+	db.Model(&models.Composition{}).Where("plat_uuid = ?", platUUID).Select("SUM(quantity)").Scan(&totalQty)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -127,7 +128,7 @@ func GetComposition(c *fiber.Ctx) error {
 
 	var composition models.Composition
 	db.Find(&composition, id)
-	if composition.PlatID == 0 {
+	if composition.PlatUuid == uuid.Nil {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -170,7 +171,8 @@ func UpdateComposition(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		PlatID         uint   `json:"plat_id"`
+		PlatID 	   uint   `json:"plat_id"` // Updated PlatID to PlatUUID 
+		PlatUuid       uuid.UUID  `json:"plat_uuid"`
 		IngredientID   uint   `json:"ingredient_id"`
 		Quantity       uint64 `json:"quantity"`
 		Signature      string `json:"signature"`
@@ -193,6 +195,7 @@ func UpdateComposition(c *fiber.Ctx) error {
 
 	db.First(&composition, id)
 	composition.PlatID = updateData.PlatID
+	composition.PlatUuid = updateData.PlatUuid
 	composition.IngredientID = updateData.IngredientID
 	composition.Quantity = updateData.Quantity
 	composition.Signature = updateData.Signature
@@ -217,7 +220,7 @@ func DeleteComposition(c *fiber.Ctx) error {
 
 	var composition models.Composition
 	db.First(&composition, id)
-	if composition.PlatID == 0 {
+	if composition.PlatUuid == uuid.Nil {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",

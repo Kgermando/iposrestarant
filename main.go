@@ -35,7 +35,7 @@ type Release struct {
     } `json:"assets"`
 }
 
-//go:embed all:frontend/dist/browser
+//go:embed all:frontend/dist/browser 
 var assets embed.FS
 
 func isInternetAvailable() bool {
