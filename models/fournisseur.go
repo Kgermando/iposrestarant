@@ -1,15 +1,15 @@
 package models
 
 import (
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Fournisseur struct {
+	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
-	// ID             uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
-	Name           string  `gorm:"not null" json:"name"` // Name of entreprise
+	Name           string  `gorm:"not null" json:"name"`
 	Telephone      string  `json:"telephone"`
 	Email          string  `json:"email"`
 	Adresse        string  `json:"adresse"`
@@ -17,4 +17,9 @@ type Fournisseur struct {
 	Signature      string  `json:"signature"`
 	CodeEntreprise uint64  `json:"code_entreprise"`
 	Stocks         []Stock `gorm:"foreignKey:FournisseurID"`
+}
+
+func (fournisseur *Fournisseur) BeforeCreate(tx *gorm.DB) (err error) {
+	fournisseur.ID = uuid.New().String()
+	return
 }

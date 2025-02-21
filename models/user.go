@@ -3,11 +3,13 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type User struct {
+	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
 	Fullname        string     `gorm:"not null" json:"fullname"`
@@ -29,7 +31,7 @@ type User struct {
 }
 
 type UserResponse struct {
-	Id         uint       `json:"id,omitempty"`
+	Id         string       `json:"id,omitempty"`
 	Fullname   string     `json:"fullname"`
 	Email      string     `json:"email"`
 	Telephone  string     `json:"telephone"`
@@ -58,4 +60,9 @@ func (u *User) SetPassword(p string) {
 func (u *User) ComparePassword(p string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(p))
 	return err
+}
+
+func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
+	user.ID = uuid.New().String()
+	return
 }

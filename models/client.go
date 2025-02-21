@@ -1,24 +1,22 @@
 package models
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Client struct {
+	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
-	Fullname     string `gorm:"not null" json:"fullname"`
-	Telephone    string `gorm:"not null" json:"telephone"`
-	Telephone2   string `json:"telephone2"`
-	Email        string `json:"email"`
-	Adress       string `json:"adress"`
-	// Birthday     string `json:"birthday"`
-	Organisation string `json:"organisation"`
-	WebSite      string `json:"website"`
-
-	Signature      string `json:"signature"`
+	Fullname       string `gorm:"not null" json:"fullname"`
+	Email          string `gorm:"unique; not null" json:"email"`
+	Telephone      string `gorm:"unique; not null" json:"telephone"`
+	Adresse        string `json:"adresse"`
 	CodeEntreprise uint64 `json:"code_entreprise"`
+}
 
-	Livraison []Livraison `gorm:"foreignKey:ClientID"`
-	Commandes []Commande  `gorm:"foreignKey:ClientID"`
+func (client *Client) BeforeCreate(tx *gorm.DB) (err error) {
+	client.ID = uuid.New().String()
+	return
 }

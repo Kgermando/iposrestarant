@@ -6,9 +6,9 @@ import (
 )
 
 type Product struct {
+	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
-	Uuid           uuid.UUID      `gorm:"type:uuid;default:uuid_generate_v4();unique" json:"uuid"`
 	Reference      string         `gorm:"not null" json:"reference"`
 	Name           string         `gorm:"not null" json:"name"`
 	Description    string         `gorm:"not null" json:"description"`
@@ -16,9 +16,14 @@ type Product struct {
 	PrixVente      float64        `gorm:"not null" json:"prix_vente"`
 	Tva            float64        `gorm:"default:0" json:"tva"`
 	Signature      string         `json:"signature"`
-	PosID          uint           `json:"pos_id"`
+	PosID          string           `json:"pos_id"`
 	Pos            Pos            `gorm:"foreignKey:PosID"`
 	CodeEntreprise uint64         `json:"code_entreprise"`
 	Stocks         []Stock        `gorm:"foreignKey:ProductUuid"`
 	CommadeLines   []CommandeLine `gorm:"foreignKey:ProductUuid"`
+}
+
+func (product *Product) BeforeCreate(tx *gorm.DB) (err error) {
+	product.ID = uuid.New().String()
+	return
 }

@@ -3,11 +3,12 @@ package models
 import (
 	"time"
 
-	// "github.com/google/uuid"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Entreprise struct {
+	ID             string    `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
 	TypeEntreprise string    `gorm:"not null" json:"type_entreprise"` // PME, GE, Particulier
@@ -29,7 +30,7 @@ type Entreprise struct {
 }
 
 type EntrepriseInfos struct {
-	ID             uint      `json:"id"`
+	ID             string    `json:"id"`
 	TypeEntreprise string    `json:"type_entreprise"` // PME, GE, Particulier
 	Name           string    `json:"name"`
 	Code           string    `json:"code"` // Code entreprise
@@ -46,4 +47,10 @@ type EntrepriseInfos struct {
 	Signature      string    `json:"signature"`
 	TotalUser      int       `json:"total_user"`
 	TotalPos       int       `json:"total_pos"`
+}
+
+
+func (entreprise *Entreprise) BeforeCreate(tx *gorm.DB) (err error) {
+	entreprise.ID = uuid.New().String()
+	return
 }

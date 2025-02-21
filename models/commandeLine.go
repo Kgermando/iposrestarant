@@ -6,19 +6,22 @@ import (
 )
 
 type CommandeLine struct {
+	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
-	CommandeID  uint      `json:"commande_id"`
-	Commande    Commande  `gorm:"foreignKey:CommandeID"`
-	LivraisonID uint      `json:"livraison_id"` // LivraisonID est identique a commande dans le fonctionnement
-	Livraison   Livraison `gorm:"foreignKey:LivraisonID"`
-
-	ProductID      uint      `json:"product_id"`                             // Added foreign key for Product ID
-	ProductUuid    uuid.UUID `json:"product_uuid"`                           // Added foreign key for Product Uuid
-	Product        Product   `gorm:"foreignKey:ProductUuid;references:Uuid"` // Updated foreign key reference
-	PlatID         uint      `json:"plat_id"`                                // Added foreign key for Plat ID
-	PlatUuid       uuid.UUID `json:"plat_uuid"`                              // Added foreign key for Plat Uuid
-	Plat           Plat      `gorm:"foreignKey:PlatUuid;references:Uuid"`    // Updated foreign key reference
+	CommandeID     string    `json:"commande_id"`
+	Commande       Commande  `gorm:"foreignKey:CommandeID"`
+	LivraisonID    string    `json:"livraison_id"` // LivraisonID est identique a commande dans le fonctionnement
+	Livraison      Livraison `gorm:"foreignKey:LivraisonID"`
+	ProductID      string    `json:"product_id"`           // Added foreign key for Product ID
+	Product        Product   `gorm:"foreignKey:ProductID"` // Updated foreign key reference
+	PlatID         string    `json:"plat_id"`              // Added foreign key for Plat ID
+	Plat           Plat      `gorm:"foreignKey:PlatID"`    // Updated foreign key reference
 	Quantity       uint64    `gorm:"not null" json:"quantity"`
 	CodeEntreprise uint64    `json:"code_entreprise"`
+}
+
+func (commandeLine *CommandeLine) BeforeCreate(tx *gorm.DB) (err error) {
+	commandeLine.ID = uuid.New().String()
+	return
 }
