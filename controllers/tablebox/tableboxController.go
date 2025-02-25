@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -67,10 +69,12 @@ func GetPaginatedTableBoxEntreprise(c *fiber.Ctx) error {
 func GetPaginatedTableBox(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	// Synchronisation des donnees avec l'API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	}
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -88,9 +92,9 @@ func GetPaginatedTableBox(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.TableBox{}).Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).Count(&length)
+		Where("pos_uuid = ?", posuuId).Count(&length)
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Where("name LIKE ? OR CAST(numero AS TEXT) LIKE ?", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -128,12 +132,11 @@ func GetAllTableBox(c *fiber.Ctx) error {
 	db := database.DB
 
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
-	
+	posuuId := c.Params("pos_uuid")
 
 	var data []models.TableBox
 	db.Where("code_entreprise = ?", codeEntreprise).
-	Where("pos_id = ?", posId).Preload("Commandes").Find(&data)
+		Where("pos_uuid = ?", posuuId).Preload("Commandes").Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All table_boxes",
@@ -143,11 +146,11 @@ func GetAllTableBox(c *fiber.Ctx) error {
 
 // Get one data
 func GetTableBox(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var tableBox models.TableBox
-	db.Preload("Commandes").Find(&tableBox, id)
+	db.Preload("Commandes").Find(&tableBox, uuid)
 	if tableBox.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -174,6 +177,8 @@ func CreateTableBox(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String() // Generate a UUID for the tableBox
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -187,11 +192,11 @@ func CreateTableBox(c *fiber.Ctx) error {
 
 // Update data
 func UpdateTableBox(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		PosID          uint   `json:"pos_id"`
+		PosUUID        string `json:"pos_uuid"`
 		Name           string `json:"name"`
 		Numero         int    `json:"numero"`
 		Status         string `json:"status"`
@@ -213,8 +218,8 @@ func UpdateTableBox(c *fiber.Ctx) error {
 
 	tableBox := new(models.TableBox)
 
-	db.First(&tableBox, id)
-	tableBox.PosID = updateData.PosID
+	db.First(&tableBox, uuid)
+	tableBox.PosUUID = updateData.PosUUID
 	tableBox.Name = updateData.Name
 	tableBox.Numero = updateData.Numero
 	tableBox.Status = updateData.Status
@@ -235,12 +240,12 @@ func UpdateTableBox(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteTableBox(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var tableBox models.TableBox
-	db.First(&tableBox, id)
+	db.First(&tableBox, uuid)
 	if tableBox.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

@@ -37,7 +37,7 @@ export class LivraisonsComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['createdat', 'status', 'client', 'livreur', 'livreurname', 'areaprovince', 'areaname', 'adress', 'operator_name', 'pos', 'id'];
+  displayedColumns: string[] = ['createdat', 'status', 'client', 'livreur', 'livreurname', 'areaprovince', 'areaname', 'adress', 'operator_name', 'pos', 'uuid'];
   dataSource = new MatTableDataSource<ILivraison>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -51,7 +51,7 @@ export class LivraisonsComponent implements OnInit, AfterViewInit {
   rangeDate: any[] = [];
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: ILivraison; // Single data 
 
   formGroup!: FormGroup;
@@ -68,7 +68,7 @@ export class LivraisonsComponent implements OnInit, AfterViewInit {
   pageIndexClient: number = 0;
   lengthClient: number = 0;
   @ViewChild('client_id') client_id!: ElementRef<HTMLInputElement>;
-  clientId!: number;
+  clientId!: string;
   isloadClient = false;
 
   livreurList: ILivreur[] = [];
@@ -79,7 +79,7 @@ export class LivraisonsComponent implements OnInit, AfterViewInit {
   pageIndexLivreur: number = 0;
   lengthLivreur: number = 0;
   @ViewChild('livreur_id') livreur_id!: ElementRef<HTMLInputElement>;
-  livreurId!: number;
+  livreurId!: string;
   isloadLivreur = false;
 
   areaList: IArea[] = [];
@@ -90,7 +90,7 @@ export class LivraisonsComponent implements OnInit, AfterViewInit {
   pageIndexArea: number = 0;
   lengthArea: number = 0;
   @ViewChild('area_id') area_id!: ElementRef<HTMLInputElement>;
-  areaId!: number;
+  areaId!: string;
   isloadArea = false;
 
 
@@ -192,7 +192,7 @@ const date = new Date();
       });
     } else {
       this.livraisonService.getPaginatedEntrepriseByPosRangeDate(
-        currentUser.entreprise?.code!, currentUser.pos?.ID!, 
+        currentUser.entreprise?.code!, currentUser.pos?.uuid!, 
         this.pageIndex, this.pageSize, this.search,
         this.start_date, this.end_date).subscribe((res) => {
         this.dataList = res.data;
@@ -296,12 +296,12 @@ const date = new Date();
       if (this.formGroup.valid) {
         this.isLoading = true;
         var body: ILivraison = {
-          area_id: parseInt(this.areaId.toString()),
+          area_uuid: this.areaId,
           cout_livraison: parseFloat(this.formGroup.value.cout_livraison),
-          client_id: parseInt(this.clientId.toString()),
-          livreur_id: parseInt(this.livreurId.toString()),
+          client_uuid: this.clientId,
+          livreur_uuid: this.livreurId,
           operator_name: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           status: 'En cours',
           signature: this.currentUser.fullname,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
@@ -332,17 +332,17 @@ const date = new Date();
     try {
       this.isLoading = true;
       var body: ILivraison = {
-        area_id: parseInt(this.areaId.toString()),
+        area_uuid: this.areaId,
         cout_livraison: parseFloat(this.formGroup.value.cout_livraison),
-        client_id: parseInt(this.clientId.toString()),
-        livreur_id: parseInt(this.livreurId.toString()),
+        client_uuid: this.clientId,
+        livreur_uuid: this.livreurId,
         operator_name: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         status: 'En cours',
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.livraisonService.update(this.idItem, body)
+      this.livraisonService.update(this.uuidItem, body)
         .subscribe({
           next: (res) => {
             this.formGroup.reset();
@@ -361,16 +361,16 @@ const date = new Date();
     }
   }
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.livraisonService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.livraisonService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         operator_name: this.dataItem.operator_name,
-        area_id: this.dataItem.area_id,
+        area_uuid: this.dataItem.area_uuid,
         cout_livraison: this.dataItem.cout_livraison,
-        client_id: this.dataItem.client_id,
-        livreur_id: this.dataItem.livreur_id,
+        client_uuid: this.dataItem.client_uuid,
+        livreur_uuid: this.dataItem.livreur_uuid,
       });
     }
     );
@@ -381,7 +381,7 @@ const date = new Date();
   delete(): void {
     this.isLoading = true;
     this.livraisonService
-      .delete(this.idItem)
+      .delete(this.uuidItem)
       .subscribe({
         next: () => {
           this.formGroup.reset();

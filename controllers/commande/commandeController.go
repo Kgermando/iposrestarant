@@ -6,8 +6,10 @@ import (
 
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -69,11 +71,14 @@ func GetPaginatedCommandeEntreprise(c *fiber.Ctx) error {
 func GetPaginatedCommandeByTableBox(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
-	tableBoxId := c.Params("table_box_id")
+	posUUID := c.Params("pos_uuid")
+	tableBoxUUID := c.Params("table_box_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posUUID)
+	}
+	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -91,10 +96,10 @@ func GetPaginatedCommandeByTableBox(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.Commande{}).Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).Where("table_box_id = ?", tableBoxId).Count(&length)
+		Where("pos_uid = ?", posUUID).Where("table_box_uuid = ?", tableBoxUUID).Count(&length)
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
-		Where("table_box_id = ?", tableBoxId).
+		Where("pos_uuid = ?", posUUID).
+		Where("table_box_uuid = ?", tableBoxUUID).
 		Where("ncommande LIKE ?", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -132,14 +137,14 @@ func GetPaginatedCommandeByTableBox(c *fiber.Ctx) error {
 func GetAllCommandes(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	go SyncDataWithAPI(codeEntreprise, posuuId)
 
 	var data []models.Commande
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Preload("TableBox").
 		Preload("CommandeLines").
 		Find(&data)
@@ -153,13 +158,13 @@ func GetAllCommandes(c *fiber.Ctx) error {
 func GetTotalCommande(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	tableBoxId := c.Params("table_box_id")
+	tableBoxuuId := c.Params("table_box_uuid")
 
 	// var commandes []models.Commande
 	var total int64
 
 	db.Model(&models.Commande{}).Where("code_entreprise = ?", codeEntreprise).
-		Where("table_box_id = ?", tableBoxId).Count(&total)
+		Where("table_box_uuid = ?", tableBoxuuId).Count(&total)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -170,12 +175,12 @@ func GetTotalCommande(c *fiber.Ctx) error {
 
 // Get one data
 func GetCommande(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 	var commande models.Commande
 	db.Preload("TableBox").
 		Preload("CommandeLines").
-		Find(&commande, id)
+		Find(&commande, uuid)
 	if commande.Ncommande == 0 {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -202,6 +207,8 @@ func CreateCommande(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+	
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -215,14 +222,14 @@ func CreateCommande(c *fiber.Ctx) error {
 
 // Update data
 func UpdateCommande(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		PosID          uint   `json:"pos_id"`
+		PosUUID          string `json:"pos_uuid"`
 		Ncommande      uint64 `json:"ncommande"` // Number Random
 		Status         string `json:"status"`    // Ouverte et Fermée
-		ClientID       uint   `json:"client_id"`
+		ClientUUID       string `json:"client_uuid"`
 		Signature      string `json:"signature"`
 		CodeEntreprise uint64 `json:"code_entreprise"`
 	}
@@ -241,11 +248,11 @@ func UpdateCommande(c *fiber.Ctx) error {
 
 	commande := new(models.Commande)
 
-	db.First(&commande, id)
-	commande.PosID = updateData.PosID
+	db.First(&commande, uuid)
+	commande.PosUUID = updateData.PosUUID
 	commande.Ncommande = updateData.Ncommande
 	commande.Status = updateData.Status
-	commande.ClientID = updateData.ClientID
+	commande.ClientUUID = updateData.ClientUUID
 	commande.Signature = updateData.Signature
 	commande.CodeEntreprise = updateData.CodeEntreprise
 
@@ -263,12 +270,12 @@ func UpdateCommande(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteCommande(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var commande models.Commande
-	db.First(&commande, id)
+	db.First(&commande, uuid)
 	if commande.Ncommande == 0 {
 		return c.Status(404).JSON(
 			fiber.Map{

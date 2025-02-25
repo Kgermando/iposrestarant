@@ -31,7 +31,7 @@ export class AreaComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['name', 'province', 'id'];
+  displayedColumns: string[] = ['name', 'province', 'uuid'];
   dataSource = new MatTableDataSource<IArea>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -40,7 +40,7 @@ export class AreaComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string; // Single data
   dataItem!: IArea; // Single data 
 
   formGroup!: FormGroup;
@@ -104,7 +104,7 @@ export class AreaComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.areaService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.areaService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -119,15 +119,6 @@ export class AreaComponent implements OnInit, AfterViewInit {
   onSearchChange(search: string) {
     this.search = search;
     this.fetchProducts(this.currentUser);
-  }
-
-
-  generateMailtoLink(email: string): string {
-    return `mailto:${email}`;
-  }
-
-  generateTeltoLink(tel: string): string {
-    return `tel:${tel}`;
   }
 
   public sortData(sort: Sort) {
@@ -177,7 +168,7 @@ export class AreaComponent implements OnInit, AfterViewInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.areaService.update(this.idItem, body).subscribe(() => {
+      this.areaService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -189,9 +180,9 @@ export class AreaComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.areaService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.areaService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         name: this.dataItem.name,
@@ -203,7 +194,7 @@ export class AreaComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.areaService.delete(this.idItem).subscribe(() => {
+    this.areaService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

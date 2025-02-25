@@ -1,26 +1,21 @@
 package models
 
 import (
-
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Commande struct {
-	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
+	UUID           string         `gorm:"not null;unique" json:"uuid"`
 	Reference      string         `gorm:"not null" json:"reference"`
-	// Date           time.Time      `gorm:"not null" json:"date"` 
-	Total          float64        `gorm:"not null" json:"total"`
+	Ncommande      uint64         `json:"ncommande"` // Number Random
 	Status         string         `gorm:"not null" json:"status"`
-	PosID          string           `json:"pos_id"`
-	Pos            Pos            `gorm:"foreignKey:PosID"`
+	ClientUUID     string         `json:"client_uuid"`
+	Client         Client         `gorm:"foreignKey:ClientUUID;references:UUID"`
+	PosUUID        string         `json:"pos_uuid"`
+	Pos            Pos            `gorm:"foreignKey:PosUUID;references:UUID"`
+	Signature      string         `json:"signature"`
 	CodeEntreprise uint64         `json:"code_entreprise"`
-	CommandeLines  []CommandeLine `gorm:"foreignKey:CommandeID"`
-}
-
-func (commande *Commande) BeforeCreate(tx *gorm.DB) (err error) {
-	commande.ID = uuid.New().String()
-	return
+	CommandeLines  []CommandeLine `gorm:"foreignKey:CommandeUUID;references:UUID"`
 }

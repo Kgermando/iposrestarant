@@ -1,3 +1,4 @@
 export interface IUniteVente {
-    ID: number;
+    ID: string;
+    uuid?: string;
 }

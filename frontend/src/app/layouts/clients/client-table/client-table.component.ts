@@ -10,9 +10,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { ClientService } from '../client.service';
-import { Papa } from 'ngx-papaparse';
-import { formatDate } from '@angular/common';
-import { parseDate } from 'ngx-bootstrap/chronos';
+import { Papa } from 'ngx-papaparse'; 
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import { CsvService } from '../../../shared/services/csv.service';
@@ -37,7 +35,7 @@ export class ClientTableComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['fullname', 'telephone', 'telephone2', 'email', 'adress',  'organisation', 'website', 'action', 'id'];
+  displayedColumns: string[] = ['fullname', 'telephone', 'telephone2', 'email', 'adress',  'organisation', 'website', 'action', 'uuid'];
   dataSource = new MatTableDataSource<IClient>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -46,7 +44,7 @@ export class ClientTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: any;
   dataItem!: IClient; // Single data 
 
   formGroup!: FormGroup;
@@ -119,7 +117,7 @@ export class ClientTableComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.clientService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.clientService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -204,7 +202,7 @@ export class ClientTableComponent implements OnInit, AfterViewInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.clientService.update(this.idItem, body).subscribe(() => {
+      this.clientService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -216,9 +214,9 @@ export class ClientTableComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.clientService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.clientService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         fullname: this.dataItem.fullname,
@@ -235,7 +233,7 @@ export class ClientTableComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.clientService.delete(this.idItem).subscribe(() => {
+    this.clientService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

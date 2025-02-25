@@ -10,7 +10,7 @@ export class StockService extends ApiService {
   endpoint: string = `${environment.apiUrl}/stocks`;
  
 
-  GetStockMargeBeneficiaire(product_id: number): Observable<any> {
+  GetStockMargeBeneficiaire(product_id: string): Observable<any> {
     return this.http.get(`${this.endpoint}/all/get/${product_id}`);
   }
 

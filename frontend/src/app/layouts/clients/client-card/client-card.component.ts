@@ -19,8 +19,6 @@ export class ClientCardComponent implements OnInit, AfterViewInit {
   loadUserData = false;
   isLoadingData = false;
   public routes = routes;
-  public sidebarPopup1 = false;
-  public sidebarPopup2 = false;
 
   // Table 
   dataList: IClient[] = [];
@@ -36,7 +34,7 @@ export class ClientCardComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: any;
   dataItem!: IClient; // Single data 
 
   formGroup!: FormGroup;
@@ -102,7 +100,7 @@ export class ClientCardComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.clientService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.clientService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -185,7 +183,7 @@ export class ClientCardComponent implements OnInit, AfterViewInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.clientService.update(this.idItem, body).subscribe(() => {
+      this.clientService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -198,9 +196,9 @@ export class ClientCardComponent implements OnInit, AfterViewInit {
 
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.clientService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.clientService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         fullname: this.dataItem.fullname,
@@ -218,7 +216,7 @@ export class ClientCardComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.clientService.delete(this.idItem).subscribe(() => {
+    this.clientService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

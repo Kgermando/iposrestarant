@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -35,9 +37,9 @@ func GetPaginatedLivraisonEntreprise(c *fiber.Ctx) error {
 	db.Model(&models.Livraison{}).Where("code_entreprise = ?", codeEntreprise).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).
 		Count(&length)
-	db.Joins("JOIN clients ON livraisons.client_id = clients.id").
-		Joins("JOIN livreurs ON livraisons.livreur_id = livreurs.id").
-		Joins("JOIN areas ON livraisons.area_id = areas.id").
+	db.Joins("JOIN clients ON livraisons.client_uuid = clients.uuid").
+		Joins("JOIN livreurs ON livraisons.livreur_uuid = livreurs.uuid").
+		Joins("JOIN areas ON livraisons.area_uuid = areas.uuid").
 		Where("livraisons.code_entreprise = ?", codeEntreprise).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).
 		Where("livreurs.name_society LIKE ? OR livreurs.livreur_name LIKE ? OR operator_name LIKE ? OR clients.fullname LIKE ? OR areas.name LIKE ? OR livraisons.status LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").
@@ -79,10 +81,12 @@ func GetPaginatedLivraisonEntreprise(c *fiber.Ctx) error {
 func GetPaginatedLivraison(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	} 
 
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
@@ -103,13 +107,13 @@ func GetPaginatedLivraison(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.Livraison{}).Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).Count(&length)
-	db.Joins("JOIN clients ON livraisons.client_id = clients.id").
-		Joins("JOIN livreurs ON livraisons.livreur_id = livreurs.id").
-		Joins("JOIN areas ON livraisons.area_id = areas.id").
+	db.Joins("JOIN clients ON livraisons.client_uuid = clients.uuid").
+		Joins("JOIN livreurs ON livraisons.livreur_uuid = livreurs.uuid").
+		Joins("JOIN areas ON livraisons.area_uuid = areas.uuid").
 		Where("livraisons.code_entreprise = ?", codeEntreprise).
-		Where("livraisons.pos_id = ?", posId).
+		Where("livraisons.pos_uuid = ?", posuuId).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).
 		Where("livreurs.name_society LIKE ? OR livreurs.livreur_name LIKE ? OR operator_name LIKE ? OR clients.fullname LIKE ? OR areas.name LIKE ? OR livraisons.status LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
@@ -150,14 +154,16 @@ func GetPaginatedLivraison(c *fiber.Ctx) error {
 func GetAllLivraisons(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
-	// Sync data with API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	// Sync data with 
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	} 
 
 	var data []models.Livraison
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		// Preload("Client").
 		// Preload("Livreur").
 		// Preload("Area").
@@ -174,16 +180,19 @@ func GetAllLivraisons(c *fiber.Ctx) error {
 func GetAllLivraisonBySearch(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	}
+	
 
 	search := c.Query("search", "")
 
 	var data []models.Livraison
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Where("livreurs.name_society LIKE ? OR livreurs.livreur_name LIKE ? OR operator_name LIKE ? OR clients.fullname LIKE ? OR areas.name LIKE ? OR livraisons.status LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").
 		Preload("Area").
 		Preload("Pos").
@@ -197,7 +206,7 @@ func GetAllLivraisonBySearch(c *fiber.Ctx) error {
 
 // Get one data
 func GetLivraison(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var livraison models.Livraison
@@ -206,7 +215,7 @@ func GetLivraison(c *fiber.Ctx) error {
 		Preload("Livreur").
 		Preload("Area").
 		Preload("Pos").
-		Find(&livraison, id)
+		Find(&livraison, uuid)
 	if livraison.OperatorName == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -233,6 +242,7 @@ func CreateLivraison(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -246,16 +256,16 @@ func CreateLivraison(c *fiber.Ctx) error {
 
 // Update data
 func UpdateLivraison(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
 		OperatorName   string  `json:"operator_name"`
-		AreaID         uint    `json:"area_id"`
+		AreaUUID       string  `json:"area_uuid"`
 		CoutLivraison  float64 `json:"cout_livraison"`
-		ClientID       uint    `json:"client_id"`
-		LivreurID      uint    `json:"livreur_id"`
-		PosID          uint    `json:"pos_id"`
+		ClientUUID     string  `json:"client_uuid"`
+		LivreurUUID    string  `json:"livreur_uuid"`
+		PosUUID        string  `json:"pos_uuid"`
 		Status         string  `json:"status"`
 		Signature      string  `json:"signature"`
 		CodeEntreprise uint64  `json:"code_entreprise"`
@@ -275,15 +285,15 @@ func UpdateLivraison(c *fiber.Ctx) error {
 
 	livraison := new(models.Livraison)
 
-	db.First(&livraison, id)
+	db.First(&livraison, uuid)
 	livraison.OperatorName = updateData.OperatorName
-	livraison.AreaID = updateData.AreaID
-	livraison.ClientID = updateData.ClientID
-	livraison.LivreurID = updateData.LivreurID
+	livraison.AreaUUID = updateData.AreaUUID
+	livraison.ClientUUID = updateData.ClientUUID
+	livraison.LivreurUUID = updateData.LivreurUUID
 	livraison.CoutLivraison = updateData.CoutLivraison
 	livraison.Status = updateData.Status
 	livraison.Signature = updateData.Signature
-	livraison.PosID = updateData.PosID
+	livraison.PosUUID = updateData.PosUUID
 	livraison.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&livraison)
@@ -300,12 +310,12 @@ func UpdateLivraison(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteLivraison(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var livraison models.Livraison
-	db.First(&livraison, id)
+	db.First(&livraison, uuid)
 	if livraison.OperatorName == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

@@ -10,11 +10,13 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 var SECRET_KEY string = os.Getenv("SECRET_KEY")
 
 func Register(c *fiber.Ctx) error {
+	db := database.PGDB
 
 	nu := new(models.User)
 
@@ -32,16 +34,19 @@ func Register(c *fiber.Ctx) error {
 		})
 	}
 
+	nu.UUID = uuid.New().String()
+
 	u := &models.User{
-		Fullname:     nu.Fullname,
-		Email:        nu.Email,
-		Telephone:    nu.Telephone,
-		Role:         nu.Role,
-		Permission:   nu.Permission,
-		Status:       nu.Status,
-		Currency:     nu.Currency,
-		EntrepriseID: nu.EntrepriseID,
-		Signature:    nu.Signature,
+		UUID:           nu.UUID,
+		Fullname:       nu.Fullname,
+		Email:          nu.Email,
+		Telephone:      nu.Telephone,
+		Role:           nu.Role,
+		Permission:     nu.Permission,
+		Status:         nu.Status,
+		Currency:       nu.Currency,
+		EntrepriseUUID: nu.EntrepriseUUID,
+		Signature:      nu.Signature,
 	}
 
 	u.SetPassword(nu.Password)
@@ -51,7 +56,7 @@ func Register(c *fiber.Ctx) error {
 		return c.JSON(err)
 	}
 
-	if err := database.DB.Create(u).Error; err != nil {
+	if err := db.Create(u).Error; err != nil {
 		c.Status(500)
 		sm := strings.Split(err.Error(), ":")
 		m := strings.TrimSpace(sm[1])
@@ -86,7 +91,7 @@ func Login(c *fiber.Ctx) error {
 
 	database.DB.Where("email = ?", lu.Email).Preload("Entreprise").First(&u)
 
-	if u.ID == 0 {
+	if u.UUID == "00000000-0000-0000-0000-000000000000" {
 		c.Status(404)
 		return c.JSON(fiber.Map{
 			"message": "Invalid email 😰",
@@ -135,7 +140,7 @@ func Login(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "success",
 		// "token":   token,
-		"data":       u,
+		"data": u,
 	})
 }
 
@@ -145,14 +150,15 @@ func AuthUser(c *fiber.Ctx) error {
 
 	// userId, _ := utils.VerifyJwt(cookie)
 
-	userId := c.Query("user_id")
+	useruuId := c.Query("user_uuid")
 
 	u := models.User{}
 
-	database.DB.Where("id = ?", userId).Preload("Entreprise").Preload("Pos").First(&u)
+	database.DB.Where("uuid = ?", useruuId).Preload("Entreprise").Preload("Pos").First(&u)
 
 	r := &models.UserResponse{
 		Id:         u.ID,
+		UUID:       u.UUID,
 		Fullname:   u.Fullname,
 		Email:      u.Email,
 		Telephone:  u.Telephone,
@@ -182,7 +188,6 @@ func Logout(c *fiber.Ctx) error {
 		"message": "success",
 		"Logout":  "success",
 	})
-
 }
 
 // User bioprofile

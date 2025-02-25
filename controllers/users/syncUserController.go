@@ -6,27 +6,20 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
-	"log"
-	"net"
+	"log" 
 	"net/http"
-	"sync"
-	"time"
+	"sync" 
 )
 
 var mu sync.Mutex
 
 // SyncDataWithAPI synchronizes local data with an online API in both directions
-func SyncDataWithAPI(entrepriseID string) {
+func SyncDataWithAPI(entrepriseUUID string) {
 	mu.Lock()
-	defer mu.Unlock()
-
-	if !isInternetAvailable() {
-		log.Println("No internet connection. Skipping synchronization.")
-		return
-	}
+	defer mu.Unlock() 
 
 	// Récupérer des données externes à partir de l'API
-	externalData, err := fetchExternalDataFromAPI(entrepriseID)
+	externalData, err := fetchExternalDataFromAPI(entrepriseUUID)
 	if err != nil {
 		log.Println("Error fetching external data:", err)
 		return
@@ -36,7 +29,7 @@ func SyncDataWithAPI(entrepriseID string) {
 	if len(externalData) > 0 {
 		for _, externalUser := range externalData {
 			var localUser models.User
-			if err := database.DB.Where("id = ?", externalUser.ID).First(&localUser).Error; err != nil {
+			if err := database.DB.Where("uuid = ?", externalUser.UUID).First(&localUser).Error; err != nil {
 				// If user does not exist locally, create it
 				if err := database.DB.Create(&externalUser).Error; err != nil {
 					log.Println("Error creating user:", err)
@@ -62,7 +55,7 @@ func SyncDataWithAPI(entrepriseID string) {
 	// Synchroniser les données du local vers l'API
 	for _, localUser := range localData {
 		// Check if the local user is newer than the external user
-		externalUser, err := fetchExternalUserFromAPI(localUser.ID)
+		externalUser, err := fetchExternalUserFromAPI(localUser.UUID)
 		if err != nil {
 			// If user does not exist externally, create it
 			if err := sendLocalDataToAPI(localUser); err != nil {
@@ -81,11 +74,11 @@ func SyncDataWithAPI(entrepriseID string) {
 		}
 	}
 
-    // Delete online data if it has been deleted locally
+	// Delete online data if it has been deleted locally
 	for _, externalUser := range externalData {
 		var localData models.User
-		if err := database.DB.Where("id = ?", externalUser.ID).First(&localData).Error; err != nil {
-			if err := deleteExternalDataInAPI(externalUser.ID); err != nil {
+		if err := database.DB.Where("uuid = ?", externalUser.UUID).First(&localData).Error; err != nil {
+			if err := deleteExternalDataInAPI(externalUser.UUID); err != nil {
 				log.Println("Error deleting external data:", err)
 			}
 		}
@@ -93,14 +86,9 @@ func SyncDataWithAPI(entrepriseID string) {
 
 }
 
-func isInternetAvailable() bool {
-	_, err := net.DialTimeout("tcp", "google.com:80", 5*time.Second)
-	return err == nil
-}
-
-func fetchExternalDataFromAPI(entrepriseID string) ([]models.User, error) {
+func fetchExternalDataFromAPI(entrepriseUUID string) ([]models.User, error) {
 	// Replace with the actual URL of your API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/all/%s", entrepriseID)
+	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/all/%s", entrepriseUUID)
 
 	resp, err := http.Get(apiURL)
 	if err != nil {
@@ -123,9 +111,9 @@ func fetchExternalDataFromAPI(entrepriseID string) ([]models.User, error) {
 }
 
 // Récupérer un utilisateur externe à partir de l'API
-func fetchExternalUserFromAPI(userID uint) (models.User, error) {
+func fetchExternalUserFromAPI(userUUID string) (models.User, error) {
 	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/get/%d", userID)
+	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/get/%s", userUUID)
 
 	resp, err := http.Get(apiURL)
 	if err != nil {
@@ -173,7 +161,7 @@ func sendLocalDataToAPI(user models.User) error {
 // Update external user data in the API
 func updateExternalUserInAPI(user models.User) error {
 	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/update/%d", user.ID)
+	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/update/%s", user.UUID)
 
 	userData, err := json.Marshal(user)
 	if err != nil {
@@ -200,37 +188,21 @@ func updateExternalUserInAPI(user models.User) error {
 	return nil
 }
 
-
-
 // Delete external data in the API
-func deleteExternalDataInAPI(dataID uint) error {
-	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/users/delete/%d", dataID)
+func deleteExternalDataInAPI(dataUUID string) error {
+	db := database.PGDB
 
-	req, err := http.NewRequest(http.MethodDelete, apiURL, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
+	var data models.User
+	db.First(&data, dataUUID)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to delete data: %s", resp.Status)
-	}
+	db.Delete(&data)
 
 	return nil
 }
 
 // isEqual compares two Area structs for equality
 func isEqual(a, b models.User) bool {
-	return a.ID == b.ID &&
-		a.Name == b.Name &&
-		a.EntrepriseID == b.EntrepriseID &&
+	return a.UUID == b.UUID && 
+		a.EntrepriseUUID == b.EntrepriseUUID &&
 		a.UpdatedAt.Equal(b.UpdatedAt)
 }

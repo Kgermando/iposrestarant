@@ -27,7 +27,7 @@ export class FatureComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.commaneLineService.getAllById(this.commande!.ID!).subscribe((line) => {
+    this.commaneLineService.getAllById(this.commande!.uuid!).subscribe((line) => {
       this.commandeLineList = line.data; 
       this.isLoading = false;
     });

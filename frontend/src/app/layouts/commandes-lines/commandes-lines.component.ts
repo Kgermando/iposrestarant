@@ -39,7 +39,7 @@ export class CommandesLinesComponent implements OnInit {
   platLength = signal<number>(0);
 
 
-  commandeId!: number;
+  commandeuuId!: string;
   commande!: ICommande;
   commandeLineList: ICommandeLine[] = [];
 
@@ -56,7 +56,7 @@ export class CommandesLinesComponent implements OnInit {
   pageIndexClient: number = 0;
   lengthClient: number = 0;
   @ViewChild('client_id') client_id!: ElementRef<HTMLInputElement>;
-  clientId!: number;
+  clientId!: string;
   isloadClient = signal<boolean>(false);
   
 
@@ -79,12 +79,12 @@ export class CommandesLinesComponent implements OnInit {
     this.loading = true;
     this.isloadClient.set(true);
     this.route.params.subscribe(routeParams => {
-      this.commandeId = routeParams['id'];
-      this.idDataService.changeId(this.commandeId);
+      this.commandeuuId = routeParams['uuid'];
+      this.idDataService.changeId(this.commandeuuId);
       this.commaneLineService.refreshDataList$.subscribe(() => {
-        this.getProduct(this.commandeId);
+        this.getProduct(this.commandeuuId);
       });
-      this.getProduct(this.commandeId);
+      this.getProduct(this.commandeuuId);
     });
     this.authService.user().subscribe({
       next: (user) => {
@@ -117,10 +117,10 @@ export class CommandesLinesComponent implements OnInit {
 
 
   // Get One commande
-  getProduct(id: any) {
-    this.commandeService.get(Number.parseInt(id)).subscribe(res => {
+  getProduct(uuid: any) {
+    this.commandeService.get(uuid).subscribe(res => {
       this.commande = res.data;
-      this.commaneLineService.getAllById(this.commande.ID!).subscribe((line) => {
+      this.commaneLineService.getAllById(this.commande.uuid!).subscribe((line) => {
         this.commandeLineList = line.data;
         this.totalLength.set(this.commandeLineList.length);
         this.loading = false;
@@ -129,7 +129,7 @@ export class CommandesLinesComponent implements OnInit {
   }
 
   getCaisses(currentUser: IUser) {
-    this.caisseService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.ID!).subscribe((res) => {
+    this.caisseService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.uuid!).subscribe((res) => {
       this.selectCaisseList = res.data; 
     });
   }
@@ -209,13 +209,13 @@ export class CommandesLinesComponent implements OnInit {
       const body: ICommande = {
         ncommande: this.commande.ncommande,
         status: this.commande.status,
-        table_box_id: parseInt(this.commande.table_box_id.toString()),
-        client_id: parseInt(this.clientId.toString()),
+        table_box_uuid: this.commande.table_box_uuid,
+        client_uuid: this.clientId,
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.commandeService.update(this.commande.ID!, body).subscribe((res) => {
+      this.commandeService.update(this.commande.uuid!, body).subscribe((res) => {
         this.isLoading = false;
         this.toastr.success('Client ajoutée avec succès!', 'Success!');
       });

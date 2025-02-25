@@ -32,7 +32,7 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['name', 'qty_dispo', 'description', 'pos', 'id'];
+  displayedColumns: string[] = ['name', 'qty_dispo', 'description', 'pos', 'uuid'];
   dataSource = new MatTableDataSource<IIngredient>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -41,7 +41,7 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IIngredient; // Single data 
 
   formGroup!: FormGroup;
@@ -109,7 +109,7 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.ingredientService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.ingredientService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -155,7 +155,7 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
           description: this.formGroup.value.description,
           unite: this.formGroup.value.unite,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.ingredientService.create(body).subscribe(() => {
@@ -179,10 +179,10 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
         description: this.formGroup.value.description,
         unite: this.formGroup.value.unite,
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.ingredientService.update(this.idItem, body).subscribe(() => {
+      this.ingredientService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -194,15 +194,15 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.ingredientService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.ingredientService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         name: this.dataItem.name,
         description: this.dataItem.description,
         unite: this.dataItem.unite,
-        pos_id: this.dataItem.pos_id,
+        pos_uuid: this.dataItem.pos_uuid,
         code_entreprise: this.dataItem.code_entreprise,
       });
     });
@@ -211,7 +211,7 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.ingredientService.delete(this.idItem).subscribe(() => {
+    this.ingredientService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

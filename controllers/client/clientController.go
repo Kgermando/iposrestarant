@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -16,7 +18,9 @@ func GetPaginatedClient(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 
 	// Synchronize data with API
-	go SyncDataWithAPI(codeEntreprise)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise)
+	}
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -82,11 +86,11 @@ func GetAllClients(c *fiber.Ctx) error {
 
 // Get one data
 func GetClient(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var client models.Client
-	db.Find(&client, id)
+	db.Find(&client, uuid)
 	if client.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -113,6 +117,8 @@ func CreateClient(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -126,7 +132,7 @@ func CreateClient(c *fiber.Ctx) error {
 
 // Update data
 func UpdateClient(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
@@ -156,7 +162,7 @@ func UpdateClient(c *fiber.Ctx) error {
 
 	client := new(models.Client)
 
-	db.First(&client, id)
+	db.First(&client, uuid)
 	client.Fullname = updateData.Fullname
 	client.Telephone = updateData.Telephone
 	client.Telephone2 = updateData.Telephone2
@@ -182,12 +188,12 @@ func UpdateClient(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteClient(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var client models.Client
-	db.First(&client, id)
+	db.First(&client, uuid)
 	if client.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

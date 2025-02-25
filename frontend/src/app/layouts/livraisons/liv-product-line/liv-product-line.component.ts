@@ -22,21 +22,21 @@ export class LivProductLineComponent implements OnInit {
   public search = '';
   dataList: IProduct[] = [];
 
-  livraisonId!: number; 
+  livraisonuuId!: string; 
 
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private idDataService: IdDataService, 
+    private uuidDataService: IdDataService, 
     private productService: ProductService,  
   ) { }
 
   ngOnInit() {
     this.loadUserData = true;
     this.isLoadingData = true;
-    this.idDataService.currentId.subscribe(id => {
-      this.livraisonId = id;
+    this.uuidDataService.currentUUID.subscribe(uuid => {
+      this.livraisonuuId = uuid;
     });
 
     this.authService.user().subscribe({
@@ -59,9 +59,9 @@ export class LivProductLineComponent implements OnInit {
   // Get all products
   fetchProducts() { 
     this.productService.getAllByEntrepriseByPosSearch(this.currentUser.entreprise?.code!, 
-      this.currentUser.pos?.ID!, this.search).subscribe((res) => {
+      this.currentUser.pos?.uuid!, this.search).subscribe((res) => {
       this.dataList = res.data;
-      this.idDataService.changeProd(this.dataList.length); // Pour transferer La taille des donnees de products a commandeline
+      this.uuidDataService.changeProd(this.dataList.length); // Pour transferer La taille des donnees de products a commandeline
       this.isLoadingData = false;
     });
   }

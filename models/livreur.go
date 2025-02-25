@@ -1,14 +1,13 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Livreur struct {
-	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
+	UUID           string `gorm:"not null;unique" json:"uuid"`
 	NameSociety    string `gorm:"not null" json:"name_society"`
 	LivreurName    string `gorm:"not null" json:"livreur_name"`
 	Telephone      string `gorm:"not null" json:"telephone"`
@@ -18,10 +17,5 @@ type Livreur struct {
 	Signature      string `json:"signature"`
 	CodeEntreprise uint64 `json:"code_entreprise"`
 
-	Livraison []Livraison `gorm:"foreignKey:LivreurID"`
-}
-
-func (livreur *Livreur) BeforeCreate(tx *gorm.DB) (err error) {
-	livreur.ID = uuid.New().String()
-	return
+	Livraison []Livraison `gorm:"foreignKey:LivreurUUID;references:UUID"`
 }

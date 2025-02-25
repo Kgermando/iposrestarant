@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { ToastrService } from 'ngx-toastr';
-import { IUser } from '../models/user';
 import { formatDate } from '@angular/common';
 import { IEntreprise } from '../../models/entreprise.model';
 
@@ -36,7 +35,7 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     this.formGroup = this._formBuilder.group({
       type_entreprise: ['', Validators.required],
-      name: ['', Validators.required], 
+      name: ['', Validators.required],
       rccm: [''],
       idnat: [''],
       nimpot: [''],
@@ -70,11 +69,11 @@ export class RegisterComponent implements OnInit {
           abonnement: new Date(),
           signature: 'Auto',
         };
-        this.authService.entreprise(body).subscribe({
+        this.authService.entreprise(body).subscribe({ 
           next: (res) => {
             const entreprise: IEntreprise = res.data;
             var dataUser = {
-              entreprise_id: entreprise.ID!,
+              entreprise_uuid: entreprise.uuid!,
               fullname: entreprise.manager,
               email: entreprise.email,
               telephone: entreprise.telephone,

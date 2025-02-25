@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -15,7 +17,10 @@ func GetPaginatedArea(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 
 	// Synchronize data with API
-	go SyncDataWithAPI(codeEntreprise)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise)
+	}
+	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -62,10 +67,10 @@ func GetPaginatedArea(c *fiber.Ctx) error {
 		"message":    "All areas",
 		"data":       dataList,
 		"pagination": pagination,
-	}) 
+	})
 }
 
-// Get All data
+// Get All data 
 func GetAllAreas(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 	db := database.DB
@@ -81,11 +86,11 @@ func GetAllAreas(c *fiber.Ctx) error {
 
 // Get one data
 func GetArea(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var area models.Area
-	db.Find(&area, id)
+	db.Find(&area, uuid)
 	if area.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -112,6 +117,8 @@ func CreateArea(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -125,10 +132,11 @@ func CreateArea(c *fiber.Ctx) error {
 
 // Update data
 func UpdateArea(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
+		// UUID           string `json:"uuid"`
 		Name           string `json:"name"`
 		Province       string `json:"province"`
 		Signature      string `json:"signature"`
@@ -149,7 +157,8 @@ func UpdateArea(c *fiber.Ctx) error {
 
 	area := new(models.Area)
 
-	db.First(&area, id)
+	db.First(&area, uuid)
+	// area.UUID = updateData.UUID
 	area.Name = updateData.Name
 	area.Province = updateData.Province
 	area.Signature = updateData.Signature
@@ -169,12 +178,12 @@ func UpdateArea(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteArea(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var area models.Area
-	db.First(&area, id)
+	db.First(&area, uuid)
 	if area.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

@@ -12,7 +12,7 @@ export class CaisseItemService  extends ApiService {
   endpoint: string = `${environment.apiUrl}/caisse-items`;
 
    getPaginatedCaisseItemByCaisseID(
-    code_entreprise: number, caisse_id: number, 
+    code_entreprise: number, caisse_uuid: string, 
     page: number, pageSize: number, search: string,
     startDateStr: string, endDateStr: string
   ): Observable<ApiResponse> {
@@ -22,6 +22,6 @@ export class CaisseItemService  extends ApiService {
     .set("search", search)
     .set("start_date", startDateStr)
     .set("end_date", endDateStr)
-    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${caisse_id}/all/paginate`, { params });
+    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${caisse_uuid}/all/paginate`, { params });
   }
 } 

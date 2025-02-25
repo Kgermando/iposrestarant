@@ -1,4 +1,4 @@
-import { AfterViewInit, Component,OnInit, signal, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, signal, ViewChild } from '@angular/core';
 import { routes } from '../../../shared/routes/routes';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort, Sort } from '@angular/material/sort';
@@ -36,7 +36,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Table
-  displayedColumns: string[] = ['created', 'quantity', 'prix_achat', 'date_expiration', 'description', 'fournisseur_id', 'id'];
+  displayedColumns: string[] = ['created', 'quantity', 'prix_achat', 'date_expiration', 'description', 'fournisseur_uuid', 'uuid'];
   dataSource = new MatTableDataSource<IIngredientStock>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -44,20 +44,20 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
 
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IIngredientStock; // Single data 
 
   formGroup!: FormGroup;
   currentUser!: IUser;
   isLoading = false;
 
-  ingredientUuid!: number;
+  ingredientUuid!: string;
   ingredient!: IIngredient;
 
   fournisseurList: IFournisseur[] = [];
   fournisseur!: IFournisseur;
 
-  montantTotalAchat = signal<number>(0); 
+  montantTotalAchat = signal<number>(0);
   stockTotal = signal<number>(0);
   stockDispo = signal<number>(0);
   pourcentstockDispo = signal<number>(0);
@@ -80,7 +80,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
     private toastr: ToastrService
   ) { }
 
-  
+
 
   ngAfterViewInit(): void {
     this.authService.user().subscribe({
@@ -126,7 +126,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
       quantity: ['', Validators.required],
       description: ['', Validators.required],
       date_expiration: ['', Validators.required],
-      fournisseur_id: [''],
+      fournisseur_uuid: [''],
     });
 
     this.onChanges();
@@ -157,7 +157,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
     });
   }
 
-  getStatsIngredientStock(currentUser: IUser, ingredient_id: number) {
+  getStatsIngredientStock(currentUser: IUser, ingredient_id: string) {
     this.ingStockService.GetStatsParIngredientStock(currentUser.entreprise!.code, ingredient_id, this.start_date, this.end_date).subscribe((res) => {
       this.montantTotalAchat.set(res.data.montanttotalachat);
       this.stockTotal.set(res.data.stocktotal);
@@ -173,15 +173,15 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
 
   fetchProducts() {
     this.ingStockService.getPaginatedByIdRangeDate(
-      this.ingredientUuid, this.pageIndex, this.pageSize, this.search, 
+      this.ingredientUuid, this.pageIndex, this.pageSize, this.search,
       this.start_date, this.end_date).subscribe((res) => {
-      this.dataList = res.data;
-      this.totalItems = res.pagination.total_pages;
-      this.length = res.pagination.length;
-      this.dataSource = new MatTableDataSource<IIngredientStock>(this.dataList);
-      this.dataSource.sort = this.sort;
-      this.isLoadingData = false;
-    }); 
+        this.dataList = res.data;
+        this.totalItems = res.pagination.total_pages;
+        this.length = res.pagination.length;
+        this.dataSource = new MatTableDataSource<IIngredientStock>(this.dataList);
+        this.dataSource.sort = this.sort;
+        this.isLoadingData = false;
+      });
   }
 
   onSearchChange(search: string) {
@@ -189,14 +189,14 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
     this.fetchProducts();
   }
 
-   
+
 
   getFournisseurs(currentUser: IUser) {
     this.fournisseurService.getAllEntreprise(currentUser.entreprise?.code!).subscribe(val => {
       this.fournisseurList = val.data;
     });
   }
-  
+
 
   public sortData(sort: Sort) {
     const data = this.dataList.slice();
@@ -218,14 +218,14 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
       if (this.formGroup.valid) {
         this.isLoading = true;
         const body: IIngredientStock = {
-          ingredient_id: parseInt(this.ingredientUuid.toString()),
+          ingredient_uuid: this.ingredientUuid,
           description: this.formGroup.value.description,
-          fournisseur_id: parseInt(this.formGroup.value.fournisseur_id.toString()),
+          fournisseur_uuid: this.formGroup.value.fournisseur_uuid,
           quantity: this.formGroup.value.quantity,
           prix_achat: this.formGroup.value.prix_achat,
           date_expiration: this.formGroup.value.date_expiration,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.ingStockService.create(body).subscribe(res => {
@@ -246,17 +246,17 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
     try {
       this.isLoading = true;
       const body: IIngredientStock = {
-        ingredient_id: parseInt(this.dataItem.ingredient_id.toString()),
+        ingredient_uuid: this.dataItem.ingredient_uuid,
         description: this.formGroup.value.description,
-        fournisseur_id: parseInt(this.formGroup.value.fournisseur_id.toString()),
+        fournisseur_uuid: this.formGroup.value.fournisseur_uuid,
         quantity: this.formGroup.value.quantity,
         prix_achat: this.formGroup.value.prix_achat,
         date_expiration: this.formGroup.value.date_expiration,
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.ingStockService.update(this.idItem, body).subscribe(res => {
+      this.ingStockService.update(this.uuidItem, body).subscribe(res => {
         this.formGroup.reset();
         this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
         this.toastr.success('Modification enregistrée!', 'Success!');
@@ -269,14 +269,14 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.ingStockService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.ingStockService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
-        ingredient_id: this.dataItem.ingredient_id,
+        ingredient_uuid: this.dataItem.ingredient_uuid,
         description: this.dataItem.description,
-        fournisseur_id: this.dataItem.fournisseur_id,
+        fournisseur_uuid: this.dataItem.fournisseur_uuid,
         quantity: this.dataItem.quantity,
         prix_achat: this.dataItem.prix_achat,
         date_expiration: this.dataItem.date_expiration,
@@ -289,7 +289,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.ingStockService.delete(this.idItem).subscribe(() => {
+    this.ingStockService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

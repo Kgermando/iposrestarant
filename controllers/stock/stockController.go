@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 	"time"
 
@@ -14,10 +15,12 @@ import (
 // Paginate
 func GetPaginatedStock(c *fiber.Ctx) error {
 	db := database.DB
-	productUuid := c.Params("product_uuid") // Changed to product_uuid
+	productuuid := c.Params("product_uuid") // Changed to product_uuid
 
 	// Sync data with API
-	go SyncDataWithAPI(productUuid)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(productuuid)
+	}
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -34,9 +37,9 @@ func GetPaginatedStock(c *fiber.Ctx) error {
 	var dataList []models.Stock
 
 	var length int64
-	db.Model(&models.Stock{}).Where("product_uuid = ?", productUuid).Count(&length) // Changed to product_uuid
-	db.Where("product_uuid = ?", productUuid).                                      // Changed to product_uuid
-											Joins("JOIN products ON stocks.product_uuid=products.uuid"). // Changed to product_uuid
+	db.Model(&models.Stock{}).Where("product_uuid = ?", productuuid).Count(&length) // Changed to product_id
+	db.Where("product_uuid = ?", productuuid).                                      // Changed to product_uid
+											Joins("JOIN products ON stocks.product_uuid=products.uuid"). // Changed to product_id
 											Where("products.name LIKE ? OR products.reference LIKE ?", "%"+search+"%", "%"+search+"%").
 											Offset(offset).
 											Limit(limit).
@@ -117,12 +120,12 @@ func GetAllStocks(c *fiber.Ctx) error {
 
 // Get one data
 func GetStock(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var stock models.Stock
-	db.Find(&stock, id)
-	if stock.ProductUuid == uuid.Nil { // Changed to ProductUuid
+	db.Find(&stock, uuid)
+	if stock.ProductUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -148,6 +151,8 @@ func CreateStock(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -161,18 +166,18 @@ func CreateStock(c *fiber.Ctx) error {
 
 // Update data
 func UpdateStock(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		PosID          uint      `json:"pos_id"`
-		ProductUuid    uuid.UUID `json:"product_uuid"` // Changed to ProductUuid
-		Description    string    `json:"description"`
-		FournisseurID  uint      `json:"fournisseur_id"`
-		Quantity       uint64    `json:"quantity"`
-		PrixAchat      float64   `json:"prix_achat"`
-		DateExpiration time.Time `json:"date_expiration"`
-		Signature      string    `json:"signature"`
+		PosUUID         string    `json:"pos_uuid"`
+		ProductUUID     string    `json:"product_uuid"`
+		Description     string    `json:"description"`
+		FournisseurUUID string    `json:"fournisseur_uuid"`
+		Quantity        uint64    `json:"quantity"`
+		PrixAchat       float64   `json:"prix_achat"`
+		DateExpiration  time.Time `json:"date_expiration"`
+		Signature       string    `json:"signature"`
 	}
 
 	var updateData UpdateData
@@ -189,11 +194,11 @@ func UpdateStock(c *fiber.Ctx) error {
 
 	stock := new(models.Stock)
 
-	db.First(&stock, id)
-	stock.PosID = updateData.PosID
-	stock.ProductUuid = updateData.ProductUuid // Changed to ProductUuid
+	db.First(&stock, uuid)
+	stock.PosUUID = updateData.PosUUID
+	stock.ProductUUID = updateData.ProductUUID
 	stock.Description = updateData.Description
-	stock.FournisseurID = updateData.FournisseurID
+	stock.FournisseurUUID = updateData.FournisseurUUID
 	stock.Quantity = updateData.Quantity
 	stock.PrixAchat = updateData.PrixAchat
 	stock.DateExpiration = updateData.DateExpiration
@@ -213,13 +218,13 @@ func UpdateStock(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteStock(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var stock models.Stock
-	db.First(&stock, id)
-	if stock.ProductUuid == uuid.Nil { // Changed to ProductUuid
+	db.First(&stock, uuid)
+	if stock.ProductUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",

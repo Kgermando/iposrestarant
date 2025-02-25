@@ -33,7 +33,7 @@ export class FournisseurTableComponent implements OnInit, AfterViewInit {
 
 
   // Table 
-  displayedColumns: string[] = ['name', 'type_fourniture', 'telephone', 'email', 'adresse', 'action', 'id'];
+  displayedColumns: string[] = ['name', 'type_fourniture', 'telephone', 'email', 'adresse', 'action', 'uuid'];
   dataSource = new MatTableDataSource<IFournisseur>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -42,7 +42,7 @@ export class FournisseurTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IFournisseur; // Single data 
 
   formGroup!: FormGroup;
@@ -106,7 +106,7 @@ export class FournisseurTableComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.fournisseurService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.fournisseurService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -184,7 +184,7 @@ export class FournisseurTableComponent implements OnInit, AfterViewInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.fournisseurService.update(this.idItem, body).subscribe(() => {
+      this.fournisseurService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -196,9 +196,9 @@ export class FournisseurTableComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.fournisseurService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.fournisseurService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         name: this.dataItem.name,
@@ -213,7 +213,7 @@ export class FournisseurTableComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.fournisseurService.delete(this.idItem).subscribe(() => {
+    this.fournisseurService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

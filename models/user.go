@@ -3,35 +3,37 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 type User struct {
-	ID string `gorm:"type:text;primaryKey" json:"id"`
+	// ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+
 	gorm.Model
 
+	UUID            string     `gorm:"not null;unique" json:"uuid"`
 	Fullname        string     `gorm:"not null" json:"fullname"`
 	Email           string     `gorm:"unique; not null" json:"email"`
 	Telephone       string     `gorm:"unique; not null" json:"telephone"`
 	Password        string     `json:"password" validate:"required"`
 	PasswordConfirm string     `json:"password_confirm" gorm:"-"`
-	Role            string     `json:"role"`
-	Permission      string     `json:"permission"`
-	Status          bool       `json:"status"`
-	Currency        string     `json:"currency"`
-	EntrepriseID    uint       `json:"entreprise_id"`
-	Entreprise      Entreprise `gorm:"foreignKey:EntrepriseID"`
-	PosID           uint       `json:"pos_id"`
-	Pos             Pos        `gorm:"foreignKey:PosID"`
+	Role            string     `json:"role" gorm:"default:'user'"`
+	Permission      string     `json:"permission" gorm:"default:'read'"`
+	Status          bool       `json:"status" gorm:"default:true"`
+	Currency        string     `json:"currency" gorm:"default:'USD'"`
+	EntrepriseUUID  string       `json:"entreprise_uuid"`
+	Entreprise      Entreprise `gorm:"foreignKey:EntrepriseUUID;references:UUID"`
+	PosUUID         string       `json:"pos_uuid"`
+	Pos             Pos        `gorm:"foreignKey:PosUUID;references:UUID"`
 	Signature       string     `json:"signature"`
 	Code            string     `json:"code" gorm:"-"`
 	Name            string     `json:"name" gorm:"-"`
 }
 
 type UserResponse struct {
-	Id         string       `json:"id,omitempty"`
+	Id         uint       `json:"id,omitempty"`
+	UUID       string     `json:"uuid,omitempty"`
 	Fullname   string     `json:"fullname"`
 	Email      string     `json:"email"`
 	Telephone  string     `json:"telephone"`
@@ -62,7 +64,7 @@ func (u *User) ComparePassword(p string) error {
 	return err
 }
 
-func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
-	user.ID = uuid.New().String()
-	return
-}
+// func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
+// 	user.ID = uuid.New().String()
+// 	return
+// }

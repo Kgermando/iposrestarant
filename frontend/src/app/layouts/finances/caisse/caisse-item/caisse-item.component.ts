@@ -35,7 +35,7 @@ export class CaisseItemComponent implements OnInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['createdat', 'type_transaction', 'montant', 'libelle', 'reference', 'caisse', 'signature', 'id'];
+  displayedColumns: string[] = ['createdat', 'type_transaction', 'montant', 'libelle', 'reference', 'caisse', 'signature', 'uuid'];
   dataSource = new MatTableDataSource<ICaisseItem>(this.dataItemList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -44,7 +44,7 @@ export class CaisseItemComponent implements OnInit {
   public search = '';
   currentUser!: IUser;
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: ICaisseItem; // Single data 
 
   formGroupCaisse!: FormGroup;
@@ -53,7 +53,7 @@ export class CaisseItemComponent implements OnInit {
 
   type_transaction: string[] = ['Entrée', 'Sortie'];
 
-  caisseUuid!: number;
+  caisse_uuid!: string;
   caisse!: ICaisse;
 
   constructor(
@@ -82,12 +82,12 @@ export class CaisseItemComponent implements OnInit {
     this.start_date = formatDate(this.dateRange.value.rangeValue[0], 'yyyy-MM-dd', 'en-US');
     this.end_date = formatDate(this.dateRange.value.rangeValue[1], 'yyyy-MM-dd', 'en-US');
     this.route.params.subscribe(routeParams => {
-      this.caisseUuid = routeParams['uuid'];
+      this.caisse_uuid = routeParams['uuid'];
       this.authService.user().subscribe({
         next: (user) => {
           this.currentUser = user;
           this.loadUserData = false;
-          this.getProduct(this.caisseUuid);
+          this.getProduct(this.caisse_uuid);
 
           this.caisseItemService.refreshDataList$.subscribe(() => {
             this.fetchProducts(this.currentUser);
@@ -128,9 +128,9 @@ export class CaisseItemComponent implements OnInit {
   }
 
 
-  getProduct(id: any) {
+  getProduct(uuid: any) {
     this.loading = true;
-    this.caisseService.get(Number.parseInt(id)).subscribe(res => {
+    this.caisseService.get(uuid).subscribe(res => {
       this.caisse = res.data;
       this.loading = false;
     });
@@ -145,7 +145,7 @@ export class CaisseItemComponent implements OnInit {
 
   fetchProducts(currentUser: IUser) {
     this.caisseItemService.getPaginatedCaisseItemByCaisseID(
-      currentUser.entreprise?.code!, this.caisseUuid,
+      currentUser.entreprise?.code!, this.caisse_uuid,
       this.pageIndex, this.pageSize, this.search,
       this.start_date, this.end_date
     ).subscribe((res) => {
@@ -193,7 +193,7 @@ export class CaisseItemComponent implements OnInit {
         this.isLoading = true;
         var code = Math.floor(1000000000 + Math.random() * 90000000000);
         const body: ICaisseItem = {
-          // caisse_uuid: parseInt(this.caisseID.toString()),
+          caisse_uuid: this.caisse_uuid,
           type_transaction: 'Sortie', // this.formGroup.value.type_transaction,
           montant: parseFloat(this.formGroup.value.montant),
           libelle: this.formGroup.value.libelle,
@@ -218,7 +218,7 @@ export class CaisseItemComponent implements OnInit {
     try {
       this.isLoading = true;
       const body: ICaisseItem = {
-        // caisse_id: parseInt(this.caisseID.toString()),
+        caisse_uuid: this.caisse_uuid,
         type_transaction: this.dataItem.type_transaction, // this.formGroup.value.type_transaction,
         montant: parseFloat(this.formGroup.value.montant),
         libelle: this.formGroup.value.libelle,
@@ -226,7 +226,7 @@ export class CaisseItemComponent implements OnInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.caisseItemService.update(this.idItem, body).subscribe(() => {
+      this.caisseItemService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -238,9 +238,9 @@ export class CaisseItemComponent implements OnInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.caisseItemService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.caisseItemService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         caisse_uuid: this.dataItem.caisse_uuid,
@@ -256,7 +256,7 @@ export class CaisseItemComponent implements OnInit {
 
   delete(): void {
     this.isLoading = true;
-    this.caisseItemService.delete(this.idItem).subscribe(() => {
+    this.caisseItemService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;
@@ -264,7 +264,7 @@ export class CaisseItemComponent implements OnInit {
   }
 
 
-  findCaisseValue(id: number) {
+  findCaisseValue(id: string) {
     this.caisseService.get(id).subscribe(item => {
       this.formGroupCaisse.patchValue({
         name: item.data.name,
@@ -288,7 +288,7 @@ export class CaisseItemComponent implements OnInit {
         const body: ICaisse = {
           name: this.formGroupCaisse.value.name,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.caisseService.update(this.caisse.ID!, body).subscribe((res) => {

@@ -39,7 +39,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
 
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IPlat; // Single data 
 
   formGroup!: FormGroup;
@@ -66,7 +66,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
   formGroupComp!: FormGroup;
 
   compositionList: IComposition[] = [];
-  idItemComp!: number;
+  uuidItemComp!: string;
   dataItemComp!: IComposition;
   isloadComp = false;
 
@@ -74,7 +74,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
   ingredientListFilter: IIngredient[] = [];
   filteredOptions: IIngredient[] = [];
   @ViewChild('ingredient_id') ingredient_id!: ElementRef<HTMLInputElement>;
-  ingredientID!: number;
+  ingredientuuid!: string;
   isload = false;
 
 
@@ -161,7 +161,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.platService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.platService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -221,7 +221,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
           prix_vente: this.formGroup.value.prix_vente,
           tva: this.formGroup.value.tva,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.platService.create(body).subscribe(() => {
@@ -249,10 +249,10 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
         prix_vente: this.formGroup.value.prix_vente,
         tva: this.formGroup.value.tva,
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.platService.update(this.idItem, body).subscribe(() => {
+      this.platService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.reference = '';
         this.toastr.success('Modification enregistré!', 'Success!');
@@ -265,9 +265,9 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.platService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.platService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.reference = this.dataItem.reference;
       this.formGroup.patchValue({
@@ -284,7 +284,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.platService.delete(this.idItem).subscribe(() => {
+    this.platService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.reference = '';
       this.toastr.info('Supprimé avec succès!', 'Success!');
@@ -297,7 +297,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
   // ### Composition ### 
   getAllComposition(currentUser: IUser): void {
     this.isloadComp = true;
-    this.compositionService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.ID!).subscribe(res => {
+    this.compositionService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.uuid!).subscribe(res => {
       this.compositionList = res.data;
       this.isloadComp = false;
     });
@@ -307,7 +307,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
     if (this.ingredient_id) {
       this.isload = true;
       const filterValue = this.ingredient_id.nativeElement.value.toLowerCase();
-      this.ingredientService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.ID!).subscribe(res => {
+      this.ingredientService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.uuid!).subscribe(res => {
         this.ingredientList = res.data;
         this.ingredientListFilter = this.ingredientList;
         this.filteredOptions = this.ingredientListFilter.filter(o => o.name.toLowerCase().includes(filterValue));
@@ -323,9 +323,9 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
   optionSelected(event: MatAutocompleteSelectedEvent) {
     const selectedOption = event.option.value;
     const name = selectedOption.name;
-    this.ingredientID = selectedOption.ID;
+    this.ingredientuuid = selectedOption.ID;
     // Utilisez id et fullName comme vous le souhaitez
-    console.log('ingredientID:', this.ingredientID);
+    console.log('ingredientID:', this.ingredientuuid);
     console.log('Name:', name);
   }
 
@@ -335,11 +335,11 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
       if (this.formGroupComp.valid) {
         this.isLoading = true;
         const body: IComposition = {
-          plat_id: parseInt(this.dataItem.ID!.toString()),
-          ingredient_id: (this.ingredientID) ? parseInt(this.ingredientID.toString()) : 0,
+          plat_uuid:this.dataItem.uuid!,
+          ingredient_uuid: (this.ingredientuuid) ? this.ingredientuuid : "00000000-0000-0000-0000-000000000000",
           quantity: this.formGroupComp.value.quantity,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.compositionService.create(body).subscribe(() => {
@@ -356,16 +356,16 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
 
 
 
-  findValueComp(value: number) {
-    this.idItemComp = value;
-    this.compositionService.get(this.idItemComp).subscribe(item => {
+  findValueComp(value: string) {
+    this.uuidItemComp = value;
+    this.compositionService.get(this.uuidItemComp).subscribe(item => {
       this.dataItemComp = item.data;
     });
   }
 
   deleteComp(): void {
     this.isloadComp = true;
-    this.compositionService.delete(this.idItemComp).subscribe(() => {
+    this.compositionService.delete(this.uuidItemComp).subscribe(() => {
       this.formGroupComp.reset();
       this.getAllComposition(this.currentUser);
       this.toastr.info('Supprimé avec succès!', 'Success!');

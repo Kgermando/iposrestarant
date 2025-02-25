@@ -36,7 +36,7 @@ export class LivraisonLineComponent implements OnInit {
   selectCaisseList: ICaisse[] = []; 
   
 
-  livraisonId!: number;
+  livraisonuuId!: string;
   livraison!: ILivraison; 
   commandeLineList: ICommandeLine[] = []; 
 
@@ -56,12 +56,12 @@ export class LivraisonLineComponent implements OnInit {
     this.loadUserData = true;
     this.loading = true;
     this.route.params.subscribe(routeParams => {
-      this.livraisonId = routeParams['id'];
-      this.idDataService.changeId(this.livraisonId);
+      this.livraisonuuId = routeParams['uuid'];
+      this.idDataService.changeId(this.livraisonuuId);
       this.commaneLineService.refreshDataList$.subscribe(() => {
-        this.getProduct(this.livraisonId);
+        this.getProduct(this.livraisonuuId);
       });
-      this.getProduct(this.livraisonId);
+      this.getProduct(this.livraisonuuId);
     });
     this.authService.user().subscribe({
       next: (user) => {
@@ -91,10 +91,10 @@ export class LivraisonLineComponent implements OnInit {
 
 
   // Get One commande
-  getProduct(id: any) {
-    this.livraisonService.get(Number.parseInt(id)).subscribe(res => {
+  getProduct(uuid: any) {
+    this.livraisonService.get(uuid).subscribe(res => {
       this.livraison = res.data;
-      this.commaneLineService.getAllByIdLivraison(this.livraison.ID!).subscribe((line) => {
+      this.commaneLineService.getAllByIdLivraison(this.livraison.uuid!).subscribe((line) => {
         this.commandeLineList = line.data;
         this.totalLength.set(this.commandeLineList.length);
         this.loading = false;
@@ -103,7 +103,7 @@ export class LivraisonLineComponent implements OnInit {
   }
 
   getCaisses(currentUser: IUser) {
-    this.caisseService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.ID!).subscribe((res) => {
+    this.caisseService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.uuid!).subscribe((res) => {
       this.selectCaisseList = res.data; 
     });
   }

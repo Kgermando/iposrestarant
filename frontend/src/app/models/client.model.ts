@@ -1,9 +1,10 @@
 import { ICommande } from "./commande.model";
 
 export interface IClient {
-    ID?: number; 
+    ID?: string; 
     created_at?: Date;
     updated_at?: Date;
+    uuid?: string;
     fullname: string;
     telephone: string;
     telephone2?: string;

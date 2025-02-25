@@ -20,7 +20,7 @@ import { CaisseItemService } from '../../finances/caisse/caisse-item.service';
 })
 export class CmdFactureComponent {
   @Input() currentUser!: IUser;
-  @Input() commande_id: number | undefined;
+  @Input() commande_uuid: string | undefined;
   @Input() commande!: ICommande;
   @Input() commandeLineList: ICommandeLine[] = [];
   @Input() selectCaisseList: ICaisse[] = [];
@@ -79,30 +79,30 @@ export class CmdFactureComponent {
   }
 
  
-  onSubmitFacture(status: string, caissseUuid: string) { 
+  onSubmitFacture(status: string, caisse_uuid: string) { 
     try {
       this.isLoading = true; 
       const body: ICommande = {
         ncommande: this.commande.ncommande,
         status: status,
         signature: this.currentUser.fullname,
-        table_box_id: parseInt(this.commande.TableBox!.ID!.toString()),
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        table_box_uuid: this.commande.TableBox!.uuid!,
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.commandeService.update(this.commande_id!, body).subscribe((res) => {
+      this.commandeService.update(this.commande_uuid!, body).subscribe((res) => {
         const body: ITableBox = {
           name: this.commande.TableBox!.name,
           numero: parseInt(this.commande.TableBox!.numero.toString()),
           status: 'Libre',
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.tableBoxService.update(this.commande.TableBox!.ID!, body).subscribe(() => {
           var code = Math.floor(1000000000 + Math.random() * 90000000000);
           const body: ICaisseItem = {
-            caisse_uuid: caissseUuid,
+            caisse_uuid: caisse_uuid, 
             type_transaction: 'Entrée',
             montant: this.total,
             libelle: `Vente #${this.commande.ncommande}`,
@@ -125,7 +125,7 @@ export class CmdFactureComponent {
   }
 
 
-  restitutionBtn(id: number) {
+  restitutionBtn(id: string): void {
     try {
       this.isLoading = true;
       this.commandeLineService.delete(id).subscribe(() => {
@@ -146,14 +146,14 @@ export class CmdFactureComponent {
       numero: parseInt(this.commande.TableBox!.numero.toString()),
       status: 'Libre',
       signature: this.currentUser.fullname,
-      pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+      pos_uuid: this.currentUser.pos!.uuid!,
       code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
     };
-    this.tableBoxService.update(this.commande.TableBox!.ID!, body).subscribe(() => {
-      this.commandeService.delete(this.commande_id!).subscribe(() => {
+    this.tableBoxService.update(this.commande.TableBox!.uuid!, body).subscribe(() => {
+      this.commandeService.delete(this.commande_uuid!).subscribe(() => {
         for (let index = 0; index < this.commandeLineList.length; index++) {
           const element = this.commandeLineList[index];
-          this.restitutionBtn(element.ID!);
+          this.restitutionBtn(element.uuid!);
         };
 
         this.isLoading = false;

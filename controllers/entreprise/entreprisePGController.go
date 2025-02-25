@@ -12,8 +12,8 @@ import (
 )
 
 // Paginate
-func GetPaginatedEntreprise(c *fiber.Ctx) error {
-	db := database.DB
+func GetPaginatedEntreprisePG(c *fiber.Ctx) error {
+	db := database.PGDB
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -89,8 +89,8 @@ func GetPaginatedEntreprise(c *fiber.Ctx) error {
 }
 
 // Get All data
-func GetAllEntreprises(c *fiber.Ctx) error {
-	db := database.DB
+func GetAllEntreprisePGs(c *fiber.Ctx) error {
+	db := database.PGDB
 	var data []models.Entreprise
 	db.Preload("Users").Preload("Pos").Find(&data)
 	return c.JSON(fiber.Map{
@@ -101,9 +101,9 @@ func GetAllEntreprises(c *fiber.Ctx) error {
 }
 
 // Get one data
-func GetEntreprise(c *fiber.Ctx) error {
+func GetEntreprisePG(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
-	db := database.DB
+	db := database.PGDB
 	var entreprise models.Entreprise
 	db.Preload("Users").Preload("Pos").Find(&entreprise, uuid)
 	if entreprise.Name == "" {
@@ -125,7 +125,9 @@ func GetEntreprise(c *fiber.Ctx) error {
 }
 
 // Create data
-func CreateEntreprise(c *fiber.Ctx) error {
+func CreateEntreprisePG(c *fiber.Ctx) error {
+	db := database.PGDB
+
 	p := &models.Entreprise{}
 
 	if err := c.BodyParser(&p); err != nil {
@@ -134,7 +136,7 @@ func CreateEntreprise(c *fiber.Ctx) error {
 
 	p.UUID = uuid.New().String()
 	
-	database.DB.Create(p)
+	db.Create(p)
 
 	return c.JSON(
 		fiber.Map{
@@ -146,9 +148,9 @@ func CreateEntreprise(c *fiber.Ctx) error {
 }
 
 // Update data
-func UpdateEntreprise(c *fiber.Ctx) error {
+func UpdateEntreprisePG(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
-	db := database.DB
+	db := database.PGDB
 
 	type UpdateData struct {
 		TypeEntreprise string    `json:"type_entreprise"`
@@ -210,10 +212,10 @@ func UpdateEntreprise(c *fiber.Ctx) error {
 }
 
 // Delete data
-func DeleteEntreprise(c *fiber.Ctx) error {
+func DeleteEntreprisePG(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 
-	db := database.DB
+	db := database.PGDB
 
 	var entreprise models.Entreprise
 	db.First(&entreprise, uuid)

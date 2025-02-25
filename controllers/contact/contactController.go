@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -79,11 +80,11 @@ func GetAllContacts(c *fiber.Ctx) error {
 // Get one data
 func GetContact(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var contact models.Contact
-	db.Where("code_entreprise = ?", codeEntreprise).Find(&contact, id)
+	db.Where("code_entreprise = ?", codeEntreprise).Find(&contact, uuid)
 	if contact.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -110,6 +111,7 @@ func CreateContact(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -123,7 +125,7 @@ func CreateContact(c *fiber.Ctx) error {
 
 // Update data
 func UpdateContact(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
@@ -147,7 +149,7 @@ func UpdateContact(c *fiber.Ctx) error {
 
 	contact := new(models.Contact)
 
-	db.First(&contact, id)
+	db.First(&contact, uuid)
 	contact.Fullname = updateData.Fullname
 	contact.Email = updateData.Email
 	contact.Subject = updateData.Subject
@@ -167,12 +169,12 @@ func UpdateContact(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteContact(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var contact models.Contact
-	db.First(&contact, id)
+	db.First(&contact, uuid)
 	if contact.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

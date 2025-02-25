@@ -3,10 +3,11 @@ import { IPlat } from "./plat.model";
 import { IPos } from "./pos.model";
 
 export interface IComposition {
-    ID?: number; 
-    pos_id: number;
-    plat_id: number;
-    ingredient_id: number;
+    ID?: string;
+    uuid?: string;
+    pos_uuid?: string;
+    plat_uuid?: string;
+    ingredient_uuid: string;
     quantity: number;
     signature: string;
     code_entreprise: number;

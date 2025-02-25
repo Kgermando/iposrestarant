@@ -35,9 +35,9 @@ export class ProdStyleComponent implements OnInit {
 
 
   calculatePourcentStock() {
-    this.stockService.getTotalQty(this.item.ID!).subscribe((res) => {
+    this.stockService.getTotalQty(this.item.uuid!).subscribe((res) => {
       this.totalStockQty.set(res.data);
-      this.commaneLineService.getTotalQty(this.item.ID!).subscribe((line) => {
+      this.commaneLineService.getTotalQty(this.item.uuid!).subscribe((line) => {
         this.totalCmdQty.set(line.data);  
         this.pourcentStock.emit(this.pourcentQty()); // pourcentage pour chaque stock 
 

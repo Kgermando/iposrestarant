@@ -1,7 +1,8 @@
 import { IStock } from "./stock.model";
 
 export interface IFournisseur {
-    ID?: number;
+    ID?: string;
+    uuid?: string;
     created_at?: Date;
     updated_at?: Date;
     name: string;

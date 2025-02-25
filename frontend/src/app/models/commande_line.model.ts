@@ -4,13 +4,14 @@ import { IPlat } from "./plat.model";
 import { IProduct } from "./product.model";
 
 export interface ICommandeLine {
-    ID?: number; 
+    ID?: string; 
     CreatedAt?: Date;
     UpdatedAt?: Date;
-    commande_id: number;
-    livraison_id: number;
-    product_id: number;
-    plat_id: number;
+    uuid?: string;
+    commande_uuid: string;
+    livraison_uuid: string;
+    product_uuid: string;
+    plat_uuid: string;
     quantity: number; 
     code_entreprise?: number;
     Commande?: ICommande;

@@ -37,7 +37,7 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['ncommande', 'status', 'created_at', 'id'];
+  displayedColumns: string[] = ['ncommande', 'status', 'created_at', 'uuid'];
   dataSource = new MatTableDataSource<ICommande>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -46,14 +46,14 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: ICommande; // Single data 
 
   formGroup!: FormGroup;
   currentUser!: IUser;
   isLoading = false;
 
-  tableId!: number;
+  tableuuId!: string;
   tableBox!: ITableBox;
 
   clientList: IClient[] = [];
@@ -96,8 +96,8 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
     this.isLoadingData = true;
     this.loading = true;
     this.route.params.subscribe(routeParams => {
-      this.tableId = routeParams['id'];
-      this.getProduct(this.tableId);
+      this.tableuuId = routeParams['uuid'];
+      this.getProduct(this.tableuuId);
     });
 
     this.formGroup = this._formBuilder.group({
@@ -108,8 +108,8 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
 
 
   // Get One commande
-  getProduct(id: any) {
-    this.tableBoxService.get(Number.parseInt(id)).subscribe(res => {
+  getProduct(uuid: any) {
+    this.tableBoxService.get(uuid).subscribe(res => {
       this.tableBox = res.data;
       this.loading = false; 
     });
@@ -124,8 +124,8 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
   }
 
   fetchProducts(currentUser: IUser) {
-    this.commandeService.getPaginatedCommandeByTableBox(currentUser.entreprise?.code!, currentUser.pos?.ID!,
-      this.tableId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+    this.commandeService.getPaginatedCommandeByTableBox(currentUser.entreprise?.code!, currentUser.pos?.uuid!,
+      this.tableuuId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -165,9 +165,9 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
       const body: ICommande = {
         ncommande: code, 
         status: 'En cours',
-        table_box_id: parseInt(this.tableId.toString()),
+        table_box_uuid: this.tableuuId,
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
       this.commandeService.create(body).subscribe((res) => {
@@ -176,10 +176,10 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
           numero: parseInt(this.tableBox.numero.toString()),
           status: 'Occuper',
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.tableBoxService.update(this.tableId, body).subscribe(() => {
+        this.tableBoxService.update(this.tableuuId, body).subscribe(() => {
           this.isLoading = false;
           this.toastr.success('Commande crée avec succès!', 'Success!');
           console.log("res.data.ID", res.data.ID)
@@ -194,17 +194,17 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
 
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.commandeService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.commandeService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         ncommande: this.dataItem.ncommande,
         status: this.dataItem.status,
-        table_box_id: this.dataItem.table_box_id,
-        client_id: this.dataItem.client_id,
+        table_box_uuid: this.dataItem.table_box_uuid,
+        client_uuid: this.dataItem.client_uuid,
       });
-      this.commaneLineService.getAllById(this.dataItem!.ID!).subscribe((line) => {
+      this.commaneLineService.getAllById(this.dataItem!.uuid!).subscribe((line) => {
         this.commandeLineList = line.data;
       });
     });
@@ -221,18 +221,18 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
         numero: parseInt(this.tableBox.numero.toString()),
         status: 'Libre',
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.tableBoxService.update(this.tableId, body).subscribe(() => {
-        this.commandeService.delete(this.idItem).subscribe(() => {
+      this.tableBoxService.update(this.tableuuId, body).subscribe(() => {
+        this.commandeService.delete(this.uuidItem).subscribe(() => {
           this.formGroup.reset();
           this.toastr.info('Supprimé avec succès!', 'Success!');
           this.isLoading = false;
         });
       });
     } else {
-      this.commandeService.delete(this.idItem).subscribe(() => {
+      this.commandeService.delete(this.uuidItem).subscribe(() => {
         this.formGroup.reset();
         this.toastr.info('Supprimé avec succès!', 'Success!');
         this.isLoading = false;

@@ -8,7 +8,6 @@ import { AuthService } from '../../auth/auth.service';
 import { TableBoxService } from './table-box.service';
 import { ToastrService } from 'ngx-toastr';
 import { PageEvent } from '@angular/material/paginator';
-import { CommandeService } from '../commandes/commande.service';
 
 @Component({
   selector: 'app-table-box',
@@ -31,7 +30,7 @@ export class TableBoxComponent implements OnInit {
 
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string; // Single data
   dataItem!: ITableBox; // Single data 
 
 
@@ -68,7 +67,6 @@ export class TableBoxComponent implements OnInit {
     });
   }
 
-
   ngOnInit() {
     this.loadUserData = true;
     this.isLoadingData = true;
@@ -97,7 +95,7 @@ export class TableBoxComponent implements OnInit {
         this.isLoadingData = false;
       });
     } else {
-      this.tableBoxService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.tableBoxService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -122,7 +120,7 @@ export class TableBoxComponent implements OnInit {
           numero: parseInt(this.formGroup.value.numero.toString()), 
           status: 'Libre',
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.tableBoxService.create(body).subscribe(() => {
@@ -146,10 +144,10 @@ export class TableBoxComponent implements OnInit {
         numero: parseInt(this.formGroup.value.numero.toString()),
         status: 'Libre',
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.tableBoxService.update(this.idItem, body).subscribe(() => {
+      this.tableBoxService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -161,12 +159,12 @@ export class TableBoxComponent implements OnInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.tableBoxService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.tableBoxService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
-        pos_id: this.dataItem.pos_id,
+        pos_uuid: this.dataItem.pos_uuid,
         name: this.dataItem.name,
         numero: this.dataItem.numero,
         status: this.dataItem.status,
@@ -178,7 +176,7 @@ export class TableBoxComponent implements OnInit {
 
   delete(): void {
     this.isLoading = true;
-    this.tableBoxService.delete(this.idItem).subscribe(() => {
+    this.tableBoxService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

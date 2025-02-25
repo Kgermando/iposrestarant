@@ -4,10 +4,8 @@ import { LayoutsComponent } from './layouts.component';
 import { ProfileComponent } from './profile/profile.component';
 import { EntrepriseComponent } from './entreprise/entreprise.component';
 import { PosComponent } from './pos/pos.component';
-import { PosViewComponent } from './pos/pos-view/pos-view.component';
 import { ProductComponent } from './products/product/product.component';
 import { StocksComponent } from './stocks/stocks.component';
-import { StockViewComponent } from './stocks/stock-view/stock-view.component';
 import { CommandesComponent } from './commandes/commandes.component';
 import { ClientsComponent } from './clients/clients.component';
 import { FournisseursComponent } from './fournisseurs/fournisseurs.component';
@@ -51,19 +49,15 @@ const routes: Routes = [
         component: PosComponent,
       },
       {
-        path: 'pos/:id/view',
-        component: PosViewComponent,
-      },
-      {
         path: 'table-box/table-box-list',
         component: TableBoxComponent,
       },
       {
-        path: 'table-box/commandes/:id/table-view',
+        path: 'table-box/commandes/:uuid/table-view',
         component: CommandesComponent,
       }, 
       {
-        path: 'table-box/commandes/:id/line',
+        path: 'table-box/commandes/:uuid/line',
         component: CommandesLinesComponent, children: [
           { 
             path: 'product-line',
@@ -81,7 +75,7 @@ const routes: Routes = [
         ]
       },
       {
-        path: 'table-box/commandes/:id/facture/:number',
+        path: 'table-box/commandes/:uuid/facture/:number',
         component: FactureViewComponent,
       },
       {
@@ -97,15 +91,11 @@ const routes: Routes = [
         component: StocksComponent,
       },
       {
-        path: 'stocks/:uuid/view',
-        component: StockViewComponent,
-      },
-      {
         path: 'ingredients/ingredient-list',
         component: IngredientsComponent,
       },
       {
-        path: 'ingredients/:id/stocks',
+        path: 'ingredients/:uuid/stocks',
         component: IngredientStocksComponent,
       },
       {
@@ -125,11 +115,11 @@ const routes: Routes = [
         component: LivraisonsComponent,
       },
       {
-        path: 'livraisons/view/:id/facture/:fullname',
+        path: 'livraisons/view/:uuid/facture/:fullname',
         component: LivraisonFactureComponent,
       },
       {
-        path: 'livraisons/:id/line',
+        path: 'livraisons/:uuid/line',
         component: LivraisonLineComponent, children: [
           { 
             path: 'product-line',

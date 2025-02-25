@@ -33,7 +33,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['reference', 'name', 'prix_vente', 'tva', 'qte_disponible', 'description', 'id'];
+  displayedColumns: string[] = ['reference', 'name', 'prix_vente', 'tva', 'qte_disponible', 'description', 'uuid'];
   dataSource = new MatTableDataSource<IProduct>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -42,7 +42,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IProduct; // Single data 
 
   formGroup!: FormGroup;
@@ -136,7 +136,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.productService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.productService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -221,7 +221,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
           prix_vente: this.formGroup.value.prix_vente,
           tva: this.formGroup.value.tva,
           signature: this.currentUser.fullname,
-          pos_id: this.currentUser.pos!.ID,
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.productService.create(body).subscribe(() => {
@@ -229,7 +229,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
           this.formGroup.reset();
           this.reference = ''; 
           this.toastr.success('Produit ajoutée avec succès!', 'Success!');
-        }); 
+        });
       }
     } catch (error) {
       this.isLoading = false;
@@ -251,7 +251,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.productService.update(this.idItem, body).subscribe(() => {
+      this.productService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.reference = '';
         this.toastr.success('Modification enregistrée!', 'Success!');
@@ -264,9 +264,9 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.productService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.productService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.reference = this.dataItem.reference;
       this.formGroup.patchValue({
@@ -283,7 +283,7 @@ export class ProductTableComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.productService.delete(this.idItem).subscribe(() => {
+    this.productService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset(); 
       this.reference = '';
       this.toastr.info('Supprimé avec succès!', 'Success!');

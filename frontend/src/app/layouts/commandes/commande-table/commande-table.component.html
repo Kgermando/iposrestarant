@@ -79,11 +79,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status != 'Créance' && element.status != 'En cours') {
                                         <a
-                                            [routerLink]="['/web/table-box/commandes', element.ID, 'facture', element.ncommande ]">
+                                            [routerLink]="['/web/table-box/commandes', element.uuid, 'facture', element.ncommande ]">
                                             #{{element.ncommande}}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/table-box/commandes', element.ID, 'line']">
+                                        <a [routerLink]="['/web/table-box/commandes', element.uuid, 'line']">
                                             #{{element.ncommande}}
                                         </a>
                                         }
@@ -96,11 +96,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status != 'Créance' && element.status != 'En cours') {
                                         <a
-                                            [routerLink]="['/web/table-box/commandes', element.ID, 'facture', element.ncommande ]">
+                                            [routerLink]="['/web/table-box/commandes', element.uuid, 'facture', element.ncommande ]">
                                             {{element.CreatedAt | date: 'dd/mm/yyy HH:mm' }}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/table-box/commandes', element.ID, 'line' ]">
+                                        <a [routerLink]="['/web/table-box/commandes', element.uuid, 'line' ]">
                                             {{element.CreatedAt | date: 'dd/mm/yyy HH:mm' }}
                                         </a>
                                         }
@@ -128,18 +128,18 @@
                                 </ng-container>
 
                                 <!-- id Column -->
-                                <ng-container matColumnDef="id">
+                                <ng-container matColumnDef="uuid">
                                     <th mat-header-cell *matHeaderCellDef> Action </th>
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status != 'Créance' && element.status != 'En cours') {
-                                        <button mat-icon-button (click)="findValue(element.ID)" data-bs-toggle="modal"
+                                        <button mat-icon-button (click)="findValue(element.uuid!)" data-bs-toggle="modal"
                                                 data-bs-target="#offcanvas_view_facture">
                                                 <mat-icon class="text-success">picture_as_pdf</mat-icon>
                                             </button>
                                         }@else {
                                             @if(currentUser.permission === 'ALL' ||
                                             currentUser.permission === 'MS') {
-                                            <button mat-icon-button (click)="findValue(element.ID)" data-bs-toggle="modal"
+                                            <button mat-icon-button (click)="findValue(element.uuid!)" data-bs-toggle="modal"
                                                 data-bs-target="#delete_contact">
                                                 <mat-icon class="text-danger">delete</mat-icon>
                                             </button>
@@ -246,7 +246,7 @@
                     </div>
                 </div>
                 <div class="offcanvas-body">
-                    <app-cmd-facture [currentUser]="currentUser" [commande_id]="dataItem.ID!" [commande]="dataItem"
+                    <app-cmd-facture [currentUser]="currentUser" [commande_uuid]="dataItem.uuid!" [commande]="dataItem"
                         [commandeLineList]="commandeLineList"></app-cmd-facture>
                 </div>
                 }

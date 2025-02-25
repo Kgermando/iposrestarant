@@ -29,7 +29,7 @@ export class LivreurTableComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['name_society', 'livreur_name', 'telephone', 'email', 'rccm', 'idnat', 'action', 'id'];
+  displayedColumns: string[] = ['name_society', 'livreur_name', 'telephone', 'email', 'rccm', 'idnat', 'action', 'uuid'];
   dataSource = new MatTableDataSource<ILivreur>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -38,7 +38,7 @@ export class LivreurTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: ILivreur; // Single data 
 
   formGroup!: FormGroup;
@@ -104,7 +104,7 @@ export class LivreurTableComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.livreurService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.livreurService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -184,7 +184,7 @@ export class LivreurTableComponent implements OnInit, AfterViewInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.livreurService.update(this.idItem, body).subscribe(() => {
+      this.livreurService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -196,9 +196,9 @@ export class LivreurTableComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.livreurService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.livreurService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         name_society: this.dataItem.name_society,
@@ -214,7 +214,7 @@ export class LivreurTableComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.livreurService.delete(this.idItem).subscribe(() => {
+    this.livreurService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

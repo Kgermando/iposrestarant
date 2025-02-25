@@ -35,7 +35,7 @@ export class ProductCardComponent implements OnInit, AfterViewInit {
 
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string; // Single data ID
   dataItem!: IProduct; // Single data 
 
   formGroup!: FormGroup;
@@ -137,7 +137,7 @@ export class ProductCardComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.productService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.ID!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.productService.getPaginatedEntrepriseByPos(currentUser.entreprise?.code!, currentUser.pos?.uuid!, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;
@@ -209,7 +209,7 @@ export class ProductCardComponent implements OnInit, AfterViewInit {
           prix_vente: this.formGroup.value.prix_vente,
           tva: this.formGroup.value.tva,
           signature: this.currentUser.fullname,
-          pos_id: this.currentUser.pos!.ID,
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.productService.create(body).subscribe(() => {
@@ -239,7 +239,7 @@ export class ProductCardComponent implements OnInit, AfterViewInit {
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.productService.update(this.idItem, body).subscribe(() => {
+      this.productService.update(this.uuidItem, body).subscribe(() => {
         this.formGroup.reset();
         this.reference = '';
         this.toastr.success('Modification enregistré!', 'Success!');
@@ -252,9 +252,9 @@ export class ProductCardComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.productService.get(this.idItem).subscribe(item => {
+  findValue(value: string)   {
+    this.uuidItem = value;
+    this.productService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.reference = this.dataItem.reference;
       this.formGroup.patchValue({
@@ -271,7 +271,7 @@ export class ProductCardComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.productService.delete(this.idItem).subscribe(() => {
+    this.productService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset(); 
       this.reference = '';
       this.toastr.info('Supprimé avec succès!', 'Success!');

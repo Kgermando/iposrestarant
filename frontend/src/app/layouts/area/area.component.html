@@ -50,12 +50,12 @@
                                                         <ul>
                                                             <li>
                                                                 <a href="javascript:void(0);" class="dropdown-item"><i
-                                                                        class="ti ti-file-type-pdf text-danger me-1"></i>Export as
+                                                                        class="ti ti-file-type-pdf text-danger me-1"></i>Export en
                                                                     PDF</a>
                                                             </li>
                                                             <li>
                                                                 <a href="javascript:void(0);" class="dropdown-item"><i
-                                                                        class="ti ti-file-type-xls text-green me-1"></i>Export as
+                                                                        class="ti ti-file-type-xls text-green me-1"></i>Export en
                                                                     Excel
                                                                 </a>
                                                             </li>
@@ -105,14 +105,14 @@
                                             </ng-container> 
             
                                             <!-- id Column -->
-                                            <ng-container matColumnDef="id">
+                                            <ng-container matColumnDef="uuid">
                                                 <th mat-header-cell *matHeaderCellDef> Action </th>
                                                 <td mat-cell *matCellDef="let element">
                                                     @if(currentUser.permission === 'ALL' ||
                                                     currentUser.permission === 'AM' ||
                                                     currentUser.permission === 'MS' ||
                                                     currentUser.permission === 'M') {
-                                                    <button mat-icon-button (click)="findValue(element.ID)"
+                                                    <button mat-icon-button (click)="findValue(element.UUID)"
                                                         data-bs-toggle="offcanvas" data-bs-target="#offcanvas_edit">
                                                         <mat-icon class="text-blue">edit</mat-icon>
                                                     </button>
@@ -124,7 +124,7 @@
                                                         }@else {
                                                             @if(currentUser.permission === 'ALL' ||
                                                             currentUser.permission === 'MS') {
-                                                            <button mat-icon-button (click)="findValue(element.ID)" data-bs-toggle="modal"
+                                                            <button mat-icon-button (click)="findValue(element.UUID)" data-bs-toggle="modal"
                                                                 data-bs-target="#delete_contact">
                                                                 <mat-icon class="text-danger">delete</mat-icon>
                                                             </button>

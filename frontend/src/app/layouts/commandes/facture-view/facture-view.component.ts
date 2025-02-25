@@ -18,7 +18,7 @@ export class FactureViewComponent implements OnInit {
 
   isLoading = false;
   currentUser!: IUser;
-  commandeId!: number;
+  commandeuuId!: string;
   commandeLineList: ICommandeLine[] = [];
   commande!: ICommande;
 
@@ -36,8 +36,8 @@ export class FactureViewComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading = true;
      this.route.params.subscribe(routeParams => {
-      this.commandeId = routeParams['id'];
-      this.getProduct(this.commandeId);
+      this.commandeuuId = routeParams['uuid'];
+      this.getProduct(this.commandeuuId);
     });
     this.authService.user().subscribe({
       next: (user) => {
@@ -52,8 +52,8 @@ export class FactureViewComponent implements OnInit {
   }
 
    // Get One commande
-   getProduct(id: any) { 
-    this.commandeService.get(Number(id)).subscribe(item => {
+   getProduct(uuid: any) { 
+    this.commandeService.get(uuid).subscribe(item => {
       this.commande = item.data;
       this.commaneLineService.getAllById(this.commande!.ID!).subscribe((line) => {
         this.commandeLineList = line.data; 

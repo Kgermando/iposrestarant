@@ -1,16 +1,12 @@
 package area
 
-import (
-	"bytes"
-	"encoding/json"
+import ( 
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
-	"log"
-	"net"
-	"net/http"
+	
+	"log" 
 	"sync"
-	"time"
 )
 
 var mu sync.Mutex
@@ -19,11 +15,6 @@ var mu sync.Mutex
 func SyncDataWithAPI(code_entreprise string) {
 	mu.Lock()
 	defer mu.Unlock()
-
-	if !isInternetAvailable() {
-		log.Println("No internet connection. Skipping synchronization.")
-		return
-	}
 
 	fmt.Println("Synchronizing data with API...")
 
@@ -40,7 +31,7 @@ func SyncDataWithAPI(code_entreprise string) {
 	if len(externalDataList) > 0 {
 		for _, externalData := range externalDataList {
 			var localData models.Area
-			if err := database.DB.Where("id = ?", externalData.ID).First(&localData).Error; err != nil {
+			if err := database.DB.Where("uuid = ?", externalData.UUID).First(&localData).Error; err != nil {
 				// If data does not exist locally, create it
 				if err := database.DB.Create(&externalData).Error; err != nil {
 					log.Println("Error creating data:", err)
@@ -66,7 +57,7 @@ func SyncDataWithAPI(code_entreprise string) {
 	// Synchroniser les données du local vers l'API
 	for _, localData := range localDataList {
 		// Check if the local data is newer than the external data
-		externalData, err := fetchExternalDataItemFromAPI(localData.ID)
+		externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
 
 		if err != nil {
 			// If data does not exist externally, create it
@@ -89,151 +80,156 @@ func SyncDataWithAPI(code_entreprise string) {
 	// Delete online data if it has been deleted locally
 	for _, externalData := range externalDataList {
 		var localData models.Area
-		if err := database.DB.Where("id = ?", externalData.ID).First(&localData).Error; err != nil {
-			if err := deleteExternalDataInAPI(externalData.ID); err != nil {
+		if err := database.DB.Where("uuid = ?", externalData.UUID).First(&localData).Error; err != nil {
+			if err := deleteExternalDataInAPI(externalData.UUID); err != nil {
 				log.Println("Error deleting external data:", err)
 			}
 		}
 	}
 }
 
-func isInternetAvailable() bool {
-	_, err := net.DialTimeout("tcp", "google.com:80", 5*time.Second)
-	return err == nil
-}
-
 // Récupérer des données externes à partir de l'API
-func fetchExternalDataFromAPI(code_entreprise string) ([]models.Area, error) {
-	// Replace with the actual URL of your API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/%s/all", code_entreprise)
+func fetchExternalDataFromAPI(code_entreprise string) ([]models.Area, error) { 
+	db := database.PGDB
 
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	var dataList []models.Area
+	db.Where("code_entreprise = ?", code_entreprise).Find(&dataList)
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	}
-
-	var response struct {
-		Data []models.Area `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, err
-	}
-
-	return response.Data, nil
+	return dataList, nil
 }
 
 // Récupérer une donnee externe à partir de l'API
-func fetchExternalDataItemFromAPI(dataID uint) (models.Area, error) {
+func fetchExternalDataItemFromAPI(dataUUID string) (models.Area, error) {
+	db := database.PGDB
+
+	var data models.Area
+	db.Where("uuid = ?", dataUUID).First(&data)
+
 	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/get/%d", dataID)
+	// apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/get/%s", dataUUID)
 
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return models.Area{}, err
-	}
-	defer resp.Body.Close()
+	// resp, err := http.Get(apiURL)
+	// if err != nil {
+	// 	return models.Area{}, err
+	// }
+	// defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return models.Area{}, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	}
+	// if resp.StatusCode != http.StatusOK {
+	// 	return models.Area{}, fmt.Errorf("failed to fetch data: %s", resp.Status)
+	// }
 
-	var response struct {
-		Data models.Area `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return models.Area{}, err
-	}
+	// var response struct {
+	// 	Data models.Area `json:"data"`
+	// }
+	// if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	// 	return models.Area{}, err
+	// }
 
-	return response.Data, nil
+	return data, nil
 }
 
 // Envoyer des données locales à l'API
 func sendLocalDataToAPI(data models.Area) error {
-	// Soumission des données vers l'API
-	apiURL := "https://i-pos-restaurant-api.up.railway.app/api/areas/create"
+	db := database.PGDB
 
-	dataItem, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
+	fmt.Println("data send: ", data)
+ 
+	// Sauvegarde des données dans la base de données
+	db.Create(data)
 
-	resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(dataItem))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+	// // Soumission des données vers l'API
+	// apiURL := "https://i-pos-restaurant-api.up.railway.app/api/areas/create"
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to send data: %s", resp.Status)
-	}
+	// dataItem, err := json.Marshal(data)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(dataItem))
+	// if err != nil {
+	// 	return err
+	// }
+	// defer resp.Body.Close()
+
+	// if resp.StatusCode != http.StatusOK {
+	// 	return fmt.Errorf("failed to send data: %s", resp.Status)
+	// }
 
 	return nil
 }
 
 // Update external data data in the API
 func updateExternalDataInAPI(data models.Area) error {
-	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/update/%d", data.ID)
 
-	dataItem, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
+	db := database.PGDB
 
-	req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
+	db.Model(&data).Updates(data)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to update data: %s", resp.Status)
-	}
+	// // URL de l'API
+	// apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/update/%s", data.UUID)
+
+	// dataItem, err := json.Marshal(data)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
+	// if err != nil {
+	// 	return err
+	// }
+	// req.Header.Set("Content-Type", "application/json")
+
+	// client := &http.Client{}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer resp.Body.Close()
+
+	// if resp.StatusCode != http.StatusOK {
+	// 	return fmt.Errorf("failed to update data: %s", resp.Status)
+	// }
 
 	return nil
 }
 
 // Delete external data in the API
-func deleteExternalDataInAPI(dataID uint) error {
+func deleteExternalDataInAPI(dataUUID string) error {
+
+	db := database.PGDB
+
+	var data models.Area
+	db.First(&data, dataUUID)
+
+	db.Delete(&data)
+
 	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/delete/%d", dataID)
+	// apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/delete/%s", dataUUID)
 
-	req, err := http.NewRequest(http.MethodDelete, apiURL, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
+	// req, err := http.NewRequest(http.MethodDelete, apiURL, nil)
+	// if err != nil {
+	// 	return err
+	// }
+	// req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
+	// client := &http.Client{}
+	// resp, err := client.Do(req)
+	// if err != nil {
+	// 	return err
+	// }
+	// defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to delete data: %s", resp.Status)
-	}
+	// if resp.StatusCode != http.StatusOK {
+	// 	return fmt.Errorf("failed to delete data: %s", resp.Status)
+	// }
 
 	return nil
 }
 
 // isEqual compares two Area structs for equality
 func isEqual(a, b models.Area) bool {
-	return a.ID == b.ID &&
-		a.Name == b.Name &&
+	return a.UUID == b.UUID &&
 		a.CodeEntreprise == b.CodeEntreprise &&
 		a.UpdatedAt.Equal(b.UpdatedAt)
 }

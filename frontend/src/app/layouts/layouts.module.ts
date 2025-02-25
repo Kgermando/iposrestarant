@@ -13,7 +13,6 @@ import { SharedModule } from '../shared/shared.module';
 import { ProfileComponent } from './profile/profile.component';
 import { EntrepriseComponent } from './entreprise/entreprise.component';
 import { PosComponent } from './pos/pos.component';
-import { PosViewComponent } from './pos/pos-view/pos-view.component';
 import { ProductComponent } from './products/product/product.component';
 import { ProductTableComponent } from './products/product-table/product-table.component';
 import { ProductCardComponent } from './products/product-card/product-card.component';
@@ -21,13 +20,11 @@ import { ZXingScannerModule } from '@zxing/ngx-scanner';
 import { StocksComponent } from './stocks/stocks.component';
 import { StockCardComponent } from './stocks/stock-card/stock-card.component';
 import { StockTableComponent } from './stocks/stock-table/stock-table.component';
-import { StockViewComponent } from './stocks/stock-view/stock-view.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { CommandesComponent } from './commandes/commandes.component';
 import { CommandeTableComponent } from './commandes/commande-table/commande-table.component';
 import { CommandeCardComponent } from './commandes/commande-card/commande-card.component';
-import { ClientsComponent } from './clients/clients.component';
-import { ClientViewComponent } from './clients/client-view/client-view.component';
+import { ClientsComponent } from './clients/clients.component'; 
 import { ClientTableComponent } from './clients/client-table/client-table.component';
 import { ClientCardComponent } from './clients/client-card/client-card.component';
 import { FournisseurCardComponent } from './fournisseurs/fournisseur-card/fournisseur-card.component';
@@ -79,20 +76,17 @@ import { LivraisonFactureComponent } from './livraisons/livraison-facture/livrai
     ProfileComponent,
     EntrepriseComponent,
     PosComponent,
-    PosViewComponent,
     ProductComponent,
     ProductTableComponent,
     ProductCardComponent,
     StocksComponent,
     StockCardComponent,
     StockTableComponent,
-    StockViewComponent,
     ProgressBarComponent,
     CommandesComponent,
     CommandeTableComponent,
     CommandeCardComponent,
-    ClientsComponent,
-    ClientViewComponent,
+    ClientsComponent, 
     ClientTableComponent,
     ClientCardComponent,
     FournisseurCardComponent,

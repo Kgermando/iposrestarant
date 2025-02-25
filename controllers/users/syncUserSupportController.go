@@ -3,11 +3,9 @@ package users
 import (
     "encoding/json"
     "fmt"
-    "log"
-    "net"
-    "net/http"
-    "sync"
-    "time" 
+    "log" 
+    "net/http" 
+    "sync" 
     "iposrestaurant/database"
 	"iposrestaurant/models"
 )
@@ -19,11 +17,6 @@ func SyncDataWithAPISupport() {
     muSupport.Lock()
     defer muSupport.Unlock()
 
-    if !isInternetAvailableSupport() {
-        log.Println("No internet connection. Skipping synchronization.")
-        return
-    }
-
     // Récupérer des données externes à partir de l'API
     externalData, err := fetchExternalDataFromAPISupport()
     if err != nil {
@@ -34,7 +27,7 @@ func SyncDataWithAPISupport() {
     // Synchronize data from API to local
     for _, externalUser := range externalData {
         var localUser models.User
-        if err := database.DB.Where("id = ?", externalUser.ID).First(&localUser).Error; err != nil {
+        if err := database.DB.Where("uuid = ?", externalUser.UUID).First(&localUser).Error; err != nil {
             // If user does not exist locally, create it
             if err := database.DB.Create(&externalUser).Error; err != nil {
                 log.Println("Error creating user:", err)
@@ -50,10 +43,6 @@ func SyncDataWithAPISupport() {
     }
 }
 
-func isInternetAvailableSupport() bool {
-    _, err := net.DialTimeout("tcp", "google.com:80", 5*time.Second)
-    return err == nil
-}
 
 func fetchExternalDataFromAPISupport() ([]models.User, error) {
     // Replace with the actual URL of your API

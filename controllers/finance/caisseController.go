@@ -3,6 +3,7 @@ package finance
 import (
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -71,14 +72,16 @@ func GetAllCaisses(c *fiber.Ctx) error {
 func GetAllCaisseByPos(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posUUId := c.Params("pos_uuid")
 
 	// Synchronize data from API to local
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posUUId)
+	}
 
 	var data []models.Caisse
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posUUId).
 		Preload("Pos").
 		Order("updated_at ASC").
 		Find(&data)
@@ -93,13 +96,13 @@ func GetAllCaisseByPos(c *fiber.Ctx) error {
 func GetAllCaisseBySearch(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posUUId := c.Params("pos_uuid")
 
 	search := c.Query("search", "")
 
 	var data []models.Caisse
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posUUId).
 		Where("name LIKE ?", "%"+search+"%").
 		Find(&data)
 	return c.JSON(fiber.Map{
@@ -142,12 +145,13 @@ func CreateCaisse(c *fiber.Ctx) error {
 
 	if err := c.BodyParser(&p); err != nil {
 		return err
-	} 
-
-	// Generate UUID if not already set
-	if p.Uuid == uuid.Nil {
-		p.Uuid = uuid.New()
 	}
+
+	p.UUID = uuid.New().String()
+	// Generate UUID if not already set
+	// if p.Uuid == uuid.Nil {
+	// 	p.Uuid = uuid.New()
+	// }
 
 	database.DB.Create(p)
 
@@ -162,15 +166,14 @@ func CreateCaisse(c *fiber.Ctx) error {
 
 // Update data
 func UpdateCaisse(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB // Get connection
 
 	type UpdateData struct {
-		Uuid uuid.UUID `json:"uuid"`
-		Name           string    `gorm:"not null" json:"name"` // Nom de la caisse
-		Signature      string    `json:"signature"`            // Signature de la transaction
-		PosID          uint      `json:"pos_id"`               // ID du point de vente
-		CodeEntreprise uint64    `json:"code_entreprise"`      // ID de l'entreprise
+		Name           string `gorm:"not null" json:"name"` // Nom de la caisse
+		Signature      string `json:"signature"`            // Signature de la transaction
+		PosUUID        string `json:"pos_uuid"`             // ID du point de vente
+		CodeEntreprise uint64 `json:"code_entreprise"`      // ID de l'entreprise
 	}
 
 	var updateData UpdateData
@@ -187,11 +190,10 @@ func UpdateCaisse(c *fiber.Ctx) error {
 
 	caisse := new(models.Caisse)
 
-	db.First(&caisse, id)
-	caisse.Uuid = updateData.Uuid 
+	db.First(&caisse, uuid)
 	caisse.Name = updateData.Name
 	caisse.Signature = updateData.Signature
-	caisse.PosID = updateData.PosID
+	caisse.PosUUID = updateData.PosUUID
 	caisse.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&caisse)
@@ -208,12 +210,12 @@ func UpdateCaisse(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteCaisse(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var caisse models.Caisse
-	db.First(&caisse, id)
+	db.First(&caisse, uuid)
 	if caisse.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

@@ -79,21 +79,21 @@
                     <div class="">
                       <h6>
                         @if (item.status != 'Créance' && item.status != 'En cours') {
-                        <a [routerLink]="['/web/table-box/commandes', item.ID, 'facture', item.ncommande ]">
+                        <a [routerLink]="['/web/table-box/commandes', item.uuid, 'facture', item.ncommande ]">
                           #{{item.ncommande}}
                         </a>
                         } @else {
-                        <a [routerLink]="['/web/table-box/commandes', item.ID, 'line' ]">
+                        <a [routerLink]="['/web/table-box/commandes', item.uuid, 'line' ]">
                           #{{item.ncommande}}
                         </a> 
                         }
                       </h6>
                       @if (item.status != 'Créance' && item.status != 'En cours') {
-                      <a [routerLink]="['/web/table-box/commandes', item.ID, 'facture', item.ncommande ]">
+                      <a [routerLink]="['/web/table-box/commandes', item.uuid, 'facture', item.ncommande ]">
                         {{item.CreatedAt | date: 'dd/mm/yyy HH:mm' }}
                       </a>
                       } @else {
-                      <a [routerLink]="['/web/table-box/commandes', item.ID, 'line' ]">
+                      <a [routerLink]="['/web/table-box/commandes', item.uuid, 'line' ]">
                         {{item.CreatedAt | date: 'dd/mm/yyy HH:mm' }}
                       </a>
                       }
@@ -119,7 +119,7 @@
                         @if (item.status === 'Cash') {
                         <li class="task-owner">
                           <a mat-icon-button href="javascript:void(0);" data-bs-toggle="modal"
-                            data-bs-target="#offcanvas_view_mobile" (click)="findValue(item.ID!)">
+                            data-bs-target="#offcanvas_view_mobile" (click)="findValue(item.uuid!)">
                             <mat-icon class="text-blue">print</mat-icon>
                           </a>
                         </li>
@@ -134,14 +134,14 @@
                               @if(currentUser.permission === 'ALL' ||
                               currentUser.permission === 'MS') {
                               <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal"
-                                data-bs-target="#delete_contact_mobile" (click)="findValue(item.ID!)">
+                                data-bs-target="#delete_contact_mobile" (click)="findValue(item.uuid!)">
                                 <i class="ti ti-trash text-danger"></i>
                                 Delete
                               </a>
                               }
                               @if (item.status === 'Cash') {
                               <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal"
-                                data-bs-target="#offcanvas_view_mobile" (click)="findValue(item.ID!)">
+                                data-bs-target="#offcanvas_view_mobile" (click)="findValue(item.uuid!)">
                                 <i class="ti ti-file text-success"></i>
                                 Facture
                               </a>
@@ -237,7 +237,7 @@
           </div>
         </div>
         <div class="offcanvas-body">
-          <app-cmd-facture [currentUser]="currentUser" [commande_id]="dataItem.ID!" [commande]="dataItem"
+          <app-cmd-facture [currentUser]="currentUser" [commande_uuid]="dataItem.uuid!" [commande]="dataItem"
             [commandeLineList]="commandeLineList"></app-cmd-facture>
         </div>
         }

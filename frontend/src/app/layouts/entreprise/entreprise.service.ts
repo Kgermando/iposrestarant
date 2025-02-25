@@ -11,7 +11,7 @@ export class EntrepriseService extends ApiService {
 
   
   getAllEntrepriseCloud(): Observable<any> {
-    return this.http.get(`${environment.apiUrlCloud}/entreprises/all`);
+    return this.http.get(`${environment.apiUrl}/entreprises/all`);
   }
 
 }

@@ -23,7 +23,7 @@
       </thead>
       <tbody>
         @for (item of commandeLineList; track item.ID) {
-        @if (item.Plat!.ID! > 0) {
+        @if (item.Plat!.uuid! != "00000000-0000-0000-0000-000000000000") { 
         <tr>
           <td>
             {{ item.Plat!.name }}
@@ -56,7 +56,7 @@
           }
 
         </tr>
-        }@else if (item.Product!.ID! > 0) {
+        }@else if (item.Product!.uuid! != "00000000-0000-0000-0000-000000000000") {
         <tr>
           <td>
             {{ item.Product!.name }}
@@ -132,7 +132,7 @@
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
       <li>
-        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.uuid!)">
+        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.ID!)">
           {{ item.name }}
         </a>
       </li>
@@ -147,9 +147,9 @@
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
       <li>
-        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.uuid!)">
+        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.ID!)">
           {{ item.name }}
-        </a>
+        </a> 
       </li>
       }
     </ul>

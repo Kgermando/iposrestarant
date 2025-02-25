@@ -18,7 +18,7 @@ export class LivraisonFactureComponent implements OnInit {
 
   isLoading = false;
   currentUser!: IUser;
-  livraisonId!: number;
+  livraisonuuId!: number;
   commandeLineList: ICommandeLine[] = [];
   livraison!: ILivraison;
 
@@ -36,8 +36,8 @@ export class LivraisonFactureComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading = true;
      this.route.params.subscribe(routeParams => {
-      this.livraisonId = routeParams['id'];
-      this.getProduct(this.livraisonId);
+      this.livraisonuuId = routeParams['uuid'];
+      this.getProduct(this.livraisonuuId);
     });
     this.authService.user().subscribe({
       next: (user) => {
@@ -52,10 +52,10 @@ export class LivraisonFactureComponent implements OnInit {
   }
 
    // Get One commande
-   getProduct(id: any) { 
-    this.livraisonService.get(Number(id)).subscribe(item => {
+   getProduct(uuid: any) { 
+    this.livraisonService.get(uuid).subscribe(item => {
       this.livraison = item.data;
-      this.commaneLineService.getAllByIdLivraison(this.livraison!.ID!).subscribe((line) => {
+      this.commaneLineService.getAllByIdLivraison(this.livraison!.uuid!).subscribe((line) => {
         this.commandeLineList = line.data; 
         this.isLoading = false;
       });

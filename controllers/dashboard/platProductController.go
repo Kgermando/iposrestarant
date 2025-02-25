@@ -35,21 +35,21 @@ func GetTotalPlatProductVendu(c *fiber.Ctx) error {
 	var totalProduitVenduLivraison float64 = 0
 
 	for _, data := range dataList {
-		if data.CommandeID > 0 {
-			if data.PlatID > 0 {
+		if data.CommandeUUID != "00000000-0000-0000-0000-000000000000" {
+			if data.PlatUUID != "00000000-0000-0000-0000-000000000000" {
 				totalPlatVenduTable += data.Plat.PrixVente
 				nombreTotalPlatVenduTable += float64(data.Quantity)
 			}
-			if data.ProductID > 0 {
+			if data.ProductUUID != "00000000-0000-0000-0000-000000000000" {
 				totalProduitVenduTable += data.Product.PrixVente
 			}
 		}
-		if data.LivraisonID > 0 {
-			if data.PlatID > 0 {
+		if data.LivraisonUUID != "00000000-0000-0000-0000-000000000000" {
+			if data.PlatUUID != "00000000-0000-0000-0000-000000000000" {
 				totalPlatVenduLivraison += data.Plat.PrixVente
 				nombreTotalPlatVenduLivraison += float64(data.Quantity)
 			}
-			if data.ProductID > 0 {
+			if data.ProductUUID != "00000000-0000-0000-0000-000000000000" {
 				totalProduitVenduLivraison += data.Product.PrixVente
 			}
 		}
@@ -105,15 +105,15 @@ func GetVenteProfitPlatProductMonth(c *fiber.Ctx) error {
 	for _, commande := range commandes {
 		month := commande.CreatedAt.Format("2006-01")
 		for _, line := range commande.CommandeLines {
-			stockEntry := getStockEntry(line.ProductID, db)
-			if line.ProductID > 0 {
+			stockEntry := getStockEntry(line.ProductUUID, db)
+			if line.ProductUUID != "00000000-0000-0000-0000-000000000000" {
 				saleAmountProduit = line.Product.PrixVente * float64(line.Quantity)
 				profitAmountProduit = (line.Product.PrixVente - stockEntry.PrixAchat) * float64(line.Quantity)
 			}
-			if line.PlatID > 0 {
+			if line.PlatUUID != "00000000-0000-0000-0000-000000000000" {
 				priceIngredientUsagePlat := 0.0 // Prix total des ingrédients utilisés pour le plat
 				for _, ingredientUsage := range ingredientUsages {
-					if ingredientUsage.PlatID == line.PlatID {
+					if ingredientUsage.PlatUUID == line.PlatUUID {
 						priceIngredientUsagePlat += ingredientUsage.Price
 					}
 				}
@@ -167,10 +167,10 @@ func GetTablePaginatedCmdLineSortieProductPlat(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.CommandeLine{}).Where("commande_lines.code_entreprise = ?", codeEntreprise).
-		Where("commande_lines.livraison_id = ?", 0).Count(&length)
+		Where("commande_lines.livraison_uuid = ?", "00000000-0000-0000-0000-000000000000").Count(&length)
 	db.Where("commande_lines.code_entreprise = ?", codeEntreprise).
 		Where("commande_lines.created_at BETWEEN ? AND ?", startDateStr, endDateStr).
-		Where("commande_lines.livraison_id = ?", 0).
+		Where("commande_lines.livraison_uuid = ?", "00000000-0000-0000-0000-000000000000").
 		Offset(offset).
 		Limit(limit).
 		Order("commande_lines.updated_at DESC").
@@ -227,10 +227,10 @@ func GetLivraisonPaginatedCmdLineSortieProductPlat(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.CommandeLine{}).Where("commande_lines.code_entreprise = ?", codeEntreprise).
-		Where("commande_lines.livraison_id != ?", 0).Count(&length)
+		Where("commande_lines.livraison_uuid != ?", "00000000-0000-0000-0000-000000000000").Count(&length)
 	db.Where("commande_lines.code_entreprise = ?", codeEntreprise).
 		Where("commande_lines.created_at BETWEEN ? AND ?", startDateStr, endDateStr).
-		Where("commande_lines.livraison_id != ?", 0).
+		Where("commande_lines.livraison_uuid != ?", "00000000-0000-0000-0000-000000000000").
 		Offset(offset).
 		Limit(limit).
 		Order("commande_lines.updated_at DESC").
@@ -270,6 +270,7 @@ func GetLivraisonPaginatedCmdLineSortieProductPlat(c *fiber.Ctx) error {
 // Get percentage of commande_lines with livraison_id != 0 and livraison_id = 0
 func GetCommandeLineLivraisonPercentage(c *fiber.Ctx) error {
 	db := database.DB
+	
 	codeEntreprise := c.Params("code_entreprise")
 	startDateStr := c.Query("start_date")
 	endDateStr := c.Query("end_date")
@@ -286,13 +287,13 @@ func GetCommandeLineLivraisonPercentage(c *fiber.Ctx) error {
 	db.Model(&models.CommandeLine{}).
 		Where("code_entreprise = ?", codeEntreprise).
 		Where("created_at BETWEEN ? AND ?", startDateStr, endDateStr).
-		Where("livraison_id != ?", 0).
+		Where("livraison_uuid != ?", "00000000-0000-0000-0000-000000000000").
 		Count(&livraisonCommandeLines)
 
 	db.Model(&models.CommandeLine{}).
 		Where("code_entreprise = ?", codeEntreprise).
 		Where("created_at BETWEEN ? AND ?", startDateStr, endDateStr).
-		Where("livraison_id = ?", 0).
+		Where("livraison_uuid = ?", "00000000-0000-0000-0000-000000000000").
 		Count(&tableCommandeLines)
 
 	livraisonPercentage := (float64(livraisonCommandeLines) / float64(totalCommandeLines)) * 100
@@ -323,13 +324,13 @@ func GetCommandeLineLivraisonPieChartData(c *fiber.Ctx) error {
 	db.Model(&models.CommandeLine{}).
 		Where("code_entreprise = ?", codeEntreprise).
 		Where("created_at BETWEEN ? AND ?", startDateStr, endDateStr).
-		Where("livraison_id != ?", 0).
+		Where("livraison_uuid != ?", "00000000-0000-0000-0000-000000000000").
 		Count(&livraisonCommandeLines)
 
 	db.Model(&models.CommandeLine{}).
 		Where("code_entreprise = ?", codeEntreprise).
 		Where("created_at BETWEEN ? AND ?", startDateStr, endDateStr).
-		Where("livraison_id = ?", 0).
+		Where("livraison_uuid = ?", "00000000-0000-0000-0000-000000000000").
 		Count(&tableCommandeLines)
 
 	response := map[string]interface{}{
@@ -348,20 +349,20 @@ func GetTotalIngredientUsage(db *gorm.DB, code_entreprise string) ([]models.Ingr
 	var ingredientUsages []models.IngredientUsage
 	query := `
 		SELECT
-			cl.plat_id,
+			cl.plat_uuid,
 			i.name,
 			SUM(c.quantity * cl.quantity) AS qty,
 			i.unite
 		FROM
 			commande_lines cl
 		JOIN
-			compositions c ON cl.plat_id = c.plat_id
+			compositions c ON cl.plat_uuid = c.plat_uuid
 		JOIN
-			ingredients i ON c.ingredient_id = i.id
+			ingredients i ON c.ingredient_uuid = i.uuid
 		WHERE
             cl.code_entreprise = ?
 		GROUP BY
-			cl.plat_id, i.name, i.unite;
+			cl.plat_uuid, i.name, i.unite;
     `
 	if err := db.Raw(query, code_entreprise).Scan(&ingredientUsages).Error; err != nil {
 		return nil, err

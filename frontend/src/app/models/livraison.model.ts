@@ -5,16 +5,17 @@ import { ILivreur } from "./livreur.model";
 import { IPos } from "./pos.model";
 
 export interface ILivraison {
-    ID?: number;
+    ID?: string;
     CreatedAt?: Date;
     UpdatedAt?: Date;
 
-    area_id: number; // Zone
+    uuid?: string;
+    area_uuid: string; // Zone
     cout_livraison: number;
-    client_id: number;
-    livreur_id: number;
+    client_uuid: string;
+    livreur_uuid: string;
     operator_name: string;
-    pos_id: number;
+    pos_uuid: string;
     status: string;
     signature: string;
     code_entreprise: number;

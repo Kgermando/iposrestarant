@@ -8,7 +8,7 @@ const routes: Routes = [
   {
     path: '', component: FinancesComponent, children: [
       { path: 'caisse-list', component: CaisseComponent, children: [
-        { path: ':id/items', component: CaisseItemComponent },
+        { path: ':uuid/items', component: CaisseItemComponent },
       ] 
     },
      

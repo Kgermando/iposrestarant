@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,10 +14,13 @@ import (
 // Query all data ID
 func GetPaginatedCommandeLineByID(c *fiber.Ctx) error {
 	db := database.DB
-	commandeID := c.Params("commande_id")
+	commandeUUID := c.Params("commande_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPI(commandeID)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(commandeUUID)
+	}
+	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -34,13 +38,13 @@ func GetPaginatedCommandeLineByID(c *fiber.Ctx) error {
 
 	var length int64
 	// var data []models.CommandeLine
-	db.Model(&models.CommandeLine{}).Where("commande_id = ?", commandeID).Count(&length)
-	db.Joins("JOIN commandes ON commande_lines.commande_id=commandes.id").
-		Joins("JOIN products ON commande_lines.product_id=products.id").
-		Where("commande_lines.commande_id = ?", commandeID).
+	db.Model(&models.CommandeLine{}).Where("commande_uuid = ?", commandeUUID).Count(&length)
+	db.Joins("JOIN commandes ON commande_lines.commande_uuid=commandes.uuid").
+		Joins("JOIN products ON commande_lines.product_uuid=products.uuid").
+		Where("commande_lines.commande_uuid = ?", commandeUUID).
 		Where("products.name LIKE ? OR products.reference LIKE ?", "%"+search+"%", "%"+search+"%").
 		Select(`
-			commande_lines.id AS id,
+			commande_lines.uuid AS uuid,
 			products.reference AS reference,
 			products.name AS name,
 			products.description AS description,
@@ -84,10 +88,10 @@ func GetPaginatedCommandeLineByID(c *fiber.Ctx) error {
 // Get All data
 func GetAllCommandeLineById(c *fiber.Ctx) error {
 	db := database.DB
-	commandeID := c.Params("commande_id")
+	commandeUUID := c.Params("commande_uuid")
 
 	var dataList []models.CommandeLine
-	db.Where("commande_lines.commande_id = ?", commandeID).
+	db.Where("commande_lines.commande_uuid = ?", commandeUUID).
 		Order("commande_lines.updated_at DESC").
 		Preload("Commande").
 		Preload("Product").
@@ -103,13 +107,15 @@ func GetAllCommandeLineById(c *fiber.Ctx) error {
 // Get All data
 func GetAllCommandeLineByIdLivraison(c *fiber.Ctx) error {
 	db := database.DB
-	livraisonID := c.Params("livraison_id")
+	livraisonUUID := c.Params("livraison_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPICmdLineLivraison(livraisonID)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPICmdLineLivraison(livraisonUUID)
+	}
 
 	var dataList []models.CommandeLine
-	db.Where("commande_lines.livraison_id = ?", livraisonID).
+	db.Where("commande_lines.livraison_uuid = ?", livraisonUUID).
 		Order("commande_lines.updated_at DESC").
 		Preload("Livraison").
 		Preload("Product").
@@ -137,13 +143,13 @@ func GetAllCommandeLines(c *fiber.Ctx) error {
 // Get Total data
 func GetTotalCommandeLine(c *fiber.Ctx) error {
 	db := database.DB
-	productId := c.Params("product_id")
+	productuuId := c.Params("product_uuid")
 
 	// var data []models.CommandeLine
 	var totalQty int64
 
-	if productId != "0" {
-		db.Model(&models.CommandeLine{}).Where("product_id = ?", productId).Select("SUM(quantity)").Scan(&totalQty)
+	if productuuId != "00000000-0000-0000-0000-000000000000" {
+		db.Model(&models.CommandeLine{}).Where("product_id = ?", productuuId).Select("SUM(quantity)").Scan(&totalQty)
 	}
 
 	return c.JSON(fiber.Map{
@@ -155,11 +161,11 @@ func GetTotalCommandeLine(c *fiber.Ctx) error {
 
 // Get one data
 func GetCommandeLine(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 	var commandeLine models.CommandeLine
-	db.Find(&commandeLine, id)
-	if commandeLine.ProductUuid == uuid.Nil {
+	db.Find(&commandeLine, uuid)
+	if commandeLine.ProductUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -185,6 +191,8 @@ func CreateCommandeLine(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+	
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -198,13 +206,13 @@ func CreateCommandeLine(c *fiber.Ctx) error {
 
 // Update data
 func UpdateCommandeLine(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		CommandeID     uint   `json:"commande_id"`
-		LivraisonID    uint   `json:"livraison_id"`
-		ProductUuid    uuid.UUID `json:"product_uuid"`     
+		CommandeUUID     string `json:"commande_uuid"`
+		LivraisonUUID    string `json:"livraison_uuid"`
+		ProductUUID      string `json:"product_uuid"`
 		Quantity       uint64 `json:"quantity"`
 		CodeEntreprise uint64 `json:"code_entreprise"`
 	}
@@ -223,10 +231,10 @@ func UpdateCommandeLine(c *fiber.Ctx) error {
 
 	commandeLine := new(models.CommandeLine)
 
-	db.First(&commandeLine, id)
-	commandeLine.CommandeID = updateData.CommandeID
-	commandeLine.LivraisonID = updateData.LivraisonID
-	commandeLine.ProductUuid = updateData.ProductUuid
+	db.First(&commandeLine, uuid)
+	commandeLine.CommandeUUID = updateData.CommandeUUID
+	commandeLine.LivraisonUUID = updateData.LivraisonUUID
+	commandeLine.ProductUUID = updateData.ProductUUID
 	commandeLine.Quantity = updateData.Quantity
 	commandeLine.CodeEntreprise = updateData.CodeEntreprise
 
@@ -244,13 +252,14 @@ func UpdateCommandeLine(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteCommandeLine(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var commandeLine models.CommandeLine
-	db.First(&commandeLine, id)
-	if commandeLine.ProductID == 0 && commandeLine.PlatID == 0 {
+	db.First(&commandeLine, uuid)
+	if commandeLine.ProductUUID == "00000000-0000-0000-0000-000000000000" &&
+		commandeLine.PlatUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",

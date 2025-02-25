@@ -24,20 +24,20 @@ export class PlatLineComponent implements OnInit {
   public search = '';
   dataList: IPlat[] = [];
 
-  commandeId!: number;
+  commandeuuId!: string;
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private idDataService: IdDataService,
+    private uuidDataService: IdDataService,
     private platService: PlatService, 
   ) { }
 
   ngOnInit() {
     this.loadUserData = true;
     this.isLoadingData = true;
-    this.idDataService.currentId.subscribe(id => {
-      this.commandeId = id;
+    this.uuidDataService.currentUUID.subscribe(uuid => {
+      this.commandeuuId = uuid;
     });
     this.authService.user().subscribe({
       next: (user) => {
@@ -61,9 +61,9 @@ export class PlatLineComponent implements OnInit {
 
   // Get all products
   fetchProducts() {
-    this.platService.getAllByEntrepriseByPosSearch(this.currentUser.entreprise?.code!, this.currentUser.pos?.ID!, this.search).subscribe((res) => {
+    this.platService.getAllByEntrepriseByPosSearch(this.currentUser.entreprise?.code!, this.currentUser.pos?.uuid!, this.search).subscribe((res) => {
       this.dataList = res.data;
-      this.idDataService.changePlat(this.dataList.length);
+      this.uuidDataService.changePlat(this.dataList.length);
       this.isLoadingData = false;
     });
   }

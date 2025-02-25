@@ -1,12 +1,12 @@
 import {
+  isFakeMousedownFromScreenReader,
+  isFakeTouchstartFromScreenReader
+} from "./chunk-SAWJJOHO.js";
+import {
   CdkScrollableModule,
   ScrollDispatcher,
   ViewportRuler
 } from "./chunk-WGFFMDUV.js";
-import {
-  isFakeMousedownFromScreenReader,
-  isFakeTouchstartFromScreenReader
-} from "./chunk-SAWJJOHO.js";
 import {
   Directionality,
   _getEventTarget,

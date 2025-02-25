@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"log"
 	"strconv"
 	"time"
@@ -15,13 +16,17 @@ import (
 
 // Paginate
 func GetPaginatedIngredientStock(c *fiber.Ctx) error {
+
 	db := database.DB
+
 	ingredientUUID := c.Params("ingredient_uuid")
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
 
 	// Sync data with API
-	go SyncDataWithAPI(ingredientUUID)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(ingredientUUID)
+	}
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -196,12 +201,12 @@ func GetAllIngredientStocks(c *fiber.Ctx) error {
 
 // Get one data
 func GetIngredientStock(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var stock models.IngredientStock
-	db.Find(&stock, id)
-	if stock.IngredientUuid == uuid.Nil {
+	db.Find(&stock, uuid)
+	if stock.IngredientUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -227,6 +232,8 @@ func CreateIngredientStock(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -240,15 +247,15 @@ func CreateIngredientStock(c *fiber.Ctx) error {
 
 // Update data
 func UpdateIngredientStock(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		PosID          uint      `json:"pos_id"`
-		IngredientUuid uuid.UUID `json:"ingredient_uuid"`
+		PosUUID          string    `json:"pos_uuid"`
+		IngredientUUID   string    `json:"ingredient_uuid"`
 		Description    string    `json:"description"`
 		Quantity       uint64    `json:"quantity"`
-		FournisseurID  uint      `json:"fournisseur_id"`
+		FournisseurUUID  string    `json:"fournisseur_uuid"`
 		PrixAchat      float64   `json:"prix_achat"`
 		DateExpiration time.Time `json:"date_expiration"`
 		Signature      string    `json:"signature"`
@@ -269,11 +276,11 @@ func UpdateIngredientStock(c *fiber.Ctx) error {
 
 	stock := new(models.IngredientStock)
 
-	db.First(&stock, id)
-	stock.PosID = updateData.PosID
-	stock.IngredientUuid = updateData.IngredientUuid
+	db.First(&stock, uuid)
+	stock.PosUUID = updateData.PosUUID
+	stock.IngredientUUID = updateData.IngredientUUID
 	stock.Description = updateData.Description
-	stock.FournisseurID = updateData.FournisseurID
+	stock.FournisseurUUID = updateData.FournisseurUUID
 	stock.Quantity = updateData.Quantity
 	stock.PrixAchat = updateData.PrixAchat
 	stock.DateExpiration = updateData.DateExpiration
@@ -293,13 +300,13 @@ func UpdateIngredientStock(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteIngredientStock(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var stock models.IngredientStock
-	db.First(&stock, id)
-	if stock.IngredientUuid == uuid.Nil {
+	db.First(&stock, uuid)
+	if stock.IngredientUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -330,7 +337,7 @@ func GetTotalIngredientUsage(db *gorm.DB, code_entreprise string, ingredient_uui
 		FROM
 			commande_lines cl
 		JOIN
-			compositions c ON cl.plat_id = c.plat_id
+			compositions c ON cl.plat_uuid = c.plat_uuid
 		JOIN
 			ingredients i ON c.ingredient_uuid = i.uuid
 		WHERE
@@ -383,7 +390,7 @@ func GetTotalIngredientUsageBetweenDate(db *gorm.DB,
 		FROM
 			commande_lines cl
 		JOIN
-			compositions c ON cl.plat_id = c.plat_id
+			compositions c ON cl.plat_uuid = c.plat_uuid
 		JOIN
 			ingredients i ON c.ingredient_uuid = i.uuid
 		WHERE
@@ -401,7 +408,7 @@ func GetTotalIngredientUsageBetweenDate(db *gorm.DB,
 
 func GetTotalIngredientStockBetweenDate(db *gorm.DB,
 	code_entreprise string,
-	ingredient_uuid string,
+	ingredient_id string,
 	start_date string,
 	end_date string,
 ) ([]models.IngredientUsage, error) {
@@ -421,7 +428,7 @@ func GetTotalIngredientStockBetweenDate(db *gorm.DB,
         GROUP BY
             i.name, i.unite, si.prix_achat;
     `
-	if err := db.Raw(query, code_entreprise, ingredient_uuid, start_date, end_date).
+	if err := db.Raw(query, code_entreprise, ingredient_id, start_date, end_date).
 		Scan(&stock).Error; err != nil {
 		return nil, err
 	}

@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { IngStockService } from '../../ingredient-stocks/ing-stock.service';
-import { IIngredient } from '../../../models/ingredient.model'; 
+import { IIngredient } from '../../../models/ingredient.model';
 import { IUser } from '../../../auth/models/user';
 
 @Component({
@@ -12,22 +12,22 @@ export class IngredientItemComponent implements OnInit {
   @Input() ingredient!: IIngredient;
   @Input() currentUser!: IUser;
 
- 
 
-    montantTotalAchat = signal<number>(0); 
-    stockTotal = signal<number>(0);
-    stockDispo = signal<number>(0);
-    pourcentstockDispo = signal<number>(0);
-  
 
-  constructor( private ingStockService: IngStockService) { }
+  montantTotalAchat = signal<number>(0);
+  stockTotal = signal<number>(0);
+  stockDispo = signal<number>(0);
+  pourcentstockDispo = signal<number>(0);
+
+
+  constructor(private ingStockService: IngStockService) { }
 
   ngOnInit(): void {
     this.getStatsIngredientStock(this.ingredient.ID!)
   }
 
 
-  getStatsIngredientStock(ingredient_id: number) {
+  getStatsIngredientStock(ingredient_id: string) {
     this.ingStockService.getStatsIngredientStock(
       this.currentUser.entreprise!.code,
       ingredient_id

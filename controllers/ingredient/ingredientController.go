@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -68,10 +69,13 @@ func GetPaginatedIngredientEntreprise(c *fiber.Ctx) error {
 func GetPaginatedIngredient(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	}
+
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -89,9 +93,9 @@ func GetPaginatedIngredient(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.Ingredient{}).Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).Count(&length)
+		Where("pos_uuid = ?", posuuId).Count(&length)
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Where("name LIKE ?", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -128,11 +132,11 @@ func GetPaginatedIngredient(c *fiber.Ctx) error {
 func GetAllIngredients(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	var data []models.Ingredient
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Preload("Pos").
 		Find(&data)
 	return c.JSON(fiber.Map{
@@ -146,13 +150,13 @@ func GetAllIngredients(c *fiber.Ctx) error {
 func GetAllIngredientBySearch(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	search := c.Query("search", "")
 
 	var data []models.Ingredient
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Where("name LIKE ?", "%"+search+"%").
 		Preload("Pos").
 		Find(&data)
@@ -165,11 +169,11 @@ func GetAllIngredientBySearch(c *fiber.Ctx) error {
 
 // Get one data
 func GetIngredient(c *fiber.Ctx) error {
-	IngredientUuid := c.Params("uuid")
+	Ingredientuuid := c.Params("uuid")
 	db := database.DB
 
 	var ingredient models.Ingredient
-	db.Find(&ingredient, IngredientUuid)
+	db.Find(&ingredient, Ingredientuuid)
 	if ingredient.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -197,10 +201,10 @@ func CreateIngredient(c *fiber.Ctx) error {
 	}
 
 	// Generate UUID if not already set
-	if p.Uuid == uuid.Nil {
-		p.Uuid = uuid.New()
-	}
-	
+	// if p.Uuid == uuid.Nil {
+	// 	p.Uuid = uuid.New()
+	// }
+	p.UUID = uuid.New().String()
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -214,15 +218,14 @@ func CreateIngredient(c *fiber.Ctx) error {
 
 // Update data
 func UpdateIngredient(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		Uuid uuid.UUID `json:"uuid"`
 		Name           string `json:"name"`
 		Description    string `json:"description"`
 		Unite          string `json:"unite"`
-		PosID          uint   `json:"pos_id"`
+		PosUUID          string `json:"pos_uuid"`
 		Signature      string `json:"signature"`
 		CodeEntreprise uint64 `json:"code_entreprise"`
 	}
@@ -241,13 +244,12 @@ func UpdateIngredient(c *fiber.Ctx) error {
 
 	ingredient := new(models.Ingredient)
 
-	db.First(&ingredient, id)
-	ingredient.Uuid = updateData.Uuid
+	db.First(&ingredient, uuid)
 	ingredient.Name = updateData.Name
 	ingredient.Description = updateData.Description
 	ingredient.Unite = updateData.Unite
 	ingredient.Signature = updateData.Signature
-	ingredient.PosID = updateData.PosID
+	ingredient.PosUUID = updateData.PosUUID
 	ingredient.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&ingredient)
@@ -264,12 +266,12 @@ func UpdateIngredient(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteIngredient(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var ingredient models.Ingredient
-	db.First(&ingredient, id)
+	db.First(&ingredient, uuid)
 	if ingredient.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

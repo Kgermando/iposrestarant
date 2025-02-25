@@ -85,7 +85,7 @@ export class CaisseComponent implements OnInit {
         this.isLoadingData = false;
       });
     } else {
-      this.caisseService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.ID!).subscribe((res) => {
+      this.caisseService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.uuid!).subscribe((res) => {
         this.dataList = res.data;
         this.isLoadingData = false;
       });
@@ -93,9 +93,9 @@ export class CaisseComponent implements OnInit {
     this.GetTotalAllCaisses(currentUser);
   }
 
-  getCaisseUuid(c: any) {
+  getCaisseID(c: any) {
     this.caisse = c;
-    console.log("caisseUuid");
+    console.log("caisseID");
   }
 
   GetTotalAllCaisses(currentUser: IUser) {
@@ -122,7 +122,7 @@ export class CaisseComponent implements OnInit {
         const body: ICaisse = {
           name: this.formGroupCaisse.value.name,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.caisseService.create(body).subscribe((res) => {
@@ -144,10 +144,10 @@ export class CaisseComponent implements OnInit {
         const body: ICaisse = {
           name: this.formGroupCaisse.value.name,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.caisseService.update(this.caisse.ID!, body).subscribe((res) => {
+        this.caisseService.update(this.caisse.uuid!, body).subscribe((res) => {
           this.isLoadingCaisse = false;
           this.formGroupCaisse.reset();
           this.toastr.success(`Caisse ${res.data.type_transaction} crée avec succès!`, 'Success!');
@@ -163,7 +163,7 @@ export class CaisseComponent implements OnInit {
 
   delete(): void {
     this.isLoading = true;
-    this.caisseService.delete(this.caisse.ID!).subscribe(() => {
+    this.caisseService.delete(this.caisse.uuid!).subscribe(() => {
       this.formGroupCaisse.reset(); 
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

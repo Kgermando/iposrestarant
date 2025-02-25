@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -67,10 +68,13 @@ func GetPaginatedPlatEntreprise(c *fiber.Ctx) error {
 func GetPaginatedPlat(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	// Synchronisation des donnees avec l'API
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	}
+	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -88,9 +92,9 @@ func GetPaginatedPlat(c *fiber.Ctx) error {
 
 	var length int64
 	db.Model(&models.Plat{}).Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).Count(&length)
+		Where("pos_uuid = ?", posuuId).Count(&length)
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Where("name LIKE ? OR reference LIKE ?", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -126,11 +130,11 @@ func GetPaginatedPlat(c *fiber.Ctx) error {
 func GetAllPlats(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	var data []models.Plat
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -143,13 +147,13 @@ func GetAllPlats(c *fiber.Ctx) error {
 func GetAllPlatBySearch(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	search := c.Query("search", "")
 
 	var data []models.Plat
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Where("name LIKE ? OR reference LIKE ?", "%"+search+"%", "%"+search+"%").
 		Find(&data)
 	return c.JSON(fiber.Map{
@@ -193,9 +197,10 @@ func CreatePlat(c *fiber.Ctx) error {
 	}
 
 	// Generate UUID if not already set
-	if p.Uuid == uuid.Nil {
-		p.Uuid = uuid.New()
-	}
+	// if p.Uuid == uuid.Nil {
+	// 	p.Uuid = uuid.New()
+	// }
+	p.UUID = uuid.New().String()
 
 	database.DB.Create(p)
 
@@ -210,7 +215,7 @@ func CreatePlat(c *fiber.Ctx) error {
 
 // Update data
 func UpdatePlat(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
@@ -221,7 +226,7 @@ func UpdatePlat(c *fiber.Ctx) error {
 		PrixVente      float64 `json:"prix_vente"`
 		Tva            float64 `json:"tva"`
 		Signature      string  `json:"signature"`
-		PosID          uint    `json:"pos_id"`
+		PosUUID          string  `json:"pos_uuid"`
 		CodeEntreprise uint64  `json:"code_entreprise"`
 	}
 
@@ -239,7 +244,7 @@ func UpdatePlat(c *fiber.Ctx) error {
 
 	plat := new(models.Plat)
 
-	db.First(&plat, id)
+	db.First(&plat, uuid)
 	plat.Reference = updateData.Reference
 	plat.Name = updateData.Name
 	plat.Description = updateData.Description
@@ -247,7 +252,7 @@ func UpdatePlat(c *fiber.Ctx) error {
 	plat.PrixVente = updateData.PrixVente
 	plat.Tva = updateData.Tva
 	plat.Signature = updateData.Signature
-	plat.PosID = updateData.PosID
+	plat.PosUUID = updateData.PosUUID
 	plat.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&plat)
@@ -264,12 +269,12 @@ func UpdatePlat(c *fiber.Ctx) error {
 
 // Delete data
 func DeletePlat(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var plat models.Plat
-	db.First(&plat, id)
+	db.First(&plat, uuid)
 	if plat.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

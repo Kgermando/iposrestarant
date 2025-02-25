@@ -2,19 +2,20 @@ import { IEntreprise } from "../../models/entreprise.model";
 import { IPos } from "../../models/pos.model";
 
 export interface IUser {
-  ID?: number;
+  ID?: string;
+  uuid?: string;
   fullname: string;
   email: string;
   telephone: string;
-  password: string;
-  password_confirm: string;
+  password?: string;
+  password_confirm?: string;
   role: string;
   permission: string;
   status: boolean;
   currency: string;
-  entreprise_id: number;
+  entreprise_uuid: string;
   entreprise?: IEntreprise;
-  pos_id?: number;
+  pos_uuid?: string;
   pos?: IPos;
   signature: string;
   created_at?: Date;

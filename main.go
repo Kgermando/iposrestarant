@@ -43,7 +43,7 @@ func isInternetAvailable() bool {
     return err == nil
 }
 
-func checkAndDownloadUpdates() {  
+func CheckAndDownloadUpdates() {  
     url := fmt.Sprintf("https://api.github.com/repos/%s/%s/releases/latest", repoOwner, repoName)
     resp, err := http.Get(url)
     if err != nil {
@@ -109,16 +109,21 @@ func downloadFile(url, fileName string) error {
 func main() {
 
 	// Vérifier si une connexion Internet est disponible
-	if isInternetAvailable() {
-		// Vérifier les mises à jour logicielles
-		checkAndDownloadUpdates()
-    }
+	// if isInternetAvailable() {
+	// 	// Vérifier les mises à jour logicielles
+	// 	CheckAndDownloadUpdates()
+    // }
 	
 
 	// Create an instance of the app structure
 	app := NewApp()
 
 	database.Connect()
+
+	if isInternetAvailable() {
+		database.PGConnect()
+	}
+
 
 	// Initialize Fiber
 	fiberApp := fiber.New()
@@ -151,8 +156,8 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "iposrestaurant",
-		Width:  1024,
-		Height: 600,
+		Width:  1280,
+		Height: 768,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

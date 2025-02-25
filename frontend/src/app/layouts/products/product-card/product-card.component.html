@@ -106,11 +106,11 @@
                         }">
                     <div>
                       <h6>
-                        <a [routerLink]="['/web/products', item.uuid, 'stocks' ]">
+                        <a [routerLink]="['/web/products', item.uuid!, 'stocks' ]">
                           #{{ item.reference }}
                         </a>
                       </h6>
-                      <a [routerLink]="['/web/products', item.uuid, 'stocks' ]">
+                      <a [routerLink]="['/web/products', item.uuid!, 'stocks' ]">
                         {{ item.name }}
                       </a> 
                     </div>
@@ -134,7 +134,7 @@
                               <a class="dropdown-item" data-bs-toggle="offcanvas"
                                   href="javascript:void(0);"
                                   data-bs-target="#offcanvas_edit_mobile"
-                                  (click)="findValue(item.ID!)">
+                                  (click)="findValue(item.uuid!)">
                                   <i class="ti ti-edit text-blue"></i>
                                   Edit
                               </a>
@@ -149,7 +149,7 @@
                               <a class="dropdown-item" href="javascript:void(0);"
                                   data-bs-toggle="modal"
                                   data-bs-target="#delete_contact_mobile"
-                                  (click)="findValue(item.ID!)">
+                                  (click)="findValue(item.uuid!)">
                                   <i class="ti ti-trash text-danger"></i>
                                   Delete
                               </a>

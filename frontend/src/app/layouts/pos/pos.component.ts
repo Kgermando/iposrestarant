@@ -29,7 +29,7 @@ export class PosComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['status', 'name', 'email', 'telephone', 'manager', 'adresse', 'id'];
+  displayedColumns: string[] = ['status', 'name', 'email', 'telephone', 'manager', 'adresse', 'uuid'];
   dataSource = new MatTableDataSource<IPos>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -38,7 +38,7 @@ export class PosComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IPos; // Single data 
 
   formGroup!: FormGroup;
@@ -159,8 +159,8 @@ export class PosComponent implements OnInit, AfterViewInit {
   onSubmitUpdate() {
     try {
       this.isLoading = true;
-      var body = {
-        entreprise_id: parseInt(this.currentUser.entreprise!.ID!.toString()),
+      var body: IPos = {
+        entreprise_uuid: this.currentUser.entreprise!.uuid!,
         name: this.formGroup.value.name,
         adresse: this.formGroup.value.adresse,
         email: this.formGroup.value.email,
@@ -169,7 +169,7 @@ export class PosComponent implements OnInit, AfterViewInit {
         status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
         signature: this.currentUser.fullname,
       };
-      this.posService.update(this.idItem, body)
+      this.posService.update(this.uuidItem, body)
         .subscribe({
           next: (res) => {
             this.formGroup.reset();
@@ -188,12 +188,12 @@ export class PosComponent implements OnInit, AfterViewInit {
     }
   }
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.posService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.posService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
-        entreprise_id: this.dataItem.entreprise_id,
+        entreprise_uuid: this.dataItem.entreprise_uuid,
         name: this.dataItem.name,
         adresse: this.dataItem.adresse,
         email: this.dataItem.email,
@@ -210,7 +210,7 @@ export class PosComponent implements OnInit, AfterViewInit {
   delete(): void {
     this.isLoading = true;
     this.posService
-      .delete(this.idItem)
+      .delete(this.uuidItem)
       .subscribe({
         next: () => {
           this.formGroup.reset();

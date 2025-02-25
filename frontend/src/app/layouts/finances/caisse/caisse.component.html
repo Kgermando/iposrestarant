@@ -61,7 +61,7 @@
                                 @for (item of dataList; track item.ID) {
                                     <li>
                                         <a [routerLink]="['/web/finances/caisse-list', item.uuid!, 'items']"
-                                            routerLinkActive="active" (click)="getCaisseUuid(item)">
+                                            routerLinkActive="active" (click)="getCaisseID(item)">
                                             {{ item.name.toLocaleUpperCase() }}
                                         </a>
                                     </li>

@@ -15,7 +15,7 @@ import { CurrencyPipe } from '@angular/common';
 export class ProdItemComponent implements OnInit {
   @Input() currentUser!: IUser;
   @Input() item!: IProduct;
-  @Input() commandeId!: number;
+  @Input() commandeuuId!: string;
 
 
   isLoading = false; // for Submit
@@ -46,10 +46,10 @@ export class ProdItemComponent implements OnInit {
   } 
 
   getTotalQty() { 
-    this.commaneLineService.getTotalQty(this.item.ID!).subscribe((res) => {
+    this.commaneLineService.getTotalQty(this.item.uuid!).subscribe((res) => {
       this.cmdLineQty.set(res.data);  
     });
-    this.stocksService.getTotalQty(this.item.ID!).subscribe((res) => {
+    this.stocksService.getTotalQty(this.item.uuid!).subscribe((res) => {
       this.stockQty.set(res.data); 
     });
     this.isloading = false;
@@ -70,10 +70,10 @@ export class ProdItemComponent implements OnInit {
   onSubmit(product: IProduct) {
     this.isLoading = true;
     const body: ICommandeLine = {
-      commande_id: parseInt(this.commandeId!.toString()),
-      livraison_id: 0,
-      product_id: product.ID!,
-      plat_id: 0,
+      commande_uuid: this.commandeuuId!,
+      livraison_uuid: "00000000-0000-0000-0000-000000000000",
+      product_uuid: product.uuid!,
+      plat_uuid: "00000000-0000-0000-0000-000000000000",
       quantity: this.qty(),
       code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
     };

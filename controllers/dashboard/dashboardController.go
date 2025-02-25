@@ -14,11 +14,11 @@ import (
 // Get data
 func GetStock(c *fiber.Ctx) error {
 	db := database.DB
-	productId := c.Params("product_id")
+	productUUID := c.Params("product_uuid")
 
 	var data models.Stock
 
-	db.Model(data).Where("product_id = ?", productId).Last(&data)
+	db.Model(data).Where("product_uuid = ?", productUUID).Last(&data)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -200,7 +200,7 @@ func GetSaleProfit(c *fiber.Ctx) error {
 	for _, commande := range commandes {
 		month := commande.CreatedAt.Format("2006-01")
 		for _, line := range commande.CommandeLines {
-			stockEntry := getStockEntry(line.ProductID, db)
+			stockEntry := getStockEntry(line.ProductUUID, db)
 			saleAmount := line.Product.PrixVente * float64(line.Quantity)
 			profitAmount := (line.Product.PrixVente - stockEntry.PrixAchat) * float64(line.Quantity)
 
@@ -243,8 +243,8 @@ func GetStockDisponible(c *fiber.Ctx) error {
 		var stockEntries []models.Stock
 		var commandeLines []models.CommandeLine
 
-		db.Where("product_id = ?", product.ID).Find(&stockEntries)
-		db.Where("product_id = ?", product.ID).Find(&commandeLines)
+		db.Where("product_uuid = ?", product.UUID).Find(&stockEntries)
+		db.Where("product_uuid = ?", product.UUID).Find(&commandeLines)
 
 		var totalStockIn uint64 = 0
 		for _, entry := range stockEntries {
@@ -319,7 +319,7 @@ func GetTotalStockDispoSortie(c *fiber.Ctx) error {
 	// Calcul des profits des stocks entrés et sortis
 	for _, commande := range commandes {
 		for _, line := range commande.CommandeLines {
-			stockEntry := getStockEntry(line.ProductID, db)
+			stockEntry := getStockEntry(line.ProductUUID, db)
 			profit := (line.Product.PrixVente - stockEntry.PrixAchat) * float64(line.Quantity)
 			totalProfitStockInOut += profit
 		}
@@ -415,10 +415,10 @@ func GetTotalVente24h(c *fiber.Ctx) error {
 	})
 }
 
-func getStockEntry(productID uint, db *gorm.DB) models.Stock {
+func getStockEntry(productUUID string, db *gorm.DB) models.Stock {
 	var stock models.Stock
-	if productID != 0 {
-		db.Where("product_id = ?", productID).First(&stock)
+	if productUUID != "00000000-0000-0000-0000-000000000000" {
+		db.Where("product_id = ?", productUUID).First(&stock)
 	}
 
 	return stock

@@ -32,7 +32,7 @@ export class EntrepriseComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['id', 'status', 'type_entreprise', 'code', 'name', 'rccm', 'idnat', 'email', 'telephone', 'manager', 'total_user', 'total_pos', 'abonnement', 'id'];
+  displayedColumns: string[] = ['id', 'status', 'type_entreprise', 'code', 'name', 'rccm', 'idnat', 'email', 'telephone', 'manager', 'total_user', 'total_pos', 'abonnement', 'uuid'];
   dataSource = new MatTableDataSource<IEntreprise>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -43,7 +43,7 @@ export class EntrepriseComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IEntreprise; // Single data 
 
   typeEntrepriseList: string[] = ['PME', 'GE', 'Particulier'];
@@ -229,7 +229,7 @@ export class EntrepriseComponent implements OnInit, AfterViewInit {
         status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
         signature: this.currentUser.fullname,
       };
-      this.entrepriseService.update(this.idItem, body)
+      this.entrepriseService.update(this.uuidItem, body)
         .subscribe({
           next: (res) => {
             this.formGroup.reset();
@@ -248,9 +248,9 @@ export class EntrepriseComponent implements OnInit, AfterViewInit {
     }
   }
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.entrepriseService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.entrepriseService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         type_entreprise: this.dataItem.type_entreprise,
@@ -273,7 +273,7 @@ export class EntrepriseComponent implements OnInit, AfterViewInit {
   delete(): void {
     this.isLoading = true;
     this.entrepriseService
-      .delete(this.idItem)
+      .delete(this.uuidItem)
       .subscribe({
         next: () => {
           this.formGroup.reset();

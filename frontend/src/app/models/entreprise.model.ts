@@ -2,8 +2,9 @@ import { IUser } from "../auth/models/user";
 import { IPos } from "./pos.model";
 
 export interface IEntreprise {
-    ID?: number;
-    id?: number;
+    ID?: string;
+    id?: string;
+    uuid?: string;
     type_entreprise: string;
     name: string;
     code: number;

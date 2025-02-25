@@ -209,11 +209,11 @@
                                             <td mat-cell *matCellDef="let element"> {{ element.description }} </td>
                                         </ng-container>
 
-                                        <!-- fournisseur_id Column -->
-                                        <ng-container matColumnDef="fournisseur_id">
+                                        <!-- fournisseur_uuid Column -->
+                                        <ng-container matColumnDef="fournisseur_uuid">
                                             <th mat-header-cell *matHeaderCellDef> Fournisseur </th>
                                             <td mat-cell *matCellDef="let element">
-                                                <!-- {{ getFournisseur(element.fournisseur_id) }} -->
+                                                <!-- {{ getFournisseur(element.fournisseur_uuid) }} -->
                                                 @if ( element.Fournisseur) {
                                                 {{ element.Fournisseur!.name }}
                                                 }@else {
@@ -223,14 +223,14 @@
                                         </ng-container>
 
                                         <!-- id Column -->
-                                        <ng-container matColumnDef="id">
+                                        <ng-container matColumnDef="uuid">
                                             <th mat-header-cell *matHeaderCellDef> Action </th>
                                             <td mat-cell *matCellDef="let element">
                                                 @if(currentUser.permission === 'ALL' ||
                                                 currentUser.permission === 'AM' ||
                                                 currentUser.permission === 'MS' ||
                                                 currentUser.permission === 'M') {
-                                                <button mat-icon-button (click)="findValue(element.ID)"
+                                                <button mat-icon-button (click)="findValue(element.uuid!)"
                                                     data-bs-toggle="offcanvas" data-bs-target="#offcanvas_edit">
                                                     <mat-icon class="text-blue">edit</mat-icon>
                                                 </button>
@@ -244,7 +244,7 @@
                                                     </div>
                                                 </button>
                                                 }@else {
-                                                <button mat-icon-button (click)="findValue(element.ID)"
+                                                <button mat-icon-button (click)="findValue(element.uuid!)"
                                                     data-bs-toggle="modal" data-bs-target="#delete_contact">
                                                     <mat-icon class="text-danger">delete</mat-icon>
                                                 </button>
@@ -359,17 +359,17 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="col-form-label" for="fournisseur_id">
+                            <label class="col-form-label" for="fournisseur_uuid">
                                 Fournisseur
                                 <span class="text-danger">*</span>
                             </label>
-                            <mat-select class="select custom-mat-select" formControlName="fournisseur_id"
+                            <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
                                 <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
-                            <mat-error *ngIf="formGroup.controls['fournisseur_id'].hasError('required')">
+                            <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">
                                 Ce champs est obligatoire
                             </mat-error>
                         </div>
@@ -464,17 +464,17 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="col-form-label" for="fournisseur_id">
+                            <label class="col-form-label" for="fournisseur_uuid">
                                 Fournisseur
                                 <span class="text-danger">*</span>
                             </label>
-                            <mat-select class="select custom-mat-select" formControlName="fournisseur_id"
+                            <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
                                 <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
-                            <mat-error *ngIf="formGroup.controls['fournisseur_id'].hasError('required')">
+                            <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">
                                 Ce champs est obligatoire
                             </mat-error>
                         </div>

@@ -3,17 +3,18 @@ import { ICommandeLine } from "./commande_line.model";
 import { ITableBox } from "./table-box.model";
 
 export interface ICommande {
-	ID?: number;
+	ID?: string;
 	CreatedAt?: Date;
 	UpdatedAt?: Date;
-	table_box_id: number;
+	uuid?: string;
+	table_box_uuid: string;
 	TableBox?: ITableBox;
 	ncommande?: number;
 	status: string;
-	client_id?: number;
+	client_uuid?: string;
 	Client?: IClient;
 	signature: string;
-	pos_id?: number;
+	pos_uuid?: string;
 	code_entreprise?: number;
 	commandeLines?: ICommandeLine[];
 }

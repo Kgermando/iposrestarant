@@ -14,7 +14,7 @@ import { CommandeLineService } from '../../../commandes-lines/commande-line.serv
 export class LivPlatItemComponent {
   @Input() currentUser!: IUser;
   @Input() item!: IPlat;
-  @Input() livraisonId!: number;
+  @Input() livraisonuuId!: string;
 
   isLoading = false;
 
@@ -42,10 +42,10 @@ export class LivPlatItemComponent {
   onSubmit(plat: IPlat) {
     this.isLoading = true;
     const body: ICommandeLine = {
-      commande_id: 0,
-      livraison_id: parseInt(this.livraisonId!.toString()),
-      product_id: 0,
-      plat_id: plat.ID!,
+      commande_uuid: "00000000-0000-0000-0000-000000000000",
+      livraison_uuid: this.livraisonuuId!,
+      product_uuid: "00000000-0000-0000-0000-000000000000",
+      plat_uuid: plat.uuid!,
       quantity: this.qty(),
       code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
     };

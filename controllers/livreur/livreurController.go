@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -15,7 +17,9 @@ func GetPaginatedLivreur(c *fiber.Ctx) error {
 	codeEntreprise := c.Params("code_entreprise")
 
 	// Synchronize data with API
-	go SyncDataWithAPI(codeEntreprise)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise)
+	} 
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -81,11 +85,11 @@ func GetAllLivreurs(c *fiber.Ctx) error {
 
 // Get one data
 func GetLivreur(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var livreur models.Livreur
-	db.Find(&livreur, id)
+	db.Find(&livreur, uuid)
 	if livreur.NameSociety == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -112,6 +116,8 @@ func CreateLivreur(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -125,7 +131,7 @@ func CreateLivreur(c *fiber.Ctx) error {
 
 // Update data
 func UpdateLivreur(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
@@ -153,7 +159,7 @@ func UpdateLivreur(c *fiber.Ctx) error {
 
 	livreur := new(models.Livreur)
 
-	db.First(&livreur, id)
+	db.First(&livreur, uuid)
 	livreur.NameSociety = updateData.NameSociety
 	livreur.LivreurName = updateData.LivreurName
 	livreur.Telephone = updateData.Telephone
@@ -177,12 +183,12 @@ func UpdateLivreur(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteLivreur(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var livreur models.Livreur
-	db.First(&livreur, id)
+	db.First(&livreur, uuid)
 	if livreur.NameSociety == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

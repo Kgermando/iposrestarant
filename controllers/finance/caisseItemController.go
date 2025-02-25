@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,7 +18,9 @@ func GetPaginatedCaisseItems(c *fiber.Ctx) error {
 	caisseUUID := c.Params("caisse_uuid")
 
 	//  Synchronize data from API to local
-	go SyncDataWithAPICaisseItem(caisseUUID)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPICaisseItem(caisseUUID)
+	} 
 
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
@@ -116,11 +119,11 @@ func GetAllCaisseItemBySearch(c *fiber.Ctx) error {
 
 // Get one data
 func GetCaisseItem(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var caisseItem models.CaisseItem
-	db.Preload("Caisse").Find(&caisseItem, id)
+	db.Preload("Caisse").Find(&caisseItem, uuid)
 	if caisseItem.TypeTransaction == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -147,6 +150,8 @@ func CreateCaisseItem(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+	
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -160,17 +165,17 @@ func CreateCaisseItem(c *fiber.Ctx) error {
 
 // Update data
 func UpdateCaisseItem(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		CaisseUUID      uuid.UUID `json:"caisse_uuid"`
-		TypeTransaction string    `json:"type_transaction"` // Entreé ou Sortie
-		Montant         float64   `json:"montant"`          // Montant de la transaction
-		Libelle         string    `json:"libelle"`          // Description de la transaction
-		Reference       string    `json:"reference"`        // Nombre aleatoire
-		Signature       string    `json:"signature"`        // Signature de la transaction
-		CodeEntreprise  uint64    `json:"code_entreprise"`
+		CaisseUUID        string  `json:"caisse_uuid"`
+		TypeTransaction string  `json:"type_transaction"` // Entreé ou Sortie
+		Montant         float64 `json:"montant"`          // Montant de la transaction
+		Libelle         string  `json:"libelle"`          // Description de la transaction
+		Reference       string  `json:"reference"`        // Nombre aleatoire
+		Signature       string  `json:"signature"`        // Signature de la transaction
+		CodeEntreprise  uint64  `json:"code_entreprise"`
 	}
 
 	var updateData UpdateData
@@ -187,7 +192,7 @@ func UpdateCaisseItem(c *fiber.Ctx) error {
 
 	caisseItem := new(models.CaisseItem)
 
-	db.First(&caisseItem, id)
+	db.First(&caisseItem, uuid)
 	caisseItem.CaisseUUID = updateData.CaisseUUID
 	caisseItem.TypeTransaction = updateData.TypeTransaction
 	caisseItem.Montant = updateData.Montant
@@ -210,12 +215,12 @@ func UpdateCaisseItem(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteCaisseItem(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var caisseItem models.CaisseItem
-	db.First(&caisseItem, id)
+	db.First(&caisseItem, uuid)
 	if caisseItem.TypeTransaction == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

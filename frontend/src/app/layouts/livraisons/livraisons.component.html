@@ -101,11 +101,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{ element.CreatedAt | date: 'dd/MM/YYYY HH:mm' }}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{ element.CreatedAt | date: 'dd/MM/YYYY HH:mm' }}
                                         </a>
                                         }
@@ -128,7 +128,6 @@
                                             } @else if (element.status === 'En cours') {
                                             En cours
                                             }
-
                                         </span>
                                     </td>
                                 </ng-container>
@@ -139,11 +138,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.Client!.fullname}}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.Client!.fullname}}
                                         </a>
                                         }
@@ -156,11 +155,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.Livreur!.name_society }}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.Livreur!.name_society }}
                                         </a>
                                         }
@@ -174,11 +173,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.Livreur!.livreur_name }}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.Livreur!.livreur_name }}
                                         </a>
                                         }
@@ -192,11 +191,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.Area!.province }}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.Area!.province }}
                                         </a>
                                         }
@@ -209,11 +208,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.Area!.name }}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.Area!.name }}
                                         </a>
                                         }
@@ -226,11 +225,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.Client!.adress}}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.Client!.adress}}
                                         </a>
                                         }
@@ -243,11 +242,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.operator_name}}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.operator_name}}
                                         </a>
                                         }
@@ -260,11 +259,11 @@
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
-                                            [routerLink]="['/web/livraisons/view', element.ID, 'facture', element.Client!.fullname ]">
+                                            [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
                                             {{element.Pos!.name}}
                                         </a>
                                         } @else {
-                                        <a [routerLink]="['/web/livraisons', element.ID, 'line']">
+                                        <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
                                             {{element.Pos!.name}}
                                         </a>
                                         }
@@ -272,21 +271,21 @@
                                 </ng-container>
 
                                 <!-- id Column -->
-                                <ng-container matColumnDef="id">
+                                <ng-container matColumnDef="uuid">
                                     <th mat-header-cell *matHeaderCellDef> Action </th>
                                     <td mat-cell *matCellDef="let element">
                                         @if(currentUser.permission === 'ALL' ||
                                         currentUser.permission === 'AM' ||
                                         currentUser.permission === 'MS' ||
                                         currentUser.permission === 'M') {
-                                        <button mat-icon-button (click)="findValue(element.ID)"
+                                        <button mat-icon-button (click)="findValue(element.uuid!)"
                                             data-bs-toggle="offcanvas" data-bs-target="#offcanvas_edit">
                                             <mat-icon class="text-blue">edit</mat-icon>
                                         </button>
                                         }
                                         @if(currentUser.permission === 'ALL' ||
                                         currentUser.permission === 'MS') {
-                                        <button mat-icon-button (click)="findValue(element.ID)" data-bs-toggle="modal"
+                                        <button mat-icon-button (click)="findValue(element.uuid!)" data-bs-toggle="modal"
                                             data-bs-target="#delete_contact">
                                             <mat-icon class="text-danger">delete</mat-icon>
                                         </button>

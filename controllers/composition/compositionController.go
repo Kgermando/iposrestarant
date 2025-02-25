@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -32,7 +33,7 @@ func GetPaginatedComposition(c *fiber.Ctx) error {
 	var length int64
 	db.Model(&models.Composition{}).Where("plat_uuid = ?", platUUID).Count(&length)
 	db.Where("plat_uuid = ?", platUUID).
-		Joins("JOIN plats ON compositions.plat_uuid=plats.uuid").
+		Joins("JOIN plats ON compositions.plat_id=plats.id").
 		Where("plats.name LIKE ? OR plats.reference LIKE ?", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -103,14 +104,16 @@ func GetTotalComposition(c *fiber.Ctx) error {
 func GetAllCompositions(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
-	posId := c.Params("pos_id")
+	posuuId := c.Params("pos_uuid")
 
 	// Synchronize data from API to local
-	go SyncDataWithAPI(codeEntreprise, posId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	}
 
 	var data []models.Composition
 	db.Where("code_entreprise = ?", codeEntreprise).
-		Where("pos_id = ?", posId).
+		Where("pos_uuid = ?", posuuId).
 		Preload("Plat").
 		Preload("Ingredient").
 		Find(&data)
@@ -123,12 +126,12 @@ func GetAllCompositions(c *fiber.Ctx) error {
 
 // Get one data
 func GetComposition(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var composition models.Composition
-	db.Find(&composition, id)
-	if composition.PlatUuid == uuid.Nil {
+	db.Find(&composition, uuid)
+	if composition.PlatUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",
@@ -154,6 +157,8 @@ func CreateComposition(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+	
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -167,13 +172,12 @@ func CreateComposition(c *fiber.Ctx) error {
 
 // Update data
 func UpdateComposition(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
-		PlatID 	   uint   `json:"plat_id"` // Updated PlatID to PlatUUID 
-		PlatUuid       uuid.UUID  `json:"plat_uuid"`
-		IngredientID   uint   `json:"ingredient_id"`
+		PlatUUID         string `json:"plat_uuid"` // Updated PlatID to PlatUUID
+		IngredientUUID   string `json:"ingredient_uuid"`
 		Quantity       uint64 `json:"quantity"`
 		Signature      string `json:"signature"`
 		CodeEntreprise uint64 `json:"code_entreprise"`
@@ -193,12 +197,12 @@ func UpdateComposition(c *fiber.Ctx) error {
 
 	composition := new(models.Composition)
 
-	db.First(&composition, id)
-	composition.PlatID = updateData.PlatID
-	composition.PlatUuid = updateData.PlatUuid
-	composition.IngredientID = updateData.IngredientID
+	db.First(&composition, uuid)
+	composition.PlatUUID = updateData.PlatUUID
+	composition.IngredientUUID = updateData.IngredientUUID
 	composition.Quantity = updateData.Quantity
 	composition.Signature = updateData.Signature
+	composition.CodeEntreprise = updateData.CodeEntreprise
 
 	db.Save(&composition)
 
@@ -214,13 +218,13 @@ func UpdateComposition(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteComposition(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var composition models.Composition
-	db.First(&composition, id)
-	if composition.PlatUuid == uuid.Nil {
+	db.First(&composition, uuid)
+	if composition.PlatUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
 				"status":  "error",

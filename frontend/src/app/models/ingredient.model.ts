@@ -1,12 +1,12 @@
 import { IComposition } from "./composition.model";
 
 export interface IIngredient {
-    ID?: number;
+    ID?: string;
     uuid?: string;
     name: string;
     description: string; 
     unite: string;
-    pos_id: number;
+    pos_uuid: string;
     CreatedAt?: Date;
     UpdatedAt?: Date;
     signature: string;

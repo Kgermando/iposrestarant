@@ -69,7 +69,7 @@ func GetTotalVentesParJour(c *fiber.Ctx) error {
 	var commandeLineLivraisons []models.CommandeLine
 	startOfDay := time.Now().Truncate(24 * time.Hour)
 	endOfDay := startOfDay.Add(24 * time.Hour).Add(-1 * time.Second)
-	db.Joins("JOIN commandes ON commande_lines.commande_id = commandes.id").
+	db.Joins("JOIN commandes ON commande_lines.commande_uuid = commandes.uuid").
 		Where("commande_lines.code_entreprise = ?", codeEntreprise).
 		Where("commande_lines.created_at BETWEEN ? AND ?", startOfDay, endOfDay).
 		Where("commandes.status != ? OR commandes.status != ?", "En cours", "Créance").
@@ -77,7 +77,7 @@ func GetTotalVentesParJour(c *fiber.Ctx) error {
 		Preload("Product").
 		Find(&commandeLines)
 
-	db.Joins("JOIN livraisons ON commande_lines.livraison_id = livraisons.id").
+	db.Joins("JOIN livraisons ON commande_lines.livraison_uuid = livraisons.uuid").
 		Where("commande_lines.code_entreprise = ?", codeEntreprise).
 		Where("commande_lines.created_at BETWEEN ? AND ?", startOfDay, endOfDay).
 		Where("livraisons.status != ? OR livraisons.status != ?", "En cours", "Créance").
@@ -101,14 +101,14 @@ func GetTotalVentesParJour(c *fiber.Ctx) error {
 	for _, line := range commandeLines {
 		totalSales += (line.Plat.PrixVente + line.Product.PrixVente)
 
-		stockEntry := getStockEntry(line.ProductID, db)
-		if line.ProductID > 0 {
+		stockEntry := getStockEntry(line.ProductUUID, db)
+		if line.ProductUUID != "00000000-0000-0000-0000-000000000000" {
 			profitAmountProduit = (line.Product.PrixVente - stockEntry.PrixAchat) * float64(line.Quantity)
 		}
-		if line.PlatID > 0 {
+		if line.PlatUUID != "00000000-0000-0000-0000-000000000000" {
 			priceIngredientUsagePlat := 0.0 // Prix total des ingrédients utilisés pour le plat
 			for _, ingredientUsage := range ingredientUsages {
-				if ingredientUsage.PlatID == line.PlatID {
+				if ingredientUsage.PlatUUID == line.PlatUUID {
 					priceIngredientUsagePlat += ingredientUsage.Price
 				}
 			}
@@ -137,14 +137,14 @@ func GetCourbeVenteProfit24h(c *fiber.Ctx) error {
 
 	var commandeLines []models.CommandeLine
 	var commandeLineLivraisons []models.CommandeLine
-	db.Joins("JOIN commandes ON commande_lines.commande_id = commandes.id").
+	db.Joins("JOIN commandes ON commande_lines.commande_uuid = commandes.uuid").
 		Where("commande_lines.code_entreprise = ?", codeEntreprise).
 		Where("commandes.status != ?", "En cours").
 		Where("date(commande_lines.created_at) = date('now')").
 		Preload("Plat").
 		Preload("Product").
 		Find(&commandeLines)
-	db.Joins("JOIN livraisons ON commande_lines.livraison_id = livraisons.id").
+	db.Joins("JOIN livraisons ON commande_lines.livraison_uuid = livraisons.uuid").
 		Where("commande_lines.code_entreprise = ?", codeEntreprise).
 		Where("livraisons.status != ?", "En cours").
 		Where("date(commande_lines.created_at) = date('now')").
@@ -173,14 +173,14 @@ func GetCourbeVenteProfit24h(c *fiber.Ctx) error {
 		hour := line.CreatedAt.Hour()
 		hourlySales[hour] += (line.Plat.PrixVente + line.Product.PrixVente)
 
-		stockEntry := getStockEntry(line.ProductID, db)
-		if line.ProductID > 0 {
+		stockEntry := getStockEntry(line.ProductUUID, db)
+		if line.ProductUUID != "00000000-0000-0000-0000-000000000000" {
 			profitAmountProduit = (line.Product.PrixVente - stockEntry.PrixAchat) * float64(line.Quantity)
 		}
-		if line.PlatID > 0 {
+		if line.PlatUUID != "00000000-0000-0000-0000-000000000000" {
 			priceIngredientUsagePlat := 0.0 // Prix total des ingrédients utilisés pour le plat
 			for _, ingredientUsage := range ingredientUsages {
-				if ingredientUsage.PlatID == line.PlatID {
+				if ingredientUsage.PlatUUID == line.PlatUUID {
 					priceIngredientUsagePlat += ingredientUsage.Price
 				}
 			}
@@ -267,20 +267,19 @@ func GetTotalParCaisse(c *fiber.Ctx) error {
 
 	query := `
 		SELECT
-			c.id,
+			c.uuid,
 			c.name,
 			SUM(CASE WHEN ci.type_transaction = 'Entrée' THEN ci.montant ELSE 0 END) AS total_entrees,
 			SUM(CASE WHEN ci.type_transaction = 'Sortie' THEN ci.montant ELSE 0 END) AS total_sorties,
-			SUM(CASE WHEN ci.type_transaction = 'Entrée' THEN ci.montant ELSE -ci.montant END) AS solde
+			SUM(CASE WHEN ci.type_transaction = 'Entrée' THEN ci.montant ELSE ci.montant END) AS solde
 		FROM
 			caisses c
 		JOIN
-			caisse_items ci ON c.id = ci.caisse_id
+			caisse_items ci ON c.uuid = ci.caisse_uuid
 		WHERE ci.code_entreprise = ? AND ci.created_at BETWEEN ? AND ?
 		GROUP BY
-			c.id, c.name;
+			c.uuid, c.name;
 	`
-
 	if err := db.Raw(query, codeEntreprise, startDateStr, endDateStr).
 		Scan(&dashCaisse).Error; err != nil {
 		return err

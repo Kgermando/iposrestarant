@@ -42,7 +42,7 @@ export class LoginComponent implements OnInit {
 
   @ViewChild('entreprise_id') entreprise_id: ElementRef<HTMLInputElement> = {} as ElementRef<HTMLInputElement>;
 
-  entrepriseId: number = 0;
+  entrepriseUUId!: any;
 
   constructor(
     private router: Router,
@@ -94,9 +94,10 @@ export class LoginComponent implements OnInit {
   optionSelected(event: MatAutocompleteSelectedEvent) {
     const selectedOption: IEntreprise = event.option.value;
     this.isLoadSync = true;
-    this.entrepriseId = selectedOption.ID!;
+    this.entrepriseUUId = selectedOption.uuid!;
     var bodyEntreprise: IEntreprise = {
       ID: selectedOption.ID,
+      uuid: selectedOption.uuid!,
       type_entreprise: selectedOption.type_entreprise,
       name: selectedOption.name,
       code: selectedOption.code,
@@ -117,7 +118,7 @@ export class LoginComponent implements OnInit {
     this.entrepriseService.create(bodyEntreprise).subscribe((res) => {
       for (let item of selectedOption.Users!) {
         var body: IUser = {
-          entreprise_id: item.entreprise_id,
+          entreprise_uuid: item.entreprise_uuid,
           fullname: item.fullname,
           email: item.email,
           telephone: item.telephone,
@@ -128,7 +129,7 @@ export class LoginComponent implements OnInit {
           status: item.status,
           currency: item.currency,
           signature: item.signature,
-          pos_id: item.pos_id,
+          pos_uuid: item.pos_uuid!,
           created_at: item.created_at,
           updated_at: item.updated_at,
         };
@@ -162,10 +163,12 @@ export class LoginComponent implements OnInit {
 
       this.authService.login(body).subscribe({
         next: (res) => {
-          localStorage.setItem("auth_id", res.data.ID);
+          localStorage.removeItem("auth_id");
+          localStorage.setItem("auth_id", res.data.UUID);
           this.authService.user().subscribe({
             next: (user) => {
               this.isLoading = false;
+              console.log("user", user.role);	
               if (user.role == 'Support') {
                 this.router.navigate([this.routes.entrepriseList]);
               } else if (user.role == 'Manager général') {
@@ -185,7 +188,7 @@ export class LoginComponent implements OnInit {
                 this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
               } else {
                 this.router.navigate(['/auth/login']);
-                this.toastr.success(`Desole chemin d'accès non trouvée! 😓`, 'Success!');
+                this.toastr.warning(`Desole chemin d'accès non trouvée! 😓`, 'Success!');
               }
              
               // this.router.navigate(['/web']); 
@@ -205,7 +208,7 @@ export class LoginComponent implements OnInit {
           if (this.failedAttempts >= 3) {
             this.isLoadSync = true;
             for (let item of this.userList) {
-              this.userService.delete(item.ID!)
+              this.userService.delete(item.uuid!)
             }
             this.isLoadSync = false;
             this.toastr.error(`Ereur d'authentification, Veuillez recommancer`, 'Oupss!');

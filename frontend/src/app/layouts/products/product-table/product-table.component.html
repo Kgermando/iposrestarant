@@ -91,7 +91,7 @@
                                 <ng-container matColumnDef="reference">
                                     <th mat-header-cell *matHeaderCellDef> N˚ Reference </th>
                                     <td mat-cell *matCellDef="let element">
-                                        <a [routerLink]="['/web/products', element.uuid, 'stocks' ]">
+                                        <a [routerLink]="['/web/products', element.ID!, 'stocks' ]">
                                             #{{element.reference}}
                                         </a>
                                     </td>
@@ -101,7 +101,7 @@
                                 <ng-container matColumnDef="name">
                                     <th mat-header-cell *matHeaderCellDef> Nom </th>
                                     <td mat-cell *matCellDef="let element">
-                                        <a [routerLink]="['/web/products', element.uuid, 'stocks' ]">
+                                        <a [routerLink]="['/web/products', element.ID!, 'stocks' ]">
                                             {{ element.name }}
                                         </a>
                                     </td>
@@ -109,9 +109,9 @@
 
                                 <!-- prix_vente Column -->
                                 <ng-container matColumnDef="prix_vente">
-                                    <th mat-header-cell *matHeaderCellDef> Prix de vente </th>
+                                    <th mat-header-cell *matHeaderCellDef> Prix de vente </th> 
                                     <td mat-cell *matCellDef="let element">
-                                        <a [routerLink]="['/web/products', element.uuid, 'stocks' ]">
+                                        <a [routerLink]="['/web/products', element.ID!, 'stocks' ]">
                                             {{ formatCurrency(element.prix_vente, currentUser.currency) }}
                                         </a>
                                     </td>
@@ -121,7 +121,7 @@
                                 <ng-container matColumnDef="tva">
                                     <th mat-header-cell *matHeaderCellDef> TVA </th>
                                     <td mat-cell *matCellDef="let element">
-                                        <a [routerLink]="['/web/products', element.uuid, 'stocks' ]">
+                                        <a [routerLink]="['/web/products', element.ID!, 'stocks' ]">
                                             @if (element.tva === 16) {
                                             {{element.tva}}%
                                             } @else {
@@ -135,7 +135,7 @@
                                 <ng-container matColumnDef="qte_disponible">
                                     <th mat-header-cell *matHeaderCellDef> Qté disponible </th>
                                     <td mat-cell *matCellDef="let element">
-                                        <a [routerLink]="['/web/products', element.uuid, 'stocks' ]">
+                                        <a [routerLink]="['/web/products', element.ID!, 'stocks' ]">
                                             <app-prod-qty-dispo [currentUser]="currentUser"
                                                 [item]="element"></app-prod-qty-dispo>
                                         </a>
@@ -149,21 +149,21 @@
                                 </ng-container>
 
                                 <!-- id Column -->
-                                <ng-container matColumnDef="id">
+                                <ng-container matColumnDef="uuid">
                                     <th mat-header-cell *matHeaderCellDef> Action </th>
                                     <td mat-cell *matCellDef="let element">
                                         @if(currentUser.permission === 'ALL' ||
                                         currentUser.permission === 'AM' ||
                                         currentUser.permission === 'MS' ||
                                         currentUser.permission === 'M') {
-                                        <button mat-icon-button (click)="findValue(element.ID)"
+                                        <button mat-icon-button (click)="findValue(element.uuid!)"
                                             data-bs-toggle="offcanvas" data-bs-target="#offcanvas_edit">
                                             <mat-icon class="text-blue">edit</mat-icon>
                                         </button>
                                         }
                                         @if(currentUser.permission === 'ALL' ||
                                         currentUser.permission === 'MS') {
-                                        <button mat-icon-button (click)="findValue(element.ID)" data-bs-toggle="modal"
+                                        <button mat-icon-button (click)="findValue(element.uuid!)" data-bs-toggle="modal"
                                             data-bs-target="#delete_contact">
                                             <mat-icon class="text-danger">delete</mat-icon>
                                         </button>

@@ -100,12 +100,12 @@
                             'success':  70
                           }">
                                         <div>
-                                            <a [routerLink]="['/web/ingredients', item.ID, 'stocks']">
+                                            <a [routerLink]="['/web/ingredients', item.uuid, 'stocks']">
                                                 <h4>
                                                     {{ item.name }}
                                                 </h4>
                                             </a>
-                                            <a [routerLink]="['/web/ingredients', item.ID, 'stocks']">
+                                            <a [routerLink]="['/web/ingredients', item.uuid, 'stocks']">
                                                 <h6>
                                                     <app-ingredient-item [ingredient]="item"
                                                         [currentUser]="currentUser"></app-ingredient-item>
@@ -128,7 +128,7 @@
                                                             <a class="dropdown-item" data-bs-toggle="offcanvas"
                                                                 href="javascript:void(0);"
                                                                 data-bs-target="#offcanvas_edit_mobile"
-                                                                (click)="findValue(item.ID!)">
+                                                                (click)="findValue(item.uuid!)">
                                                                 <i class="ti ti-edit text-blue"></i>
                                                                 Edit
                                                             </a>
@@ -143,7 +143,7 @@
                                                             <a class="dropdown-item" href="javascript:void(0);"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#delete_contact_mobile"
-                                                                (click)="findValue(item.ID!)">
+                                                                (click)="findValue(item.uuid!)">
                                                                 <i class="ti ti-trash text-danger"></i>
                                                                 Delete
                                                             </a>

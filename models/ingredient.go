@@ -1,25 +1,19 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Ingredient struct {
-	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
+	UUID           string        `gorm:"not null;unique" json:"uuid"`
 	Name           string        `gorm:"not null" json:"name"`
 	Description    string        `json:"description"`
 	Unite          string        `gorm:"not null" json:"unite"`
-	PosID          string          `json:"pos_id"`
-	Pos            Pos           `gorm:"foreignKey:PosID"`
+	PosUUID        string        `json:"pos_id"`
+	Pos            Pos           `gorm:"foreignKey:PosUUID;references:UUID"`
 	Signature      string        `json:"signature"`
 	CodeEntreprise uint64        `json:"code_entreprise"`
-	Compositions   []Composition `gorm:"foreignKey:IngredientID"`
-}
-
-func (ingredient *Ingredient) BeforeCreate(tx *gorm.DB) (err error) {
-	ingredient.ID = uuid.New().String()
-	return
+	Compositions   []Composition `gorm:"foreignKey:IngredientUUID;references:UUID"`
 }

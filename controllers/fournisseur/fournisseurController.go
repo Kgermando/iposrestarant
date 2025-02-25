@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
+	"iposrestaurant/utils"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -15,7 +17,10 @@ func GetPaginatedFournisseur(c *fiber.Ctx) error {
 	db := database.DB
 
 	// Synchronize data with API
-	go SyncDataWithAPI(codeEntreprise)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise)
+	}
+	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -81,11 +86,11 @@ func GetAllFournisseurs(c *fiber.Ctx) error {
 
 // Get one data
 func GetFournisseur(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	var fournisseur models.Fournisseur
-	db.Preload("Stocks").Find(&fournisseur, id)
+	db.Preload("Stocks").Find(&fournisseur, uuid)
 	if fournisseur.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -112,6 +117,8 @@ func CreateFournisseur(c *fiber.Ctx) error {
 		return err
 	}
 
+	p.UUID = uuid.New().String()
+	
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -125,7 +132,7 @@ func CreateFournisseur(c *fiber.Ctx) error {
 
 // Update data
 func UpdateFournisseur(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateData struct {
@@ -151,7 +158,7 @@ func UpdateFournisseur(c *fiber.Ctx) error {
 
 	fournisseur := new(models.Fournisseur)
 
-	db.First(&fournisseur, id)
+	db.First(&fournisseur, uuid)
 	fournisseur.Name = updateData.Name
 	fournisseur.Adresse = updateData.Adresse
 	fournisseur.Email = updateData.Email
@@ -173,12 +180,12 @@ func UpdateFournisseur(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteFournisseur(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var fournisseur models.Fournisseur
-	db.First(&fournisseur, id)
+	db.First(&fournisseur, uuid)
 	if fournisseur.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // Paginate
@@ -16,7 +17,9 @@ func GetPaginatedUsers(c *fiber.Ctx) error {
 	db := database.DB
 
 	// Start the synchronization goroutine
-	go SyncDataWithAPISupport()
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPISupport()
+	}
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -73,10 +76,12 @@ func GetPaginatedUsers(c *fiber.Ctx) error {
 // Query all data ID
 func GetPaginatedUserByID(c *fiber.Ctx) error {
 	db := database.DB
-	EntrepriseID := c.Params("entreprise_id")
+	EntrepriseUUID := c.Params("entreprise_uuid")
 
 	// Start the synchronization goroutine
-	go SyncDataWithAPI(EntrepriseID)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(EntrepriseUUID)
+	}
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -93,8 +98,8 @@ func GetPaginatedUserByID(c *fiber.Ctx) error {
 	var dataList []models.User
 
 	var length int64
-	db.Model(&models.User{}).Where("entreprise_id = ?", EntrepriseID).Count(&length)
-	db.Where("entreprise_id = ?", EntrepriseID).
+	db.Model(&models.User{}).Where("entreprise_uuid = ?", EntrepriseUUID).Count(&length)
+	db.Where("entreprise_uuid = ?", EntrepriseUUID).
 		Where("fullname LIKE ? OR role LIKE ?", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -145,10 +150,10 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 // query data by entreprise ID
 func GetUserByID(c *fiber.Ctx) error {
-	entrepriseID := c.Params("id")
+	entrepriseuuid := c.Params("uuid")
 	db := database.DB
 	var users []models.User
-	db.Where("entreprise_id = ?", entrepriseID).Find(&users)
+	db.Where("entreprise_uuid = ?", entrepriseuuid).Find(&users)
 
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -159,10 +164,10 @@ func GetUserByID(c *fiber.Ctx) error {
 
 // Get one data
 func GetUser(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 	var user models.User
-	db.Find(&user, id)
+	db.Find(&user, uuid)
 	if user.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -207,16 +212,16 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	user := &models.User{
-		Fullname:     p.Fullname,
-		Email:        p.Email,
-		Telephone:    p.Telephone,
-		Role:         p.Role,
-		Permission:   p.Permission,
-		Status:       p.Status,
-		Currency:     p.Currency,
-		EntrepriseID: p.EntrepriseID,
-		Entreprise:   p.Entreprise,
-		Signature:    p.Signature,
+		Fullname:       p.Fullname,
+		Email:          p.Email,
+		Telephone:      p.Telephone,
+		Role:           p.Role,
+		Permission:     p.Permission,
+		Status:         p.Status,
+		Currency:       p.Currency,
+		EntrepriseUUID: p.EntrepriseUUID,
+		Entreprise:     p.Entreprise,
+		Signature:      p.Signature,
 	}
 
 	user.SetPassword(p.Password)
@@ -225,6 +230,8 @@ func CreateUser(c *fiber.Ctx) error {
 		c.Status(400)
 		return c.JSON(err)
 	}
+
+	user.UUID = uuid.New().String()
 
 	if err := database.DB.Create(user).Error; err != nil {
 		c.Status(500)
@@ -249,20 +256,20 @@ func CreateUser(c *fiber.Ctx) error {
 
 // Update data
 func UpdateUser(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 	db := database.DB
 
 	type UpdateDataInput struct {
-		Fullname     string `json:"fullname"`
-		Email        string `json:"email"`
-		Telephone    string `json:"telephone"`
-		Role         string `json:"role"`
-		Permission   string `json:"permission"`
-		Status       bool   `json:"status"`
-		Currency     string `json:"currency"`
-		EntrepriseID uint   `json:"entreprise_id"`
-		PosID        uint   `json:"pos_id"`
-		Signature    string `json:"signature"`
+		Fullname       string `json:"fullname"`
+		Email          string `json:"email"`
+		Telephone      string `json:"telephone"`
+		Role           string `json:"role"`
+		Permission     string `json:"permission"`
+		Status         bool   `json:"status"`
+		Currency       string `json:"currency"`
+		EntrepriseUUID string `json:"entreprise_uuid"`
+		PosUUID        string `json:"pos_uuid"`
+		Signature      string `json:"signature"`
 	}
 	var updateData UpdateDataInput
 
@@ -278,7 +285,7 @@ func UpdateUser(c *fiber.Ctx) error {
 
 	user := new(models.User)
 
-	db.First(&user, id)
+	db.First(&user, uuid)
 	user.Fullname = updateData.Fullname
 	user.Email = updateData.Email
 	user.Telephone = updateData.Telephone
@@ -286,8 +293,8 @@ func UpdateUser(c *fiber.Ctx) error {
 	user.Permission = updateData.Permission
 	user.Status = updateData.Status
 	user.Currency = updateData.Currency
-	user.EntrepriseID = updateData.EntrepriseID
-	user.PosID = updateData.PosID
+	user.EntrepriseUUID = updateData.EntrepriseUUID
+	user.PosUUID = updateData.PosUUID
 	user.Signature = updateData.Signature
 
 	db.Save(&user)
@@ -304,12 +311,12 @@ func UpdateUser(c *fiber.Ctx) error {
 
 // Delete data
 func DeleteUser(c *fiber.Ctx) error {
-	id := c.Params("id")
+	uuid := c.Params("uuid")
 
 	db := database.DB
 
 	var User models.User
-	db.First(&User, id)
+	db.First(&User, uuid)
 	if User.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

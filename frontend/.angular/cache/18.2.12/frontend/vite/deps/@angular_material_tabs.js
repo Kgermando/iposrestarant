@@ -19,10 +19,6 @@ import {
   MatRipple
 } from "./chunk-VJPZLOZZ.js";
 import {
-  CdkScrollable,
-  ViewportRuler
-} from "./chunk-WGFFMDUV.js";
-import {
   CdkMonitorFocus,
   CdkObserveContent,
   ENTER,
@@ -31,6 +27,10 @@ import {
   SPACE,
   hasModifierKey
 } from "./chunk-SAWJJOHO.js";
+import {
+  CdkScrollable,
+  ViewportRuler
+} from "./chunk-WGFFMDUV.js";
 import {
   Directionality,
   Platform,

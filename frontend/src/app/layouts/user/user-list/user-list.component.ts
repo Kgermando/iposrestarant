@@ -37,7 +37,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   length: number = 0;
 
   // Table 
-  displayedColumns: string[] = ['entreprise', 'pos', 'fullname', 'role', 'email', 'telephone', 'currency',  'status', 'id'];
+  displayedColumns: string[] = ['entreprise', 'pos', 'fullname', 'role', 'email', 'telephone', 'currency',  'status', 'uuid'];
   dataSource = new MatTableDataSource<IUser>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -46,7 +46,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string;
   dataItem!: IUser; // Single data 
 
   formGroup!: FormGroup;
@@ -75,7 +75,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   filteredOptions: IPos[] = [];
 
   @ViewChild('pos_id') pos_id!: ElementRef<HTMLInputElement>;
-  posId!: number;
+  posId!: any;
   isload = false;
 
   constructor(
@@ -149,9 +149,9 @@ export class UserListComponent implements OnInit, AfterViewInit {
 
   optionSelected(event: MatAutocompleteSelectedEvent) {
     const selectedOption = event.option.value;
-    const pos_id = selectedOption.ID;
+    const pos_id = selectedOption.UUID;
     const name = selectedOption.name;
-    this.posId = selectedOption.ID;
+    this.posId = selectedOption.UUID;
     // Utilisez id et fullName comme vous le souhaitez
     console.log('pos_id:', pos_id);
     console.log('Name:', name);
@@ -215,14 +215,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
       });
     }
   }
-
-
-  openSidebarPopup1() {
-    this.sidebarPopup1 = !this.sidebarPopup1;
-  }
-  openSidebarPopup2() {
-    this.sidebarPopup2 = !this.sidebarPopup2;
-  }
+ 
 
   public togglePassword(index: number) {
     this.password[index] = !this.password[index]
@@ -234,7 +227,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
       if (this.formGroup.valid) {
         this.isLoading = true;
         var body: IUser = {
-          entreprise_id: this.currentUser.entreprise?.ID!, 
+          entreprise_uuid: this.currentUser.entreprise?.uuid!,
           fullname: this.formGroup.value.fullname,
           email: this.formGroup.value.email,
           telephone: this.formGroup.value.telephone,
@@ -245,7 +238,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
           currency: this.formGroup.value.currency,
           signature: this.currentUser.fullname,  
-          pos_id: (this.posId) ? parseInt(this.posId.toString()) : 0,
+          pos_uuid: (this.posId) ? this.posId : "00000000-0000-0000-0000-000000000000",
         };
         this.usersService.create(body).subscribe({
           next: () => {
@@ -271,19 +264,19 @@ export class UserListComponent implements OnInit, AfterViewInit {
     try {
       this.isLoading = true;
       if (this.currentUser.role == 'Support') {
-        var body = {
-          entreprise_id: parseInt(this.dataItem.entreprise?.ID!.toString()!),
+        var body: IUser = {
+          entreprise_uuid: this.dataItem.entreprise?.uuid!,
           fullname: this.formGroup.value.fullname,
-          email: this.formGroup.value.email, 
-          telephone: this.formGroup.value.telephone,  
-          role: this.formGroup.value.role, 
-          permission: this.formGroup.value.permission, 
+          email: this.formGroup.value.email,
+          telephone: this.formGroup.value.telephone,
+          role: this.formGroup.value.role,
+          permission: this.formGroup.value.permission,
           status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
           currency: this.formGroup.value.currency,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.dataItem.pos?.ID!.toString()!),
+          pos_uuid: this.dataItem.pos?.uuid!, 
         };
-        this.usersService.update(this.idItem, body)
+        this.usersService.update(this.uuidItem, body)
         .subscribe({
           next: (res) => {
             this.formGroup.reset();
@@ -297,8 +290,8 @@ export class UserListComponent implements OnInit, AfterViewInit {
           }
         });
       } else {
-        var body = {
-          entreprise_id: parseInt(this.currentUser.entreprise?.ID!.toString()!),
+        var body: IUser = {
+          entreprise_uuid: this.currentUser.entreprise?.uuid!,
           fullname: this.formGroup.value.fullname,
           email: this.formGroup.value.email, 
           telephone: this.formGroup.value.telephone,  
@@ -306,10 +299,10 @@ export class UserListComponent implements OnInit, AfterViewInit {
           permission: this.formGroup.value.permission, 
           status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
           currency: this.formGroup.value.currency,
-          signature: this.currentUser.fullname,
-          pos_id: (this.posId) ? parseInt(this.posId.toString()) : 0,
+          signature: this.currentUser.fullname, 
+          pos_uuid: (this.posId) ? this.posId : "00000000-0000-0000-0000-000000000000",
         };
-        this.usersService.update(this.idItem, body)
+        this.usersService.update(this.uuidItem, body)
         .subscribe({
           next: (res) => {
             this.formGroup.reset();
@@ -330,12 +323,12 @@ export class UserListComponent implements OnInit, AfterViewInit {
     }
   }
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.usersService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.usersService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
-        entreprise_id: this.dataItem.entreprise_id,
+        entreprise_uuid: this.dataItem.entreprise_uuid,
         fullname: this.dataItem.fullname,
         email: this.dataItem.email, 
         telephone: this.dataItem.telephone,
@@ -344,7 +337,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
         permission: this.dataItem.permission, 
         status: this.dataItem.status,
         currency: this.dataItem.currency,
-        pos_id: this.dataItem.pos_id,
+        pos_uuid: this.dataItem.pos_uuid,
       });
     }
     );
@@ -355,7 +348,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   delete(): void {
     this.isLoading = true;
     this.usersService
-      .delete(this.idItem)
+      .delete(this.uuidItem)
       .subscribe({
         next: () => {
           this.formGroup.reset();

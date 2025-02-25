@@ -5,8 +5,8 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class IdDataService {
-  private idSource = new BehaviorSubject<number>(0); // Valeur initiale 0 au lieu de null
-  currentId = this.idSource.asObservable();
+  private uuidSource = new BehaviorSubject<string>("00000000-0000-0000-0000-000000000000"); // Valeur initiale 0 au lieu de null
+  currentUUID = this.uuidSource.asObservable();
 
   private pLength = new BehaviorSubject<number>(0); // Valeur initiale 0 au lieu de null
   prodLength = this.pLength.asObservable();
@@ -14,8 +14,8 @@ export class IdDataService {
   private plLength = new BehaviorSubject<number>(0); // Valeur initiale 0 au lieu de null
   platLength = this.plLength.asObservable();
 
-  changeId(id: number) {
-    this.idSource.next(id);
+  changeId(uuid: string) {
+    this.uuidSource.next(uuid);
   }
 
   // PRoduct

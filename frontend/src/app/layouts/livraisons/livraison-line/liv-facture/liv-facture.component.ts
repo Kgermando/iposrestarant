@@ -17,7 +17,7 @@ import { CaisseService } from '../../../finances/caisse/caisse.service';
 })
 export class LivFactureComponent {
   @Input() currentUser!: IUser;
-  @Input() livraison_id: number | undefined;
+  @Input() livraison_uuid: string | undefined;
   @Input() livraison!: ILivraison;
   @Input() commandeLineList: ICommandeLine[] = [];
   @Input() selectCaisseList: ICaisse[] = [];
@@ -76,24 +76,24 @@ export class LivFactureComponent {
   }
  
 
-  onSubmitFacture(status: string, caissseUuid: string) {
+  onSubmitFacture(status: string, caisse_uuid: string) {
     try {
       this.isLoading = true;
       var body: ILivraison = {
-        area_id: parseInt(this.livraison.Area!.ID!.toString()),
+        area_uuid: this.livraison.Area!.uuid!,
         cout_livraison: parseFloat(this.livraison.cout_livraison.toString()),
-        client_id: parseInt(this.livraison.Client!.ID!.toString()),
-        livreur_id: parseInt(this.livraison.Livreur!.ID!.toString()),
+        client_uuid: this.livraison.Client!.uuid!,
+        livreur_uuid: this.livraison.Livreur!.uuid!,
         operator_name: this.livraison.operator_name,
-        pos_id: parseInt(this.currentUser.pos!.ID!.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         status: status,
         signature: this.currentUser.fullname,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.livraisonService.update(this.livraison_id!, body).subscribe((res) => {
+      this.livraisonService.update(this.livraison_uuid!, body).subscribe((res) => {
         var code = Math.floor(1000000000 + Math.random() * 90000000000);
         const body: ICaisseItem = {
-          caisse_uuid: caissseUuid,
+          caisse_uuid: caisse_uuid,
           type_transaction: 'Entrée',
           montant: this.total,
           libelle: `Livraison ${this.livraison.Client!.fullname}`,
@@ -114,10 +114,10 @@ export class LivFactureComponent {
   }
 
 
-  restitutionBtn(id: number) {
+  restitutionBtn(uuid: string) {
     try {
       this.isLoading = true;
-      this.commandeLineService.delete(id).subscribe(() => {
+      this.commandeLineService.delete(uuid).subscribe(() => {
         this.isLoading = false;
         this.toastr.info('Livraison annulée avec succès!', 'Success!');
       });
@@ -130,10 +130,10 @@ export class LivFactureComponent {
 
   delete(): void {
     this.isLoading = true;
-    this.livraisonService.delete(this.livraison_id!).subscribe(() => {
+    this.livraisonService.delete(this.livraison_uuid!).subscribe(() => {
       for (let index = 0; index < this.commandeLineList.length; index++) {
         const element = this.commandeLineList[index];
-        this.restitutionBtn(element.ID!);
+        this.restitutionBtn(element.uuid!);
       };
       this.isLoading = false;
       this.router.navigate(['/web/livraisons/livraison-list']);

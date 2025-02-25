@@ -37,7 +37,7 @@ export abstract class ApiService {
   }
 
   getPaginatedEntrepriseByPosRangeDate(
-    code_entreprise: number, pos_id: number, page: number, 
+    code_entreprise: number, pos_uuid: string, page: number, 
     pageSize: number, search: string,
     startDateStr: string, endDateStr: string): Observable<ApiResponse> {
     let params = new HttpParams()
@@ -46,7 +46,7 @@ export abstract class ApiService {
     .set("search", search)
     .set("start_date", startDateStr)
     .set("end_date", endDateStr)
-    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${pos_id}/all/paginate`, { params });
+    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${pos_uuid}/all/paginate`, { params });
   }
 
 
@@ -58,21 +58,21 @@ export abstract class ApiService {
     return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/all/paginate`, { params });
   }
 
-  getPaginatedEntrepriseByPos(code_entreprise: number, pos_id: number, page: number, pageSize: number, search: string): Observable<ApiResponse> {
+  getPaginatedEntrepriseByPos(code_entreprise: number, pos_uuid: string, page: number, pageSize: number, search: string): Observable<ApiResponse> {
     let params = new HttpParams()
     .set("page", page.toString())
     .set("page_size", pageSize.toString())
     .set("search", search)
-    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${pos_id}/all/paginate`, { params });
+    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${pos_uuid}/all/paginate`, { params });
   }
 
-  getPaginatedCommandeByTableBox(code_entreprise: number, pos_id: number, table_box_id: number, 
+  getPaginatedCommandeByTableBox(code_entreprise: number, pos_uuid: string, table_box_uuid: string, 
       page: number, pageSize: number, search: string): Observable<ApiResponse> {
     let params = new HttpParams()
     .set("page", page.toString())
     .set("page_size", pageSize.toString())
     .set("search", search)
-    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${pos_id}/${table_box_id}/all/paginate`, { params });
+    return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${pos_uuid}/${table_box_uuid}/all/paginate`, { params });
   }
  
   getPaginated(page: number, pageSize: number, search: string): Observable<ApiResponse> {
@@ -83,18 +83,18 @@ export abstract class ApiService {
     return this.http.get<ApiResponse>(`${this.endpoint}/all/paginate`, { params });
   }
 
-  getPaginatedById(id: number, page: number, pageSize: number, search: string): Observable<any> {
+  getPaginatedById(uuid: string, page: number, pageSize: number, search: string): Observable<any> {
     let params = new HttpParams()
       .set("page", page.toString())
       .set("page_size", pageSize.toString())
       .set("search", search)
-    return this.http.get<any>(`${this.endpoint}/all/paginate/${id}`, { params });
+    return this.http.get<any>(`${this.endpoint}/all/paginate/${uuid}`, { params });
   }
 
-  getAllByEntrepriseByPosSearch(code_entreprise: number, pos_id: number, search: string): Observable<any> {
+  getAllByEntrepriseByPosSearch(code_entreprise: number, pos_uuid: string, search: string): Observable<any> {
     let params = new HttpParams() 
       .set("search", search)
-    return this.http.get<any>(`${this.endpoint}/${code_entreprise}/${pos_id}/all/search`, { params });
+    return this.http.get<any>(`${this.endpoint}/${code_entreprise}/${pos_uuid}/all/search`, { params });
   }
   
   getAllBySearch(search: string): Observable<any> {
@@ -103,28 +103,28 @@ export abstract class ApiService {
     return this.http.get<any>(`${this.endpoint}/all/search/${search}`, { params });
   }
 
-  getAllBySearchEntreprisePos(code_entreprise: number, pos_id: number, search: string): Observable<any> {
-    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_id}/all/search/${search}`);
+  getAllBySearchEntreprisePos(code_entreprise: number, pos_uuid: string, search: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_uuid}/all/search/${search}`);
   }
 
-  getTotalQty(id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/all/total/${id}`);
+  getTotalQty(uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/all/total/${uuid}`);
   }
 
   getAllEntreprise(code_entreprise: number): Observable<any> {
     return this.http.get(`${this.endpoint}/${code_entreprise}/all`);
   }
 
-  getAllEntreprisePos(code_entreprise: number, pos_id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_id}/all`);
+  getAllEntreprisePos(code_entreprise: number, pos_uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_uuid}/all`);
   }
 
-  getAllEntrepriseById(code_entreprise: number, pos_id: number, id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_id}/all/${id}`);
+  getAllEntrepriseById(code_entreprise: number, pos_uuid: string, uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_uuid}/all/${uuid}`);
   }
 
-  getOneEntreprisePos(code_entreprise: number, pos_id: number, id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_id}/one/${id}`);
+  getOneEntreprisePos(code_entreprise: number, pos_uuid: string, uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/${code_entreprise}/${pos_uuid}/one/${uuid}`);
   }
 
 
@@ -136,17 +136,17 @@ export abstract class ApiService {
     return this.http.get(`${this.endpoint}/all`);
   }
 
-  getAllById(id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/all/${id}`);
+  getAllById(uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/all/${uuid}`);
   }
 
 
-  getAllByIdCount(id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/all/count/${id}`);
+  getAllByIdCount(uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/all/count/${uuid}`);
   }
 
-  get(id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/get/${id}`);
+  get(uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/get/${uuid}`);
   }
 
   create(data: any): Observable<any> {
@@ -155,6 +155,7 @@ export abstract class ApiService {
       this._refreshData$.next();
     }));
   }
+  
   createData(data: any): Observable<number> {
     const headers = new HttpHeaders();
     headers.append('Content-Type', 'application/json');
@@ -177,16 +178,16 @@ export abstract class ApiService {
     );
   }
 
-  update(id: number, data: any): Observable<any> {
-    return this.http.put(`${this.endpoint}/update/${id}`, data).pipe(tap(() => {
+  update(uuid: string, data: any): Observable<any> {
+    return this.http.put(`${this.endpoint}/update/${uuid}`, data).pipe(tap(() => {
       this._refreshDataList$.next();
       this._refreshData$.next();
     }));
   }
 
 
-  delete(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.endpoint}/delete/${id}`).pipe(tap(() => {
+  delete(uuid: string): Observable<void> {
+    return this.http.delete<void>(`${this.endpoint}/delete/${uuid}`).pipe(tap(() => {
       this._refreshDataList$.next();
       this._refreshData$.next();
     }));

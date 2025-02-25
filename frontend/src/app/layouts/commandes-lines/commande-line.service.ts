@@ -10,7 +10,7 @@ export class CommandeLineService extends ApiService {
   endpoint: string = `${environment.apiUrl}/commandes-lines`;
 
 
-  getAllByIdLivraison(livraison_id: number): Observable<any> {
-    return this.http.get(`${this.endpoint}/all/livraison/${livraison_id}`);
+  getAllByIdLivraison(livraison_uuid: string): Observable<any> {
+    return this.http.get(`${this.endpoint}/all/livraison/${livraison_uuid}`);
   }
 } 

@@ -1,7 +1,8 @@
 import { ILivraison } from "./livraison.model";
 
 export interface IArea {
-    ID?: number;
+    ID?: string;
+    uuid?: string;
     name: string;
     province: string;
     signature: string;

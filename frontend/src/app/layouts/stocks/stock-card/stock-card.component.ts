@@ -43,14 +43,14 @@ export class StockCardComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: string; // Single data ID
   dataItem!: IStock; // Single data 
 
   formGroup!: FormGroup;
   currentUser!: IUser;
   isLoading = false;
 
-  productuuid!: number;
+  product_uuid!: string;
   product!: IProduct;
 
   fournisseurList: IFournisseur[] = [];
@@ -109,8 +109,8 @@ export class StockCardComponent implements OnInit, AfterViewInit {
     this.loadUserData = true;
     this.isLoadingData = true;
     this.route.params.subscribe(routeParams => {
-      this.productuuid = routeParams['uuid'];
-      this.getProduct(this.productuuid);
+      this.product_uuid = routeParams['uuid'];
+      this.getProduct(this.product_uuid);
     });
 
     this.formGroup = this._formBuilder.group({
@@ -118,7 +118,7 @@ export class StockCardComponent implements OnInit, AfterViewInit {
       quantity: ['', Validators.required],
       description: ['', Validators.required],
       date_expiration: ['', Validators.required],
-      fournisseur_id: [''],
+      fournisseur_uuid: [''],
     });
   }
 
@@ -129,8 +129,8 @@ export class StockCardComponent implements OnInit, AfterViewInit {
     this.fetchProducts();
   }
 
-  getProduct(uuid: any) {
-    this.productService.get(Number.parseInt(uuid)).subscribe(item => {
+  getProduct(id: any) {
+    this.productService.get(id).subscribe(item => {
       this.product = item.data;
       this.prixVente.set(this.product.prix_vente);
     });
@@ -142,7 +142,7 @@ export class StockCardComponent implements OnInit, AfterViewInit {
   }
 
   fetchProducts() {
-    this.stockService.getPaginatedById(this.productuuid, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+    this.stockService.getPaginatedById(this.product_uuid, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
       this.dataList = res.data;
       this.totalItems = res.pagination.total_pages;
       this.length = res.pagination.length;
@@ -163,11 +163,11 @@ export class StockCardComponent implements OnInit, AfterViewInit {
   }
 
   getTotalQty() {
-    this.stockService.getTotalQty(this.productuuid).subscribe((res) => {
+    this.stockService.getTotalQty(this.product_uuid).subscribe((res) => {
       this.stockQty.set(res.data);
-      this.commaneLineService.getTotalQty(this.productuuid).subscribe((line) => {
+      this.commaneLineService.getTotalQty(this.product_uuid).subscribe((line) => {
         this.cmdLineQty.set(line.data);  
-        this.stockService.GetStockMargeBeneficiaire(this.productuuid).subscribe(r => { 
+        this.stockService.GetStockMargeBeneficiaire(this.product_uuid).subscribe(r => { 
           const mbAttendu = (this.product.prix_vente - r.data.prix_achat) * r.data.quantity;
           const mbObtenu = (this.product.prix_vente - r.data.prix_achat) * line.data;
           this.profitAttendu.set(mbAttendu);
@@ -183,14 +183,14 @@ export class StockCardComponent implements OnInit, AfterViewInit {
       if (this.formGroup.valid) {
         this.isLoading = true;
         const body: IStock = {
-          product_id: parseInt(this.productuuid.toString()),
+          product_uuid: this.product_uuid,
           description: this.formGroup.value.description,
-          fournisseur_id: parseInt(this.formGroup.value.fournisseur_id.toString()),
+          fournisseur_uuid: this.formGroup.value.fournisseur_uuid,
           quantity: this.formGroup.value.quantity,
           prix_achat: this.formGroup.value.prix_achat,
           date_expiration: this.formGroup.value.date_expiration,
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid:this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.stockService.create(body).subscribe(res => {
@@ -210,17 +210,17 @@ export class StockCardComponent implements OnInit, AfterViewInit {
     try {
       this.isLoading = true;
       const body: IStock = {
-        product_id: parseInt(this.productuuid.toString()),
+        product_uuid: this.product_uuid,
         description: this.formGroup.value.description,
-        fournisseur_id: parseInt(this.formGroup.value.fournisseur_id.toString()),
+        fournisseur_uuid: this.formGroup.value.fournisseur_uuid,
         quantity: this.formGroup.value.quantity,
         prix_achat: this.formGroup.value.prix_achat,
         date_expiration: this.formGroup.value.date_expiration,
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.stockService.update(this.idItem, body).subscribe(res => {
+      this.stockService.update(this.uuidItem, body).subscribe(res => {
         this.formGroup.reset();
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
@@ -232,14 +232,14 @@ export class StockCardComponent implements OnInit, AfterViewInit {
   }
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.stockService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.stockService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
-        product_id: this.dataItem.product_id,
+        product_uuid: this.dataItem.product_uuid,
         description: this.dataItem.description,
-        fournisseur_id: this.dataItem.fournisseur_id,
+        fournisseur_uuid: this.dataItem.fournisseur_uuid,
         quantity: this.dataItem.quantity,
         prix_achat: this.dataItem.prix_achat,
         date_expiration: this.dataItem.date_expiration,
@@ -252,7 +252,7 @@ export class StockCardComponent implements OnInit, AfterViewInit {
 
   delete(): void {
     this.isLoading = true;
-    this.stockService.delete(this.idItem).subscribe(() => {
+    this.stockService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;

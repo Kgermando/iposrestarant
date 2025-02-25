@@ -26,9 +26,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
   loadUserData = false;
   isLoadingData = false;
   loading = false;
-  public routes = routes;
-  public sidebarPopup1 = false;
-  public sidebarPopup2 = false;
+  public routes = routes; 
 
   // Table 
   dataList: ICommande[] = [];
@@ -40,14 +38,14 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Forms  
-  idItem!: number;
+  uuidItem!: any;
   dataItem!: ICommande; // Single data 
 
   formGroup!: FormGroup;
   currentUser!: IUser;
   isLoading = false;
 
-  tableId!: number;
+  tableId!: any;
   tableBox!: ITableBox;
 
   clientList: IClient[] = [];
@@ -102,7 +100,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
   
   // Get One commande
   getProduct(id: any) {
-    this.tableBoxService.get(Number.parseInt(id)).subscribe(res => {
+    this.tableBoxService.get(id).subscribe(res => {
       this.tableBox = res.data;
       this.loading = false; 
     });
@@ -116,7 +114,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
   }
 
   fetchProducts(currentUser: IUser) {
-    this.commandeService.getPaginatedCommandeByTableBox(currentUser.entreprise?.code!, currentUser.pos?.ID!, 
+    this.commandeService.getPaginatedCommandeByTableBox(currentUser.entreprise?.code!, currentUser.pos?.uuid!, 
       this.tableId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
       this.dataList = res.data;
       this.totalItems = res.pagination.total_pages;
@@ -155,9 +153,9 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
       const body: ICommande = {
         ncommande: code,
         status: 'En cours',
-        table_box_id: parseInt(this.tableId.toString()),
+        table_box_uuid: this.tableId,
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
       this.commandeService.create(body).subscribe((res) => {
@@ -166,7 +164,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
           numero: parseInt(this.formGroup.value.numero.toString()),
           status: 'Occuper',
           signature: this.currentUser.fullname,
-          pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+          pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
         this.tableBoxService.update(this.tableId, body).subscribe(() => {
@@ -183,15 +181,15 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
 
 
 
-  findValue(value: number) {
-    this.idItem = value;
-    this.commandeService.get(this.idItem).subscribe(item => {
+  findValue(value: string) {
+    this.uuidItem = value;
+    this.commandeService.get(this.uuidItem).subscribe(item => {
       this.dataItem = item.data;
       this.formGroup.patchValue({
         ncommande: this.dataItem.ncommande,
         status: this.dataItem.status,
-        table_box_id: this.dataItem.table_box_id,
-        client_id: this.dataItem.client_id,
+        table_box_uuid: this.dataItem.table_box_uuid,
+        client_uuid: this.dataItem.client_uuid!,
       }); 
       this.commaneLineService.getAllById(this.dataItem!.ID!).subscribe((line) => {
         this.commandeLineList = line.data;  
@@ -210,18 +208,18 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
         numero: parseInt(this.tableBox.numero.toString()),
         status: 'Libre',
         signature: this.currentUser.fullname,
-        pos_id: parseInt(this.currentUser.pos!.ID.toString()),
+        pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
       this.tableBoxService.update(this.tableId, body).subscribe(() => {
-        this.commandeService.delete(this.idItem).subscribe(() => {
+        this.commandeService.delete(this.uuidItem).subscribe(() => {
           this.formGroup.reset();
           this.toastr.info('Supprimé avec succès!', 'Success!');
           this.isLoading = false;
         });
       });
     } else {
-      this.commandeService.delete(this.idItem).subscribe(() => {
+      this.commandeService.delete(this.uuidItem).subscribe(() => {
         this.formGroup.reset();
         this.toastr.info('Supprimé avec succès!', 'Success!');
         this.isLoading = false;

@@ -1,7 +1,8 @@
 import { ILivraison } from "./livraison.model";
 
 export interface ILivreur {
-    ID?: number;
+    ID?: string;
+    uuid?: string;
     name_society: string;
     livreur_name: string;
     telephone: string;

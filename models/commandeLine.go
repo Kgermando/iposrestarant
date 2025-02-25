@@ -1,27 +1,21 @@
 package models
 
 import (
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type CommandeLine struct {
-	ID string `gorm:"type:text;primaryKey" json:"id"`
 	gorm.Model
 
-	CommandeID     string    `json:"commande_id"`
-	Commande       Commande  `gorm:"foreignKey:CommandeID"`
-	LivraisonID    string    `json:"livraison_id"` // LivraisonID est identique a commande dans le fonctionnement
-	Livraison      Livraison `gorm:"foreignKey:LivraisonID"`
-	ProductID      string    `json:"product_id"`           // Added foreign key for Product ID
-	Product        Product   `gorm:"foreignKey:ProductID"` // Updated foreign key reference
-	PlatID         string    `json:"plat_id"`              // Added foreign key for Plat ID
-	Plat           Plat      `gorm:"foreignKey:PlatID"`    // Updated foreign key reference
+	UUID           string    `gorm:"not null;unique" json:"uuid"`
+	CommandeUUID   string    `json:"commande_uuid"`
+	Commande       Commande  `gorm:"foreignKey:CommandeUUID;references:UUID"`
+	LivraisonUUID  string    `json:"livraison_uuid"` // LivraisonID est identique a commande dans le fonctionnement
+	Livraison      Livraison `gorm:"foreignKey:LivraisonUUID;references:UUID"`
+	ProductUUID    string    `json:"product_uuid"`                           // Added foreign key for Product ID
+	Product        Product   `gorm:"foreignKey:ProductUUID;references:UUID"` // Updated foreign key reference
+	PlatUUID       string    `json:"plat_uuid"`                              // Added foreign key for Plat ID
+	Plat           Plat      `gorm:"foreignKey:PlatUUID;references:UUID"`    // Updated foreign key reference
 	Quantity       uint64    `gorm:"not null" json:"quantity"`
 	CodeEntreprise uint64    `json:"code_entreprise"`
-}
-
-func (commandeLine *CommandeLine) BeforeCreate(tx *gorm.DB) (err error) {
-	commandeLine.ID = uuid.New().String()
-	return
 }

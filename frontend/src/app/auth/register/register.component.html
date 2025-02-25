@@ -10,15 +10,14 @@
                     <div class="mb-4">
                         <h4 class="mb-2 fs-20">Création du compte</h4>
                         <p class="text-justify">
-                            Application de gestion de stocks, conçue pour simplifier votre
-                            quotidien.
-                            Gagnez du temps en augmentant votre productivite.
-                            Atteignez vos objectifs plus rapidement en ayant le controle de vos donnees.
+                            Simplifiez la gestion de votre restaurant avec notre application.
+                            Augmentez votre productivité et gagnez du temps.
+                            Atteignez vos objectifs plus rapidement avec un contrôle total de vos données.
                         </p>
                     </div>
                     <div>
                         <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="col-form-label" for="location">Type entreprise <span
                                             class="text-danger">*</span></label>
@@ -33,6 +32,21 @@
                                     </mat-error>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="col-form-label" for="location">Type d'abonnement <span
+                                            class="text-danger">*</span></label>
+                                    <mat-select class="select custom-mat-select" placeholder="Choisi le Type d'abonnement"
+                                        formControlName="type_abonnement" required>
+                                        @for (item of type_abonnementList; track item) {
+                                            <mat-option value="{{item}}">{{item}}</mat-option>
+                                        }
+                                    </mat-select>
+                                    <mat-error *ngIf="formGroup.controls['type_abonnement'].hasError('required')">
+                                        Ce champs est obligatoire
+                                    </mat-error>
+                                </div>
+                            </div> 
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -91,7 +105,7 @@
                                     </mat-error>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="col-form-label" for="manager">Manager général
                                         <span class="text-danger">*</span>
@@ -103,21 +117,6 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <div class="mb-3">
-                                    <label class="col-form-label" for="location">Type d'abonnement <span
-                                            class="text-danger">*</span></label>
-                                    <mat-select class="select custom-mat-select" placeholder="Choisi le Type d'abonnement"
-                                        formControlName="type_abonnement" required>
-                                        @for (item of type_abonnementList; track item) {
-                                            <mat-option value="{{item}}">{{item}}</mat-option>
-                                        }
-                                    </mat-select>
-                                    <mat-error *ngIf="formGroup.controls['type_abonnement'].hasError('required')">
-                                        Ce champs est obligatoire
-                                    </mat-error>
-                                </div>
-                            </div> 
-                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <label class="col-form-label" for="adresse">Adresse <span

@@ -15,7 +15,7 @@ import { StockService } from '../../../stocks/stock.service';
 export class LivProdItemComponent implements OnInit {
   @Input() currentUser!: IUser;
   @Input() item!: IProduct;
-  @Input() livraisonId!: number;
+  @Input() livraisonuuId!: string;
 
 
   isLoading = false; // for Submit
@@ -70,10 +70,10 @@ export class LivProdItemComponent implements OnInit {
   onSubmit(product: IProduct) {
     this.isLoading = true;
     const body: ICommandeLine = {
-      commande_id: 0,
-      livraison_id: parseInt(this.livraisonId!.toString()),
-      product_id: product.ID!,
-      plat_id: 0,
+      commande_uuid: "00000000-0000-0000-0000-000000000000",
+      livraison_uuid: this.livraisonuuId!,
+      product_uuid: product.uuid!,
+      plat_uuid: "00000000-0000-0000-0000-000000000000",
       quantity: this.qty(),
       code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
     };

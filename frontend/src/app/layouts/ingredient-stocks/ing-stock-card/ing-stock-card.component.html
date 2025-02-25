@@ -191,7 +191,7 @@
                                                             <a class="dropdown-item" data-bs-toggle="offcanvas"
                                                                 href="javascript:void(0);"
                                                                 data-bs-target="#offcanvas_edit_mobile"
-                                                                (click)="findValue(item.ID!)">
+                                                                (click)="findValue(item.uuid!)">
                                                                 <i class="ti ti-edit text-blue"></i>
                                                                 Edit
                                                             </a>
@@ -206,7 +206,7 @@
                                                             <a class="dropdown-item" href="javascript:void(0);"
                                                                 data-bs-toggle="modal"
                                                                 data-bs-target="#delete_contact_mobile"
-                                                                (click)="findValue(item.ID!)">
+                                                                (click)="findValue(item.uuid!)">
                                                                 <i class="ti ti-trash text-danger"></i>
                                                                 Delete
                                                             </a>
@@ -312,17 +312,17 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="col-form-label" for="fournisseur_id">
+                            <label class="col-form-label" for="fournisseur_uuid">
                                 Fournisseur
                                 <span class="text-danger">*</span>
                             </label>
-                            <mat-select class="select custom-mat-select" formControlName="fournisseur_id"
+                            <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
                                 <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
-                            <mat-error *ngIf="formGroup.controls['fournisseur_id'].hasError('required')">
+                            <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">
                                 Ce champs est obligatoire
                             </mat-error>
                         </div>
@@ -417,17 +417,17 @@
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="col-form-label" for="fournisseur_id">
+                            <label class="col-form-label" for="fournisseur_uuid">
                                 Fournisseur
                                 <span class="text-danger">*</span>
                             </label>
-                            <mat-select class="select custom-mat-select" formControlName="fournisseur_id"
+                            <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
                                 <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
-                            <mat-error *ngIf="formGroup.controls['fournisseur_id'].hasError('required')">
+                            <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">
                                 Ce champs est obligatoire
                             </mat-error>
                         </div>

@@ -10,10 +10,9 @@
                     <div class="mb-4">
                         <h4 class="mb-2 fs-20">Login</h4>
                         <p class="text-justify">
-                            Application de gestion de stocks, conçue pour simplifier votre
-                            quotidien.
-                            Gagnez du temps en augmentant votre productivite.
-                            Atteignez vos objectifs plus rapidement en ayant le controle de vos donnees.
+                            Simplifiez la gestion de votre restaurant avec notre application.
+                            Augmentez votre productivité et gagnez du temps.
+                            Atteignez vos objectifs plus rapidement avec un contrôle total de vos données.
                         </p>
                     </div>
                     @if (userLocalList.length === 0) {
@@ -44,7 +43,7 @@
                                 </mat-autocomplete>
                             </div>
     
-                            @if (entrepriseId > 0) {
+                            @if (entrepriseUUId != "00000000-0000-0000-0000-000000000000") { 
                                 <div class="mb-3">
                                     <label class="col-form-label" for="email">Adresse email </label>
                                     <div class="position-relative">
