@@ -7,7 +7,7 @@ import (
 type Composition struct {
 	gorm.Model
 
-	UUID           string     `gorm:"not null;unique" json:"uuid"`
+	UUID           string     `gorm:"type:uuid;not null;unique" json:"uuid"`
 	PlatUUID       string     `json:"plat_uuid"`
 	Plat           Plat       `gorm:"foreignKey:PlatUUID;references:UUID"`
 	IngredientUUID string     `json:"ingredient_uuid"`

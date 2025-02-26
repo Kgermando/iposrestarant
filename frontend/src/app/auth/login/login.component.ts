@@ -20,7 +20,7 @@ export class LoginComponent implements OnInit {
   dateY = "";
   public routes = routes;
   isLoading = false;
-  isLoadEntreprise = false; 
+  isLoadEntreprise = false;
 
   form!: FormGroup;
 
@@ -61,14 +61,14 @@ export class LoginComponent implements OnInit {
       password: ['', Validators.required]
     });
 
-    this.getLocalUser(); 
+    this.getLocalUser();
   }
 
   // Get all users cloud database
   getLocalUser() {
     this.userService.getAll().subscribe(res => {
       this.userLocalList = res.data;
-      if(this.userLocalList.length === 0) {
+      if (this.userLocalList.length === 0) {
         this.isLoadEntreprise = true;
         this.getAllEntrepriseCloud();
       }
@@ -94,59 +94,69 @@ export class LoginComponent implements OnInit {
   optionSelected(event: MatAutocompleteSelectedEvent) {
     const selectedOption: IEntreprise = event.option.value;
     this.isLoadSync = true;
-    this.entrepriseUUId = selectedOption.uuid!;
-    var bodyEntreprise: IEntreprise = {
-      ID: selectedOption.ID,
-      uuid: selectedOption.uuid!,
-      type_entreprise: selectedOption.type_entreprise,
-      name: selectedOption.name,
-      code: selectedOption.code,
-      rccm: selectedOption.rccm,
-      idnat: selectedOption.idnat,
-      nimpot: selectedOption.nimpot,
-      adresse: selectedOption.adresse,
-      email: selectedOption.email,
-      telephone: selectedOption.telephone,
-      manager: selectedOption.manager,
-      status: selectedOption.status,
-      type_abonnement: selectedOption.type_abonnement,
-      abonnement: selectedOption.abonnement,
-      signature: selectedOption.signature,
-      created_at: selectedOption.created_at,
-      updated_at: selectedOption.updated_at, 
-    };
-    this.entrepriseService.create(bodyEntreprise).subscribe((res) => {
-      for (let item of selectedOption.Users!) {
-        var body: IUser = {
-          entreprise_uuid: item.entreprise_uuid,
-          fullname: item.fullname,
-          email: item.email,
-          telephone: item.telephone,
-          role: item.role,
-          password: '1234',
-          password_confirm: '1234',
-          permission: item.permission,
-          status: item.status,
-          currency: item.currency,
-          signature: item.signature,
-          pos_uuid: item.pos_uuid!,
-          created_at: item.created_at,
-          updated_at: item.updated_at,
-        };
-        this.userService.create(body).subscribe({
-          next: (res) => {
-            // this.progress = progress;
-            this.isLoadSync = false;
-            console.log("res", res)
-          },
-          error: (err) => {
-            this.isLoadSync = false;
-            this.toastr.error(`${err.error.message}`, 'Oupss!');
-            console.log(err);
-          }
-        });
-      }
-    });
+
+    console.log("selectedOption uuid!", selectedOption.uuid!);
+
+    if (selectedOption.status) {
+      this.entrepriseUUId = selectedOption.uuid!;
+      var bodyEntreprise: IEntreprise = {
+        ID: selectedOption.ID,
+        uuid: selectedOption.uuid!,
+        type_entreprise: selectedOption.type_entreprise,
+        name: selectedOption.name,
+        code: selectedOption.code,
+        rccm: selectedOption.rccm,
+        idnat: selectedOption.idnat,
+        nimpot: selectedOption.nimpot,
+        adresse: selectedOption.adresse,
+        email: selectedOption.email,
+        telephone: selectedOption.telephone,
+        manager: selectedOption.manager,
+        status: selectedOption.status,
+        type_abonnement: selectedOption.type_abonnement,
+        abonnement: selectedOption.abonnement,
+        signature: selectedOption.signature,
+        created_at: selectedOption.created_at,
+        updated_at: selectedOption.updated_at,
+      };
+      this.entrepriseService.create(bodyEntreprise).subscribe((res) => {
+        console.log("res data", res);
+        for (let item of selectedOption.Users!) { 
+          var body: IUser = {
+            entreprise_uuid: res.data.uuid,
+            fullname: item.fullname,
+            email: item.email,
+            telephone: item.telephone,
+            role: item.role,
+            password: '1234',
+            password_confirm: '1234',
+            permission: item.permission,
+            status: item.status,
+            currency: item.currency,
+            signature: item.signature,
+            pos_uuid: item.pos_uuid!,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+          };
+          console.log("item", item);
+          this.userService.create(body).subscribe({
+            next: (res) => {
+              // this.progress = progress;
+              this.isLoadSync = false;
+              console.log("res", res)
+            },
+            error: (err) => {
+              this.isLoadSync = false;
+              this.toastr.error(`${err.error.message}`, 'Oupss!');
+              console.log(err);
+            }
+          });
+        }
+      });
+    } else {
+      this.toastr.info(`Votre entreprise est en cours d'activation. Merci de patienter.`, 'Activation en cours');
+      this.isLoadSync = false;
+    }
 
 
   }
@@ -164,33 +174,34 @@ export class LoginComponent implements OnInit {
       this.authService.login(body).subscribe({
         next: (res) => {
           localStorage.removeItem("auth_id");
-          localStorage.setItem("auth_id", res.data.UUID);
+          localStorage.setItem("auth_id", res.data.uuid);
+          console.log("res user", res);
           this.authService.user().subscribe({
             next: (user) => {
               this.isLoading = false;
-              console.log("user", user.role);	
+              console.log("user", user.role);
               if (user.role == 'Support') {
                 this.router.navigate([this.routes.entrepriseList]);
               } else if (user.role == 'Manager général') {
                 this.router.navigate([this.routes.dashboard]);
                 this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
-              } else if(user.role == 'Manager') {
+              } else if (user.role == 'Manager') {
                 this.router.navigate([this.routes.dashboard]); // Faire le filtre sur les donnees only POS data
                 this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
-              } else if(user.role == 'Caisse') {
+              } else if (user.role == 'Caisse') {
                 this.router.navigate([this.routes.caisseList]);
                 this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
-              } else if(user.role == 'Serveur') {
-                this.router.navigate([this.routes.commandeList]); 
+              } else if (user.role == 'Serveur') {
+                this.router.navigate([this.routes.commandeList]);
                 this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
-              } else if(user.role == 'Commercial') {
-                this.router.navigate([this.routes.commandeList]); 
+              } else if (user.role == 'Commercial') {
+                this.router.navigate([this.routes.commandeList]);
                 this.toastr.success(`Bienvenue ${user.fullname} ! 🎉`, 'Success!');
               } else {
                 this.router.navigate(['/auth/login']);
-                this.toastr.warning(`Desole chemin d'accès non trouvée! 😓`, 'Success!');
+                this.toastr.warning(`Désolé chemin d'accès non trouvée! 😓`, 'Success!');
               }
-             
+
               // this.router.navigate(['/web']); 
             },
             error: (error) => {

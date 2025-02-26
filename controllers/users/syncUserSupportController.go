@@ -1,10 +1,7 @@
 package users
 
-import (
-    "encoding/json"
-    "fmt"
-    "log" 
-    "net/http" 
+import ( 
+    "log"  
     "sync" 
     "iposrestaurant/database"
 	"iposrestaurant/models"
@@ -45,25 +42,10 @@ func SyncDataWithAPISupport() {
 
 
 func fetchExternalDataFromAPISupport() ([]models.User, error) {
-    // Replace with the actual URL of your API
-    apiURL := "https://i-pos-restaurant-api.up.railway.app/api/users/all"
+    db := database.PGDB
 
-    resp, err := http.Get(apiURL)
-    if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
+	var dataList []models.User
+	db.Find(&dataList)
 
-    if resp.StatusCode != http.StatusOK {
-        return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
-    }
-
-    var response struct {
-		Data []models.User `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, err
-	}
-
-	return response.Data, nil
+	return dataList, nil
 }

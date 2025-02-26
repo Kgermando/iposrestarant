@@ -1,13 +1,9 @@
 package commandeline
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
 	"log"
-	"net/http"
 	"sync"
 )
 
@@ -88,72 +84,50 @@ func SyncDataWithAPICmdLineLivraison(livraison_uuid string) {
 // Récupérer des données externes à partir de l'API
 func fetchExternalDataFromAPICmdLineLivraison(livraison_uuid string) ([]models.CommandeLine, error) {
 	// Replace with the actual URL of your API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/commandes-lines/all/%s", livraison_uuid)
+	// apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/commandes-lines/all/%s", livraison_uuid)
 
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	// resp, err := http.Get(apiURL)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	}
+	// if resp.StatusCode != http.StatusOK {
+	// 	return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
+	// }
 
-	var response struct {
-		Data []models.CommandeLine `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, err
-	}
+	// var response struct {
+	// 	Data []models.CommandeLine `json:"data"`
+	// }
+	// if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	// 	return nil, err
+	// }
 
-	return response.Data, nil
+	// return response.Data, nil
+
+	db := database.PGDB
+
+	var dataList []models.CommandeLine
+	db.Where("commande_lines.livraison_uuid = ?", livraison_uuid).Find(&dataList)
+
+	return dataList, nil
 }
 
 // Récupérer une donnee externe à partir de l'API
 func fetchExternalDataItemFromAPICmdLineLivraison(dataUUID string) (models.CommandeLine, error) {
-	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/commandes-lines/get/%s", dataUUID)
+	db := database.PGDB
 
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return models.CommandeLine{}, err
-	}
-	defer resp.Body.Close()
+	var data models.CommandeLine
+	db.Where("uuid = ?", dataUUID).First(&data)
 
-	if resp.StatusCode != http.StatusOK {
-		return models.CommandeLine{}, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	}
-
-	var response struct {
-		Data models.CommandeLine `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return models.CommandeLine{}, err
-	}
-
-	return response.Data, nil
+	return data, nil
 }
 
 // Envoyer des données locales à l'API
 func sendLocalDataToAPICmdLineLivraison(data models.CommandeLine) error {
 	// Soumission des données vers l'API
-	apiURL := "https://i-pos-restaurant-api.up.railway.app/api/commandes-lines/create"
-
-	dataItem, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(dataItem))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to send data: %s", resp.Status)
-	}
+	db := database.PGDB
+	db.Create(data)
 
 	return nil
 }
@@ -161,29 +135,9 @@ func sendLocalDataToAPICmdLineLivraison(data models.CommandeLine) error {
 // Update external data data in the API
 func updateExternalDataInAPICmdLineLivraison(data models.CommandeLine) error {
 	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/commandes-lines/update/%s", data.UUID)
+	db := database.PGDB
 
-	dataItem, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to update data: %s", resp.Status)
-	}
+	db.Model(&data).Updates(data)
 
 	return nil
 }

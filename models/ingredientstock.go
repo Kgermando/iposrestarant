@@ -9,7 +9,7 @@ import (
 type IngredientStock struct {
 	gorm.Model
 
-	UUID            string      `gorm:"not null;unique" json:"uuid"`
+	UUID            string      `gorm:"type:uuid;not null;unique" json:"uuid"`
 	PosUUID         string      `json:"pos_uuid"`
 	Pos             Pos         `gorm:"foreignKey:PosUUID;references:UUID"`
 	IngredientUUID  string      `json:"ingredient_uuid"`

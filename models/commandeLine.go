@@ -7,7 +7,7 @@ import (
 type CommandeLine struct {
 	gorm.Model
 
-	UUID           string    `gorm:"not null;unique" json:"uuid"`
+	UUID           string    `gorm:"type:uuid;not null;unique" json:"uuid"`
 	CommandeUUID   string    `json:"commande_uuid"`
 	Commande       Commande  `gorm:"foreignKey:CommandeUUID;references:UUID"`
 	LivraisonUUID  string    `json:"livraison_uuid"` // LivraisonID est identique a commande dans le fonctionnement

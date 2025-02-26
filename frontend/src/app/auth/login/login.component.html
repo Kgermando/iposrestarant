@@ -33,6 +33,7 @@
                                 <div class="d-flex align-items-center">
                                     <strong role="status">Loading...</strong>
                                     <div class="spinner-border ms-auto" aria-hidden="true"></div>
+                                    
                                 </div>
                                 }
                                 <mat-autocomplete requireSelection1 #auto1="matAutocomplete"
@@ -41,11 +42,19 @@
                                     <mat-option [value]="item"> {{item.name}} </mat-option>
                                     }
                                 </mat-autocomplete>
-                            </div>
+                            </div> 
     
-                            @if (entrepriseUUId != "00000000-0000-0000-0000-000000000000") { 
+                            @if (entrepriseUUId != "00000000-0000-0000-0000-000000000000") {
+                                @if (isLoadSync) { 
+                                    <div class="d-flex flex-row align-items-center mb-3">
+                                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span> 
+                                        </div>
+                                        <div class="ms-2 text-primary">Synchronisation en cours</div>
+                                    </div>
+                                }
                                 <div class="mb-3">
-                                    <label class="col-form-label" for="email">Adresse email </label>
+                                    <label class="col-form-label" for="email">Adresse email</label>
                                     <div class="position-relative">
                                         <span class="input-icon-addon">
                                             <i class="ti ti-mail"></i>
@@ -74,8 +83,8 @@
                                     @if (isLoading) {
                                     <button disabled class="btn btn-primary w-100">
                                         <div class="spinner-border" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
+                                            <span class="visually-hidden">Loading...</span> 
+                                        </div> 
                                     </button>
                                     }
                                     @if (!isLoading) {

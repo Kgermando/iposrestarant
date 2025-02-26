@@ -7,7 +7,7 @@ import (
 type CaisseItem struct {
 	gorm.Model
 
-	UUID            string  `gorm:"not null;unique" json:"uuid"`
+	UUID            string  `gorm:"type:uuid;not null;unique" json:"uuid"`
 	CaisseUUID      string  `json:"caisse_uuid"`
 	Caisse          Caisse  `gorm:"foreignKey:CaisseUUID;references:UUID"`
 	TypeTransaction string  `gorm:"not null" json:"type_transaction"` // Entrée ou Sortie

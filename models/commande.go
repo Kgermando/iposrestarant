@@ -7,7 +7,7 @@ import (
 type Commande struct {
 	gorm.Model
 
-	UUID           string         `gorm:"not null;unique" json:"uuid"`
+	UUID           string         `gorm:"type:uuid;not null;unique" json:"uuid"`
 	Reference      string         `gorm:"not null" json:"reference"`
 	Ncommande      uint64         `json:"ncommande"` // Number Random
 	Status         string         `gorm:"not null" json:"status"`

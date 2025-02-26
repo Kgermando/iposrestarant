@@ -1,13 +1,10 @@
 package pos
 
-import (
-	"encoding/json"
-	"fmt"
+import ( 
 	"iposrestaurant/database"
 	"iposrestaurant/models"
-	"log"  
-	"net/http"
-	"sync" 
+	"log" 
+	"sync"
 )
 
 var muSupport sync.Mutex
@@ -45,28 +42,12 @@ func SyncDataWithAPISupport() {
 	}
 
 }
- 
 
 func fetchExternalDataFromAPISupport() ([]models.Pos, error) {
-	// Replace with the actual URL of your API
-	apiURL := "https://i-pos-restaurant-api.up.railway.app/api/pos/all"
+	db := database.PGDB
 
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	var dataList []models.Pos
+	db.Find(&dataList)
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	}
-
-	var response struct {
-		Data []models.Pos `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, err
-	}
-
-	return response.Data, nil
+	return dataList, nil
 }

@@ -1,13 +1,9 @@
 package livraison
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
-	"log" 
-	"net/http"
+	"log"  
 	"sync" 
 )
 
@@ -87,73 +83,29 @@ func SyncDataWithAPI(code_entreprise string, pos_uuid string) {
  
 // Récupérer des données externes à partir de l'API
 func fetchExternalDataFromAPI(code_entreprise string, pos_uuid string) ([]models.Livraison, error) {
-	// Replace with the actual URL of your API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/livraisons/%s/%s/all", code_entreprise, pos_uuid)
+	db := database.PGDB
 
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	var dataList []models.Livraison
+	db.Where("code_entreprise = ?", code_entreprise).Where("pos_uuid = ?", pos_uuid).Find(&dataList)
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	}
-
-	var response struct {
-		Data []models.Livraison `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return nil, err
-	}
-
-	return response.Data, nil
+	return dataList, nil
 }
 
 // Récupérer une donnee externe à partir de l'API
 func fetchExternalDataItemFromAPI(dataUUID string) (models.Livraison, error) {
-	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/livraisons/get/%s", dataUUID)
+	db := database.PGDB
 
-	resp, err := http.Get(apiURL)
-	if err != nil {
-		return models.Livraison{}, err
-	}
-	defer resp.Body.Close()
+	var data models.Livraison
+	db.Where("uuid = ?", dataUUID).First(&data)
 
-	if resp.StatusCode != http.StatusOK {
-		return models.Livraison{}, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	}
-
-	var response struct {
-		Data models.Livraison `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return models.Livraison{}, err
-	}
-
-	return response.Data, nil
+	return data, nil
 }
 
 // Envoyer des données locales à l'API
 func sendLocalDataToAPI(data models.Livraison) error {
 	// Soumission des données vers l'API
-	apiURL := "https://i-pos-restaurant-api.up.railway.app/api/livraisons/create"
-
-	dataItem, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(dataItem))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to send data: %s", resp.Status)
-	}
+	db := database.PGDB 
+	db.Create(data)
 
 	return nil
 }
@@ -161,30 +113,9 @@ func sendLocalDataToAPI(data models.Livraison) error {
 // Update external data data in the API
 func updateExternalDataInAPI(data models.Livraison) error {
 	// URL de l'API
-	apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/livraisons/update/%s", data.UUID)
+	db := database.PGDB
 
-	dataItem, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest(http.MethodPut, apiURL, bytes.NewBuffer(dataItem))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to update data: %s", resp.Status)
-	}
-
+	db.Model(&data).Updates(data)
 	return nil
 }
 
