@@ -17,6 +17,4 @@ type Pos struct {
 	Manager        string     `gorm:"not null" json:"manager"`
 	Status         bool       `gorm:"not null" json:"status"` // Actif ou Inactif
 	Signature      string     `json:"signature"`
-	Stocks         []Stock    `gorm:"foreignKey:PosUUID;references:UUID" json:"stocks"`
-	Commandes      []Commande `gorm:"foreignKey:PosUUID;references:UUID" json:"commandes"`
 }

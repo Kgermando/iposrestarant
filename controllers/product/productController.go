@@ -170,7 +170,7 @@ func GetProduct(c *fiber.Ctx) error {
 	db := database.DB
 
 	var product models.Product
-	db.Find(&product, uuid)
+	db.Where("uuid = ?", uuid).First(&product)
 	if product.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -245,7 +245,7 @@ func UpdateProduct(c *fiber.Ctx) error {
 
 	product := new(models.Product)
 
-	db.First(&product, uuid)
+	db.Where("uuid = ?", uuid).First(&product)
 	product.Reference = updateData.Reference
 	product.Name = updateData.Name
 	product.Description = updateData.Description
@@ -275,7 +275,7 @@ func DeleteProduct(c *fiber.Ctx) error {
 	db := database.DB
 
 	var product models.Product
-	db.First(&product, uuid)
+	db.Where("uuid = ?", uuid).First(&product)
 	if product.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

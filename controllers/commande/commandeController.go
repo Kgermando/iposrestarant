@@ -177,10 +177,10 @@ func GetTotalCommande(c *fiber.Ctx) error {
 func GetCommande(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
-	var commande models.Commande
-	db.Preload("TableBox").
-		Preload("CommandeLines").
-		Find(&commande, uuid)
+	var commande models.Commande  
+	db.Where("uuid = ?", uuid).Preload("TableBox").Preload("CommandeLines").
+	First(&commande)
+
 	if commande.Ncommande == 0 {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -248,7 +248,7 @@ func UpdateCommande(c *fiber.Ctx) error {
 
 	commande := new(models.Commande)
 
-	db.First(&commande, uuid)
+	db.Where("uuid = ?", uuid).First(&commande)
 	commande.PosUUID = updateData.PosUUID
 	commande.Ncommande = updateData.Ncommande
 	commande.Status = updateData.Status
@@ -275,7 +275,7 @@ func DeleteCommande(c *fiber.Ctx) error {
 	db := database.DB
 
 	var commande models.Commande
-	db.First(&commande, uuid)
+	db.Where("uuid = ?", uuid).First(&commande)
 	if commande.Ncommande == 0 {
 		return c.Status(404).JSON(
 			fiber.Map{

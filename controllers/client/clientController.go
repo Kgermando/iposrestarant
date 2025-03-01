@@ -90,7 +90,7 @@ func GetClient(c *fiber.Ctx) error {
 	db := database.DB
 
 	var client models.Client
-	db.Find(&client, uuid)
+	db.Where("uuid = ?", uuid).First(&client)
 	if client.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -162,7 +162,7 @@ func UpdateClient(c *fiber.Ctx) error {
 
 	client := new(models.Client)
 
-	db.First(&client, uuid)
+	db.Where("uuid = ?", uuid).First(&client)
 	client.Fullname = updateData.Fullname
 	client.Telephone = updateData.Telephone
 	client.Telephone2 = updateData.Telephone2
@@ -193,7 +193,7 @@ func DeleteClient(c *fiber.Ctx) error {
 	db := database.DB
 
 	var client models.Client
-	db.First(&client, uuid)
+	db.Where("uuid = ?", uuid).First(&client)
 	if client.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -247,6 +247,7 @@ func UploadCsvDataClient(c *fiber.Ctx) error {
 		if client.Fullname == "" {
 			continue
 		}
+		cl.UUID = uuid.New().String()
 		db.Create(&cl)
 	}
 

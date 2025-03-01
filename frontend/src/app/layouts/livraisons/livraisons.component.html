@@ -237,21 +237,21 @@
                                 </ng-container>
 
                                 <!-- pos Column -->
-                                <!-- <ng-container matColumnDef="operator_name">
+                                <ng-container matColumnDef="operator_name">
                                     <th mat-header-cell *matHeaderCellDef> Opérateur </th>
                                     <td mat-cell *matCellDef="let element">
                                         @if (element.status === 'Cash') {
                                         <a
                                             [routerLink]="['/web/livraisons/view', element.uuid, 'facture', element.Client!.fullname ]">
-                                            {{element.operator_name}}
+                                            {{element.signature}}
                                         </a>
                                         } @else {
                                         <a [routerLink]="['/web/livraisons', element.uuid, 'line']">
-                                            {{element.operator_name}}
+                                            {{element.signature}}
                                         </a>
                                         }
                                     </td>
-                                </ng-container> -->
+                                </ng-container>
 
                                  <!-- pos Column -->
                                  <ng-container matColumnDef="pos">
@@ -545,7 +545,7 @@
                             </mat-error>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <!-- <div class="col-md-6">
                         <div class="mb-3">
                             <label class="col-form-label" for="operator_name">Nom de l'operateur
                                 <span class="text-danger">*</span>
@@ -555,7 +555,7 @@
                                 Ce champs est obligatoire
                             </mat-error>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-end">

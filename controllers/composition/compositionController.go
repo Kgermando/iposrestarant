@@ -130,7 +130,8 @@ func GetComposition(c *fiber.Ctx) error {
 	db := database.DB
 
 	var composition models.Composition
-	db.Find(&composition, uuid)
+	db.Where("uuid = ?", uuid).Preload("Plat").Preload("Ingredient").First(&composition)
+
 	if composition.PlatUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -197,7 +198,7 @@ func UpdateComposition(c *fiber.Ctx) error {
 
 	composition := new(models.Composition)
 
-	db.First(&composition, uuid)
+	db.Where("uuid = ?", uuid).First(&composition)
 	composition.PlatUUID = updateData.PlatUUID
 	composition.IngredientUUID = updateData.IngredientUUID
 	composition.Quantity = updateData.Quantity
@@ -223,7 +224,7 @@ func DeleteComposition(c *fiber.Ctx) error {
 	db := database.DB
 
 	var composition models.Composition
-	db.First(&composition, uuid)
+	db.Where("uuid = ?", uuid).First(&composition)
 	if composition.PlatUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{

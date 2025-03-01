@@ -93,7 +93,7 @@ export class PosComponent implements OnInit, AfterViewInit {
   }
 
   fetchProducts() {
-    this.posService.getPaginatedById(this.currentUser.entreprise!.ID!, this.pageIndex, this.pageSize, this.search).subscribe(res => {
+    this.posService.getPaginatedById(this.currentUser.entreprise!.uuid!, this.pageIndex, this.pageSize, this.search).subscribe(res => {
       this.dataList = res.data;
       this.totalItems = res.pagination.total_pages;
       this.length = res.pagination.length;
@@ -127,7 +127,7 @@ export class PosComponent implements OnInit, AfterViewInit {
       if (this.formGroup.valid) {
         this.isLoading = true;
         var body = {
-          entreprise_id: parseInt(this.currentUser.entreprise!.ID!.toString()),
+          entreprise_uuid: this.currentUser.entreprise!.uuid!,
           name: this.formGroup.value.name,
           adresse: this.formGroup.value.adresse,
           email: this.formGroup.value.email,
@@ -160,7 +160,7 @@ export class PosComponent implements OnInit, AfterViewInit {
     try {
       this.isLoading = true;
       var body: IPos = {
-        entreprise_uuid: this.currentUser.entreprise!.uuid!,
+        // entreprise_uuid: this.currentUser.entreprise!.uuid!,
         name: this.formGroup.value.name,
         adresse: this.formGroup.value.adresse,
         email: this.formGroup.value.email,

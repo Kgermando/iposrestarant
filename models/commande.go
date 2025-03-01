@@ -8,6 +8,8 @@ type Commande struct {
 	gorm.Model
 
 	UUID           string         `gorm:"type:uuid;not null;unique" json:"uuid"`
+	TableBoxUUID   string         `json:"table_box_uuid"` 
+	TableBox       TableBox       `gorm:"foreignKey:TableBoxUUID;references:UUID"`
 	Reference      string         `gorm:"not null" json:"reference"`
 	Ncommande      uint64         `json:"ncommande"` // Number Random
 	Status         string         `gorm:"not null" json:"status"`
@@ -17,5 +19,5 @@ type Commande struct {
 	Pos            Pos            `gorm:"foreignKey:PosUUID;references:UUID"`
 	Signature      string         `json:"signature"`
 	CodeEntreprise uint64         `json:"code_entreprise"`
-	CommandeLines  []CommandeLine `gorm:"foreignKey:CommandeUUID;references:UUID"`
+	CommandeLines  []CommandeLine `gorm:"foreignKey:CommandeUUID;references:UUID"`    
 }

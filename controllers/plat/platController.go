@@ -169,7 +169,7 @@ func GetPlat(c *fiber.Ctx) error {
 	db := database.DB
 
 	var plat models.Plat
-	db.Find(&plat, uuid)
+	db.Where("uuid = ?", uuid).First(&plat)
 	if plat.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -244,7 +244,7 @@ func UpdatePlat(c *fiber.Ctx) error {
 
 	plat := new(models.Plat)
 
-	db.First(&plat, uuid)
+	db.Where("uuid = ?", uuid).First(&plat)
 	plat.Reference = updateData.Reference
 	plat.Name = updateData.Name
 	plat.Description = updateData.Description
@@ -274,7 +274,7 @@ func DeletePlat(c *fiber.Ctx) error {
 	db := database.DB
 
 	var plat models.Plat
-	db.First(&plat, uuid)
+	db.Where("uuid = ?", uuid).First(&plat)
 	if plat.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

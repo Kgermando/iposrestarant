@@ -78,13 +78,12 @@ func GetAllContacts(c *fiber.Ctx) error {
 }
 
 // Get one data
-func GetContact(c *fiber.Ctx) error {
-	codeEntreprise := c.Params("code_entreprise")
+func GetContact(c *fiber.Ctx) error { 
 	uuid := c.Params("uuid")
 	db := database.DB
 
-	var contact models.Contact
-	db.Where("code_entreprise = ?", codeEntreprise).Find(&contact, uuid)
+	var contact models.Contact 
+	db.Where("uuid = ?", uuid).First(&contact)
 	if contact.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -149,7 +148,7 @@ func UpdateContact(c *fiber.Ctx) error {
 
 	contact := new(models.Contact)
 
-	db.First(&contact, uuid)
+	db.Where("uuid = ?", uuid).First(&contact)
 	contact.Fullname = updateData.Fullname
 	contact.Email = updateData.Email
 	contact.Subject = updateData.Subject
@@ -174,7 +173,7 @@ func DeleteContact(c *fiber.Ctx) error {
 	db := database.DB
 
 	var contact models.Contact
-	db.First(&contact, uuid)
+	db.Where("uuid = ?", uuid).First(&contact)
 	if contact.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

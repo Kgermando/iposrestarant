@@ -177,9 +177,15 @@
                         </a> -->
                         <a class="dropdown-item" routerLink="/web/profil">
                             <i class="ti ti-user-pin"></i> My Profil
+                        </a> 
+                        <a class="dropdown-item" routerLink="/web/contact">
+                            <i class="ti ti-credit-card"></i> Abonnement
                         </a>
                         <a class="dropdown-item" routerLink="/web/contact">
-                            <i class="ti-location-arrow"></i> Contactez-nous!
+                            <i class="ti ti-book"></i> Formation
+                        </a>
+                        <a class="dropdown-item" routerLink="/web/contact">
+                            <i class="ti ti-headset"></i> Contactez-nous!
                         </a>
                         @if (isLoading) {
                             <div class="spinner-border" role="status">
@@ -210,7 +216,13 @@
                 <i class="ti ti-user-pin"></i> My Profil
             </a>
             <a class="dropdown-item" routerLink="/web/contact">
-                <i class="ti-location-arrow"></i> Contactez-nous!
+                <i class="ti ti-credit-card"></i> Abonnement
+            </a>
+            <a class="dropdown-item" routerLink="/web/contact">
+                <i class="ti ti-book"></i> Formation
+            </a>
+            <a class="dropdown-item" routerLink="/web/contact">
+                <i class="ti ti-headset"></i> Contactez-nous!
             </a>
             @if (isLoading) {
             <div class="spinner-border" role="status">

@@ -203,6 +203,7 @@ func Setup(app *fiber.App) {
 	fs.Get("/:code_entreprise/all/paginate", fournisseur.GetPaginatedFournisseur)
 	fs.Get("/get/:uuid", fournisseur.GetFournisseur)
 	fs.Post("/create", fournisseur.CreateFournisseur)
+	cl.Post("/uploads", fournisseur.UploadCsvDataFournisseur)
 	fs.Put("/update/:uuid", fournisseur.UpdateFournisseur)
 	fs.Delete("/delete/:uuid", fournisseur.DeleteFournisseur)
 
@@ -258,10 +259,11 @@ func Setup(app *fiber.App) {
 	caisseItem := api.Group("/caisse-items")
 	caisseItem.Get("/:code_entreprise/:caisse_uuid/all/paginate", finance.GetPaginatedCaisseItems)
 	caisseItem.Get("/:code_entreprise/:caisse_uuid/all", finance.GetAllCaisseItems)
+	caisseItem.Get("/total-today/:caisse_uuid", finance.GetTotalCaisseItemToday) 
 	caisseItem.Get("/get/:uuid", finance.GetCaisseItem)
 	caisseItem.Post("/create", finance.CreateCaisseItem)
 	caisseItem.Put("/update/:uuid", finance.UpdateCaisseItem)
-	caisseItem.Delete("/delete/:uuid", finance.DeleteCaisseItem)
+	caisseItem.Delete("/delete/:uuid", finance.DeleteCaisseItem) 
 
 	// Dashboard controller
 	dash := api.Group("/dashboard")

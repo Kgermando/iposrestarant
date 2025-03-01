@@ -164,7 +164,8 @@ func GetCommandeLine(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
 	var commandeLine models.CommandeLine
-	db.Find(&commandeLine, uuid)
+	db.Where("uuid = ?", uuid).Preload("Commande").Preload("Product").Preload("Plat").First(&commandeLine)
+
 	if commandeLine.ProductUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -231,7 +232,7 @@ func UpdateCommandeLine(c *fiber.Ctx) error {
 
 	commandeLine := new(models.CommandeLine)
 
-	db.First(&commandeLine, uuid)
+	db.Where("uuid = ?", uuid).First(&commandeLine)
 	commandeLine.CommandeUUID = updateData.CommandeUUID
 	commandeLine.LivraisonUUID = updateData.LivraisonUUID
 	commandeLine.ProductUUID = updateData.ProductUUID
@@ -257,7 +258,7 @@ func DeleteCommandeLine(c *fiber.Ctx) error {
 	db := database.DB
 
 	var commandeLine models.CommandeLine
-	db.First(&commandeLine, uuid)
+	db.Where("uuid = ?", uuid).First(&commandeLine)
 	if commandeLine.ProductUUID == "00000000-0000-0000-0000-000000000000" &&
 		commandeLine.PlatUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(

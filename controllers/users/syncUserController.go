@@ -1,9 +1,10 @@
 package users
 
-import ( 
+import (
+	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
-	"log" 
+	"log"
 	"sync"
 )
 
@@ -42,29 +43,34 @@ func SyncDataWithAPI(entrepriseUUID string) {
 	}
 
 	// Fetch local data
-	var localData []models.User
-	if err := database.DB.Find(&localData).Error; err != nil {
+	var localDataList []models.User
+	if err := database.DB.Find(&localDataList).Error; err != nil {
 		log.Println("Error fetching local data:", err)
 		return
 	}
 
 	// Synchroniser les données du local vers l'API
-	for _, localUser := range localData {
-		// Check if the local user is newer than the external user
-		externalUser, err := fetchExternalUserFromAPI(localUser.UUID)
-		if err != nil {
-			// If user does not exist externally, create it
-			if err := sendLocalDataToAPI(localUser); err != nil {
-				log.Println("Error creating external user:", err)
+	if len(localDataList) > 0  {
+		for _, localData := range localDataList {
+			// Check if the local user is newer than the external user
+			externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
+			if err != nil {
+				log.Println("Error external data :", err)
+				// continue
 			}
-			continue
-		}
-
-		if !isEqual(localUser, externalUser) {
-			// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
-			if localUser.UpdatedAt.After(externalUser.UpdatedAt) {
-				if err := updateExternalUserInAPI(localUser); err != nil {
-					log.Println("Error updating external data to API:", err)
+	
+			if externalData.UUID == "" {
+				if err := sendLocalDataToAPI(localData); err != nil {
+					log.Println("Error creating external data :", err)
+				}
+			}
+	
+			if !isEqual(localData, externalData) {
+				// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
+				if localData.UpdatedAt.After(externalData.UpdatedAt) {
+					if err := updateExternalDataInAPI(localData); err != nil {
+						log.Println("Error updating external data to API:", err)
+					}
 				}
 			}
 		}
@@ -92,29 +98,39 @@ func fetchExternalDataFromAPI(entrepriseUUID string) ([]models.User, error) {
 }
 
 // Récupérer un utilisateur externe à partir de l'API
-func fetchExternalUserFromAPI(dataUUID string) (models.User, error) {
+func fetchExternalDataItemFromAPI(dataUUID string) (models.User, error) {
 	db := database.PGDB
 
 	var data models.User
 	db.Where("uuid = ?", dataUUID).First(&data)
 
+	fmt.Println("User: ", data) 
+
 	return data, nil
 }
+
+// ParseData parses the input data to the appropriate format
+func ParseData(data models.User) models.User {
+	return data
+}
+
 
 // Envoyer des données locales à l'API
 func sendLocalDataToAPI(data models.User) error {
 	db := database.PGDB
-	db.Create(data)
+	parsedData := ParseData(data)
+	db.Create(&parsedData)
 
 	return nil
 }
 
 // Update external user data in the API
-func updateExternalUserInAPI(data models.User) error {
+func updateExternalDataInAPI(data models.User) error {
 	// URL de l'API
 	db := database.PGDB
 
-	db.Model(&data).Updates(data)
+	parsedData := ParseData(data)
+	db.Model(&data).Updates(parsedData)
 
 	return nil
 }
@@ -124,7 +140,7 @@ func deleteExternalDataInAPI(dataUUID string) error {
 	db := database.PGDB
 
 	var data models.User
-	db.First(&data, dataUUID)
+	db.Where("uuid = ?", dataUUID).First(&data)
 
 	db.Delete(&data)
 

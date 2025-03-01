@@ -42,9 +42,6 @@ func GetPaginatedPos(c *fiber.Ctx) error {
 		Limit(limit).
 		Order("updated_at DESC").
 		Preload("Entreprise").
-		Preload("Stocks").
-		Preload("BonCommades").
-		Preload("Commandes").
 		Find(&dataList)
 
 	if err != nil {
@@ -105,9 +102,6 @@ func GetPaginatedPosByID(c *fiber.Ctx) error {
 		Limit(limit).
 		Order("updated_at DESC").
 		Preload("Entreprise").
-		Preload("Stocks").
-		Preload("BonCommades").
-		Preload("Commandes").
 		Find(&dataList)
 
 	if err != nil {
@@ -140,9 +134,7 @@ func GetPaginatedPosByID(c *fiber.Ctx) error {
 func GetAllPoss(c *fiber.Ctx) error {
 	db := database.DB
 	var data []models.Pos
-	db.Preload("Stocks").
-		Preload("BonCommades").
-		Preload("Commandes").Find(&data)
+	db.Find(&data)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All poss",
@@ -169,9 +161,8 @@ func GetPos(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
 	var pos models.Pos
-	db.Preload("Stocks").
-		// Preload("BonCommades").
-		Preload("Commandes").Find(&pos, uuid)
+	
+	db.Where("uuid = ?", uuid).First(&pos)
 	if pos.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -217,7 +208,7 @@ func UpdatePos(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		EntrepriseUUID string `json:"entreprise_uuid"` // ID de l'entreprise
+		// EntrepriseUUID string `json:"entreprise_uuid"` // ID de l'entreprise
 		Name         string `json:"name"`
 		Adresse      string `json:"adresse"`
 		Email        string `json:"email"`
@@ -241,9 +232,10 @@ func UpdatePos(c *fiber.Ctx) error {
 
 	pos := new(models.Pos)
 
-	db.First(&pos, uuid)
-	pos.EntrepriseUUID = updateData.EntrepriseUUID
+	db.Where("uuid = ?", uuid).First(&pos)
+	// pos.EntrepriseUUID = updateData.EntrepriseUUID
 	pos.Name = updateData.Name
+	pos.Adresse = updateData.Adresse
 	pos.Email = updateData.Email
 	pos.Telephone = updateData.Telephone
 	pos.Manager = updateData.Manager
@@ -269,7 +261,7 @@ func DeletePos(c *fiber.Ctx) error {
 	db := database.DB
 
 	var pos models.Pos
-	db.First(&pos, uuid)
+	db.Where("uuid = ?", uuid).First(&pos)
 	if pos.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

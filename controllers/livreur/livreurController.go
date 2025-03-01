@@ -89,7 +89,7 @@ func GetLivreur(c *fiber.Ctx) error {
 	db := database.DB
 
 	var livreur models.Livreur
-	db.Find(&livreur, uuid)
+	db.Where("uuid = ?", uuid).First(&livreur)
 	if livreur.NameSociety == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -159,7 +159,7 @@ func UpdateLivreur(c *fiber.Ctx) error {
 
 	livreur := new(models.Livreur)
 
-	db.First(&livreur, uuid)
+	db.Where("uuid = ?", uuid).First(&livreur)
 	livreur.NameSociety = updateData.NameSociety
 	livreur.LivreurName = updateData.LivreurName
 	livreur.Telephone = updateData.Telephone
@@ -188,7 +188,7 @@ func DeleteLivreur(c *fiber.Ctx) error {
 	db := database.DB
 
 	var livreur models.Livreur
-	db.First(&livreur, uuid)
+	db.Where("uuid = ?", uuid).First(&livreur)
 	if livreur.NameSociety == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

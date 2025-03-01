@@ -13,7 +13,6 @@ var mu sync.Mutex
 func SyncDataWithAPI(code_entreprise string) {
 	mu.Lock()
 	defer mu.Unlock()
-  
 
 	// Récupérer des données externes à partir de l'API
 	externalDataList, err := fetchExternalDataFromAPI(code_entreprise)
@@ -50,36 +49,44 @@ func SyncDataWithAPI(code_entreprise string) {
 	}
 
 	// Synchroniser les données du local vers l'API
-	for _, localData := range localDataList {
-		// Check if the local data is newer than the external data
-		externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
-		if err != nil {
-			// If data does not exist externally, create it
-			if err := sendLocalDataToAPI(localData); err != nil {
-				log.Println("Error creating external data:", err)
+	if len(localDataList) > 0 {
+		for _, localData := range localDataList {
+			// Check if the local data is newer than the external data
+			externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
+			if err != nil {
+				log.Println("Error external data :", err)
+				// continue
 			}
-			continue
-		}
 
-		if !isEqual(localData, externalData) {
-			// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
-			if localData.UpdatedAt.After(externalData.UpdatedAt) {
-				if err := updateExternalDataInAPI(localData); err != nil {
-					log.Println("Error updating external data to API:", err)
+			if externalData.UUID == "00000000-0000-0000-0000-000000000000" || externalData.UUID == "" {
+				if err := sendLocalDataToAPI(localData); err != nil {
+					log.Println("Error creating external data :", err)
+				}
+			}
+
+			if !isEqual(localData, externalData) {
+				// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
+				if localData.UpdatedAt.After(externalData.UpdatedAt) {
+					if err := updateExternalDataInAPI(localData); err != nil {
+						log.Println("Error updating external data to API:", err)
+					}
 				}
 			}
 		}
 	}
 
 	// Delete online data if it has been deleted locally
-	for _, externalData := range externalDataList {
-		var localData models.Client
-		if err := database.DB.Where("uuid = ?", externalData.UUID).First(&localData).Error; err != nil {
-			if err := deleteExternalDataInAPI(externalData.UUID); err != nil {
-				log.Println("Error deleting external data:", err)
+	if len(externalDataList) > 0 {
+		for _, externalData := range externalDataList {
+			var localData models.Client
+			if err := database.DB.Where("uuid = ?", externalData.UUID).First(&localData).Error; err != nil {
+				if err := deleteExternalDataInAPI(externalData.UUID); err != nil {
+					log.Println("Error deleting external data:", err)
+				}
 			}
 		}
 	}
+
 }
 
 // Récupérer des données externes à partir de l'API
@@ -102,10 +109,16 @@ func fetchExternalDataItemFromAPI(dataUUID string) (models.Client, error) {
 	return data, nil
 }
 
+// ParseData parses the input data to the appropriate format
+func ParseData(data models.Client) models.Client {
+	return data
+}
+
 // Envoyer des données locales à l'API
 func sendLocalDataToAPI(data models.Client) error {
-	db := database.PGDB 
-	db.Create(data)
+	db := database.PGDB
+	parsedData := ParseData(data)
+	db.Create(&parsedData)
 
 	return nil
 }
@@ -114,8 +127,10 @@ func sendLocalDataToAPI(data models.Client) error {
 func updateExternalDataInAPI(data models.Client) error {
 	// URL de l'API
 	db := database.PGDB
+	
+	parsedData := ParseData(data)
+	db.Model(&data).Updates(parsedData)
 
-	db.Model(&data).Updates(data)
 	return nil
 }
 
@@ -124,7 +139,7 @@ func deleteExternalDataInAPI(dataUUID string) error {
 	db := database.PGDB
 
 	var data models.Client
-	db.First(&data, dataUUID)
+	db.Where("uuid = ?", dataUUID).First(&data)
 
 	db.Delete(&data)
 
@@ -133,7 +148,7 @@ func deleteExternalDataInAPI(dataUUID string) error {
 
 // isEqual compares two Area structs for equality
 func isEqual(a, b models.Client) bool {
-	return a.UUID == b.UUID && 
+	return a.UUID == b.UUID &&
 		a.CodeEntreprise == b.CodeEntreprise &&
 		a.UpdatedAt.Equal(b.UpdatedAt)
 }

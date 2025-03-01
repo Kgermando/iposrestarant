@@ -8,9 +8,11 @@ import (
 )
 
 type User struct {
+	// ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+
 	gorm.Model
 
-	UUID            string     `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID            string     `gorm:"not null;unique" json:"uuid"`
 	Fullname        string     `gorm:"not null" json:"fullname"`
 	Email           string     `gorm:"unique; not null" json:"email"`
 	Telephone       string     `gorm:"unique; not null" json:"telephone"`
@@ -20,9 +22,9 @@ type User struct {
 	Permission      string     `json:"permission" gorm:"default:'read'"`
 	Status          bool       `json:"status" gorm:"default:true"`
 	Currency        string     `json:"currency" gorm:"default:'USD'"`
-	EntrepriseUUID  string     `gorm:"type:uuid;not null" json:"entreprise_uuid"`
+	EntrepriseUUID  string     `json:"entreprise_uuid"`
 	Entreprise      Entreprise `gorm:"foreignKey:EntrepriseUUID;references:UUID"`
-	PosUUID         string     `gorm:"type:uuid;not null" json:"pos_uuid"`
+	PosUUID         string     `json:"pos_uuid"`
 	Pos             Pos        `gorm:"foreignKey:PosUUID;references:UUID"`
 	Signature       string     `json:"signature"`
 	Code            string     `json:"code" gorm:"-"`

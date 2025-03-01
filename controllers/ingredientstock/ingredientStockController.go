@@ -205,7 +205,7 @@ func GetIngredientStock(c *fiber.Ctx) error {
 	db := database.DB
 
 	var stock models.IngredientStock
-	db.Find(&stock, uuid)
+	db.Where("uuid = ?", uuid).Preload("Ingredient").Preload("Fournisseur").First(&stock)
 	if stock.IngredientUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{

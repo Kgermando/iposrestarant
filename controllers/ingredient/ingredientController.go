@@ -169,11 +169,11 @@ func GetAllIngredientBySearch(c *fiber.Ctx) error {
 
 // Get one data
 func GetIngredient(c *fiber.Ctx) error {
-	Ingredientuuid := c.Params("uuid")
+	uuid := c.Params("uuid")
 	db := database.DB
 
-	var ingredient models.Ingredient
-	db.Find(&ingredient, Ingredientuuid)
+	var ingredient models.Ingredient // Find ingredient by uuid
+	db.Where("uuid = ?", uuid).First(&ingredient)
 	if ingredient.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -244,7 +244,7 @@ func UpdateIngredient(c *fiber.Ctx) error {
 
 	ingredient := new(models.Ingredient)
 
-	db.First(&ingredient, uuid)
+	db.Where("uuid = ?", uuid).First(&ingredient)
 	ingredient.Name = updateData.Name
 	ingredient.Description = updateData.Description
 	ingredient.Unite = updateData.Unite
@@ -271,7 +271,7 @@ func DeleteIngredient(c *fiber.Ctx) error {
 	db := database.DB
 
 	var ingredient models.Ingredient
-	db.First(&ingredient, uuid)
+	db.Where("uuid = ?", uuid).First(&ingredient)
 	if ingredient.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

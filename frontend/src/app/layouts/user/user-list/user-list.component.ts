@@ -101,7 +101,6 @@ export class UserListComponent implements OnInit, AfterViewInit {
         this.entrepriseServcice.getAll().subscribe((res) => {
           this.entrepriseList = res.data;
         });
- 
       },
       error: (error) => {
         this.isLoadingData = false;
@@ -135,7 +134,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   getAllPos(currentUser: IUser): void {
     this.isload = true;
     const filterValue = this.pos_id.nativeElement.value.toLowerCase();
-    this.posService.getAllById(currentUser.entreprise?.ID!).subscribe(res => {
+    this.posService.getAllById(currentUser.entreprise?.uuid!).subscribe(res => {
       this.posList = res.data;
       this.posListFilter = this.posList; 
       this.filteredOptions = this.posListFilter.filter(o => o.name.toLowerCase().includes(filterValue));  
@@ -149,9 +148,9 @@ export class UserListComponent implements OnInit, AfterViewInit {
 
   optionSelected(event: MatAutocompleteSelectedEvent) {
     const selectedOption = event.option.value;
-    const pos_id = selectedOption.UUID;
+    const pos_id = selectedOption.uuid;
     const name = selectedOption.name;
-    this.posId = selectedOption.UUID;
+    this.posId = selectedOption.uuid;
     // Utilisez id et fullName comme vous le souhaitez
     console.log('pos_id:', pos_id);
     console.log('Name:', name);
@@ -179,7 +178,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
         this.isLoadingData = false;
       });
     } else {
-      this.usersService.getPaginatedById(currentUser.entreprise!.ID!, this.pageIndex, this.pageSize, this.search).subscribe(res => {
+      this.usersService.getPaginatedById(currentUser.entreprise!.uuid!, this.pageIndex, this.pageSize, this.search).subscribe(res => {
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages; 
         this.length = res.pagination.length;
@@ -238,7 +237,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
           currency: this.formGroup.value.currency,
           signature: this.currentUser.fullname,  
-          pos_uuid: (this.posId) ? this.posId : "00000000-0000-0000-0000-000000000000",
+          pos_uuid: this.posId,
         };
         this.usersService.create(body).subscribe({
           next: () => {
@@ -274,7 +273,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
           currency: this.formGroup.value.currency,
           signature: this.currentUser.fullname,
-          pos_uuid: this.dataItem.pos?.uuid!, 
+          pos_uuid: this.dataItem.pos?.uuid!,
         };
         this.usersService.update(this.uuidItem, body)
         .subscribe({

@@ -90,7 +90,7 @@ func GetArea(c *fiber.Ctx) error {
 	db := database.DB
 
 	var area models.Area
-	db.Find(&area, uuid)
+	db.Where("uuid = ?", uuid).First(&area)
 	if area.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -157,7 +157,7 @@ func UpdateArea(c *fiber.Ctx) error {
 
 	area := new(models.Area)
 
-	db.First(&area, uuid)
+	db.Where("uuid = ?", uuid).First(&area)
 	// area.UUID = updateData.UUID
 	area.Name = updateData.Name
 	area.Province = updateData.Province
@@ -183,7 +183,7 @@ func DeleteArea(c *fiber.Ctx) error {
 	db := database.DB
 
 	var area models.Area
-	db.First(&area, uuid)
+	db.Where("uuid = ?", uuid).First(&area)
 	if area.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

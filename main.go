@@ -154,7 +154,7 @@ func main() {
 	// Create application with options
 	err := wails.Run(&options.App{
 		Title:  "iposrestaurant",
-		Width:  1280,
+		Width:  1360,
 		Height: 768,
 		AssetServer: &assetserver.Options{
 			Assets: assets,

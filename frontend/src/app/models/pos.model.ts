@@ -5,7 +5,7 @@ import { IStock } from "./stock.model";
 export interface IPos {
     ID?: string;
     uuid?: string;
-    entreprise_uuid: string;
+    entreprise_uuid?: string;
     entreprise?: IEntreprise;
     name: string;
     adresse: string;

@@ -166,8 +166,8 @@ func GetUserByID(c *fiber.Ctx) error {
 func GetUser(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
-	var user models.User
-	db.Find(&user, uuid)
+	var user models.User // Declare an empty user to store the result
+	db.Where("uuid = ?", uuid).First(&user)
 	if user.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -285,7 +285,7 @@ func UpdateUser(c *fiber.Ctx) error {
 
 	user := new(models.User)
 
-	db.First(&user, uuid)
+	db.Where("uuid = ?", uuid).First(&user)
 	user.Fullname = updateData.Fullname
 	user.Email = updateData.Email
 	user.Telephone = updateData.Telephone
@@ -316,7 +316,7 @@ func DeleteUser(c *fiber.Ctx) error {
 	db := database.DB
 
 	var User models.User
-	db.First(&User, uuid)
+	db.Where("uuid = ?", uuid).First(&User)
 	if User.Fullname == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

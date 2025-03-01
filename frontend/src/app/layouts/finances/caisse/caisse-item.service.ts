@@ -24,4 +24,13 @@ export class CaisseItemService  extends ApiService {
     .set("end_date", endDateStr)
     return this.http.get<ApiResponse>(`${this.endpoint}/${code_entreprise}/${caisse_uuid}/all/paginate`, { params });
   }
+
+  getTotalCaisseItemByCaisseID(
+   caisse_uuid: string, startDateStr: string, endDateStr: string
+  ): Observable<any> {
+    let params = new HttpParams()
+    .set("start_date", startDateStr)
+    .set("end_date", endDateStr);
+    return this.http.get<any>(`${this.endpoint}/total-today/${caisse_uuid}`, { params });
+  }
 } 

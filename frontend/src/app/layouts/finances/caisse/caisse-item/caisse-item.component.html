@@ -4,6 +4,8 @@
 </div>
 }@else {
 @if (caisse) {
+
+
 <div class="card p-4 bg-white all-files mb-0">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
@@ -48,10 +50,9 @@
                     <div class="daterange-picker">
                         <div class="form-sort me-2">
                             <i class="ti ti-calendar"></i>
-                            <input type="text" class="form-control date-range bookingrange"
-                                bsDaterangepicker [bsConfig]="{ adaptivePosition: true }"
-                                formControlName="rangeValue" />
-                        </div> 
+                            <input type="text" class="form-control date-range bookingrange" bsDaterangepicker
+                                [bsConfig]="{ adaptivePosition: true }" formControlName="rangeValue" />
+                        </div>
                     </div>
                 </form>
             </div>
@@ -100,102 +101,124 @@
         <!-- /Search -->
     </div>
     <div class="card-body">
-        <!-- Page List -->
-        <div class="table-responsive custom-table">
-            <table matSort (matSortChange)="sortData($event)" class="table" id="pages">
-                <thead class="thead-light">
-                    <tr>
-                        <th mat-sort-header="createdat">Date</th>
-                        <th mat-sort-header="type_transaction">Transaction</th>
-                        <th mat-sort-header="montant">Montant</th>
-                        <th mat-sort-header="libelle">Libelle</th>
-                        <th mat-sort-header="reference">Reference</th>
-                        <th mat-sort-header="caisse">Caisse</th>
-                        <th mat-sort-header="signature">signature</th>
-                        <th mat-sort-header="id">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (data of dataItemList; track data.ID!) {
-                    <tr class="odd">
-                        <td>
-                            <span class="title-name">
-                                {{data.CreatedAt | date: 'dd/MM/YYYY HH:mm' }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge badge-pill badge-status" [ngClass]="{
-                        'bg-success': data.type_transaction == 'Entrée',
-                        'bg-danger': data.type_transaction == 'Sortie'
-                    }">
-                                @if (data.type_transaction == 'Entrée') {
-                                Entrée
-                                } @else {
-                                Sortie
-                                }
-                            </span>
-                        </td>
-                        <td>
-                            {{ formatCurrency(data.montant, currentUser.currency ) }}
-                        </td>
-                        <td>
-                            {{data.libelle}}
-                        </td>
-                        <td>
-                            {{data.reference}}
-                        </td>
-                        <td>
-                            {{data.Caisse!.name}}
-                        </td>
-                        <td>
-                            {{data.signature}}
-                        </td>
-                        <td>
-                            <div class="dropdown table-action"><a href="javascript:void(0);" class="action-icon "
-                                    data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    @if(currentUser.permission === 'ALL' ||
-                                    currentUser.permission === 'AM' ||
-                                    currentUser.permission === 'MS' ||
-                                    currentUser.permission === 'M') {
-                                    <a class="dropdown-item" href="javascript:void(0);" (click)="findValue(data.ID!)"
-                                        data-bs-toggle="offcanvas" data-bs-target="#offcanvas_edit">
-                                        <i class="ti ti-edit text-blue"></i>
-                                        Edit
-                                    </a>
-                                    }
-                                    @if(currentUser.permission === 'ALL' ||
-                                    currentUser.permission === 'MS') {
-                                    <a class="dropdown-item" href="javascript:void(0);" (click)="findValue(data.ID!)"
-                                        data-bs-toggle="modal" data-bs-target="#delete_contact">
-                                        <i class="ti ti-trash text-danger"></i>
-                                        Delete
-                                    </a>
-                                    }
+        <div class="task-wrapper">
+            <a href="javascript:void(0);" class="task-accordion" data-bs-toggle="collapse" data-bs-target="#rapport">
+                <h4>Rapport de Compte </h4>
+            </a>
+            <div class="tasks-activity tasks collapse show mt-3" id="rapport">
+                <app-caisse-begin [totalCaisse]="totalCaisse" 
+                    [totalEntres]="totalEntres" [totalSorties]="totalSorties" 
+                    [soldes]="soldes" [totalFondDeCaisses]="totalFondDeCaisses"
+                    [currentUser]="currentUser"></app-caisse-begin>
+            </div>
+        </div>
+        <div class="task-wrapper">
+            <a href="javascript:void(0);" class="task-accordion" data-bs-toggle="collapse" data-bs-target="#all-files">
+                <h4>Historique des transactions</h4>
+            </a>
+            <div class="tasks-activity tasks collapse show mt-3" id="all-files">
+                <div class="table-responsive custom-table">
+                    <table matSort (matSortChange)="sortData($event)" class="table" id="pages">
+                        <thead class="thead-light">
+                            <tr>
+                                <th mat-sort-header="createdat">Date</th>
+                                <th mat-sort-header="type_transaction">Transaction</th>
+                                <th mat-sort-header="montant">Montant</th>
+                                <th mat-sort-header="libelle">Libelle</th>
+                                <th mat-sort-header="reference">Reference</th>
+                                <th mat-sort-header="caisse">Caisse</th>
+                                <th mat-sort-header="signature">signature</th>
+                                <th mat-sort-header="id">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (data of dataItemList; track data.ID!) {
+                            <tr class="odd">
+                                <td>
+                                    <span class="title-name">
+                                        {{data.CreatedAt | date: 'dd/MM/YYYY HH:mm' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge badge-pill badge-status" [ngClass]="{
+                                'bg-success': data.type_transaction == 'Entrée',
+                                'bg-danger': data.type_transaction == 'Sortie'
+                            }">
+                                        @if (data.type_transaction == 'Entrée') {
+                                        Entrée
+                                        } @else {
+                                        Sortie
+                                        }
+                                    </span>
+                                </td>
+                                <td>
+                                    {{ formatCurrency(data.montant, currentUser.currency ) }}
+                                </td>
+                                <td>
+                                    {{data.libelle}}
+                                </td>
+                                <td>
+                                    {{data.reference}}
+                                </td>
+                                <td>
+                                    {{data.Caisse!.name}}
+                                </td>
+                                <td>
+                                    {{data.signature}}
+                                </td>
+                                <td>
+                                    <div class="dropdown table-action"><a href="javascript:void(0);"
+                                            class="action-icon " data-bs-toggle="dropdown" aria-expanded="false"><i
+                                                class="fa fa-ellipsis-v"></i></a>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            @if(currentUser.permission === 'ALL' ||
+                                            currentUser.permission === 'AM' ||
+                                            currentUser.permission === 'MS' ||
+                                            currentUser.permission === 'M') {
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                                (click)="findValue(data.ID!)" data-bs-toggle="offcanvas"
+                                                data-bs-target="#offcanvas_edit">
+                                                <i class="ti ti-edit text-blue"></i>
+                                                Edit
+                                            </a>
+                                            }
+                                            @if(currentUser.permission === 'ALL' ||
+                                            currentUser.permission === 'MS') {
+                                            <a class="dropdown-item" href="javascript:void(0);"
+                                                (click)="findValue(data.ID!)" data-bs-toggle="modal"
+                                                data-bs-target="#delete_contact">
+                                                <i class="ti ti-trash text-danger"></i>
+                                                Delete
+                                            </a>
+                                            }
 
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    }@empty {
-                        <tr class="odd">
-                           <td>Aucune donnée.</td>
-                        </tr>
-                        @if (isLoadingData || isLoading){
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            }@empty {
+                            <tr class="odd">
+                                <td>Aucune donnée.</td>
+                            </tr>
+                            @if (isLoadingData || isLoading){
                             <button disabled class="btn btn-primary">
                                 <div class="spinner-border" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                             </button>
                             } @else {
-                            <td class="mat-cell" colspan="4">Aucune donnée correspondant au filtre "{{input.value}}"</td>
+                            <td class="mat-cell" colspan="4">Aucune donnée correspondant au filtre "{{input.value}}"
+                            </td>
                             }
-                    }
-                </tbody>
-            </table>
-            <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="[15, 20, 30, 40, 50, 80, 100]"
-                showFirstLastButtons (page)="onPageChange($event)" aria-label="Select page">
-            </mat-paginator>
+                            }
+                        </tbody>
+                    </table>
+                    <mat-paginator [length]="length" [pageSize]="pageSize"
+                        [pageSizeOptions]="[15, 20, 30, 40, 50, 80, 100]" showFirstLastButtons
+                        (page)="onPageChange($event)" aria-label="Select page">
+                    </mat-paginator>
+                </div>
+            </div>
         </div>
     </div>
 </div>

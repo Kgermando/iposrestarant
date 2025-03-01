@@ -6,6 +6,7 @@ import (
 	"iposrestaurant/utils"
 
 	"github.com/gofiber/fiber/v2"
+
 	"github.com/google/uuid"
 )
 
@@ -56,6 +57,11 @@ func GetAllCaisses(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
 
+	// Synchronize data from API to local
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise)
+	}
+
 	var data []models.Caisse
 	db.Where("code_entreprise = ?", codeEntreprise).
 		Preload("Pos").
@@ -68,16 +74,16 @@ func GetAllCaisses(c *fiber.Ctx) error {
 	})
 }
 
-// Get All data
+// Get All data by POS
 func GetAllCaisseByPos(c *fiber.Ctx) error {
 	db := database.DB
 	codeEntreprise := c.Params("code_entreprise")
 	posUUId := c.Params("pos_uuid")
 
 	// Synchronize data from API to local
-	if utils.IsInternetAvailable() {
-		go SyncDataWithAPI(codeEntreprise, posUUId)
-	}
+	// if utils.IsInternetAvailable() {
+	// 	go SyncDataWithAPI(codeEntreprise, posUUId)
+	// }
 
 	var data []models.Caisse
 	db.Where("code_entreprise = ?", codeEntreprise).
@@ -118,9 +124,7 @@ func GetCaisse(c *fiber.Ctx) error {
 	db := database.DB
 
 	var caisse models.Caisse
-	db.
-		Preload("Pos").
-		Find(&caisse, uuid)
+	db.Where("uuid = ?", uuid).Preload("Pos").First(&caisse)
 	if caisse.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -190,7 +194,7 @@ func UpdateCaisse(c *fiber.Ctx) error {
 
 	caisse := new(models.Caisse)
 
-	db.First(&caisse, uuid)
+	db.Where("uuid = ?", uuid).First(&caisse)
 	caisse.Name = updateData.Name
 	caisse.Signature = updateData.Signature
 	caisse.PosUUID = updateData.PosUUID
@@ -215,7 +219,7 @@ func DeleteCaisse(c *fiber.Ctx) error {
 	db := database.DB
 
 	var caisse models.Caisse
-	db.First(&caisse, uuid)
+	db.Where("uuid = ?", uuid).First(&caisse)
 	if caisse.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

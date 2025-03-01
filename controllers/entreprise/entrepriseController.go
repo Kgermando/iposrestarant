@@ -104,8 +104,8 @@ func GetAllEntreprises(c *fiber.Ctx) error {
 func GetEntreprise(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
-	var entreprise models.Entreprise
-	db.Preload("Users").Preload("Pos").Find(&entreprise, uuid)
+	var entreprise models.Entreprise 
+	db.Where("uuid = ?", uuid).Preload("Users").Preload("Pos").First(&entreprise)
 	if entreprise.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -181,7 +181,7 @@ func UpdateEntreprise(c *fiber.Ctx) error {
 
 	entreprise := new(models.Entreprise)
 
-	db.First(&entreprise, uuid)
+	db.Where("uuid = ?", uuid).First(&entreprise)
 	entreprise.TypeEntreprise = updateData.TypeEntreprise
 	entreprise.Name = updateData.Name
 	entreprise.Code = updateData.Code
@@ -216,7 +216,7 @@ func DeleteEntreprise(c *fiber.Ctx) error {
 	db := database.DB
 
 	var entreprise models.Entreprise
-	db.First(&entreprise, uuid)
+	db.Where("uuid = ?", uuid).First(&entreprise)
 	if entreprise.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

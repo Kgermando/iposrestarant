@@ -11,7 +11,7 @@ type Fournisseur struct {
 	Name           string  `gorm:"not null" json:"name"`
 	Telephone      string  `json:"telephone"`
 	Email          string  `json:"email"`
-	Adresse        string  `json:"adresse"`
+	Adress         string  `json:"adress"`
 	TypeFourniture string  `json:"type_fourniture"`
 	Signature      string  `json:"signature"`
 	CodeEntreprise uint64  `json:"code_entreprise"`

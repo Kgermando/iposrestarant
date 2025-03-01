@@ -1,6 +1,7 @@
 package fournisseur
 
 import (
+	"encoding/json"
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
@@ -20,7 +21,6 @@ func GetPaginatedFournisseur(c *fiber.Ctx) error {
 	if utils.IsInternetAvailable() {
 		go SyncDataWithAPI(codeEntreprise)
 	}
-	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -90,7 +90,7 @@ func GetFournisseur(c *fiber.Ctx) error {
 	db := database.DB
 
 	var fournisseur models.Fournisseur
-	db.Preload("Stocks").Find(&fournisseur, uuid)
+	db.Where("uuid = ?", uuid).Preload("Stocks").First(&fournisseur)
 	if fournisseur.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -118,7 +118,7 @@ func CreateFournisseur(c *fiber.Ctx) error {
 	}
 
 	p.UUID = uuid.New().String()
-	
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -137,7 +137,7 @@ func UpdateFournisseur(c *fiber.Ctx) error {
 
 	type UpdateData struct {
 		Name           string `json:"name"`
-		Adresse        string `json:"adresse"`
+		Adress         string `json:"adress"`
 		Email          string `json:"email"`
 		Telephone      string `json:"telephone"`
 		Signature      string `json:"signature"`
@@ -158,9 +158,9 @@ func UpdateFournisseur(c *fiber.Ctx) error {
 
 	fournisseur := new(models.Fournisseur)
 
-	db.First(&fournisseur, uuid)
+	db.Where("uuid = ?", uuid).First(&fournisseur)
 	fournisseur.Name = updateData.Name
-	fournisseur.Adresse = updateData.Adresse
+	fournisseur.Adress = updateData.Adress
 	fournisseur.Email = updateData.Email
 	fournisseur.Telephone = updateData.Telephone
 	fournisseur.Signature = updateData.Signature
@@ -185,7 +185,7 @@ func DeleteFournisseur(c *fiber.Ctx) error {
 	db := database.DB
 
 	var fournisseur models.Fournisseur
-	db.First(&fournisseur, uuid)
+	db.Where("uuid = ?", uuid).First(&fournisseur)
 	if fournisseur.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -205,4 +205,60 @@ func DeleteFournisseur(c *fiber.Ctx) error {
 			"data":    nil,
 		},
 	)
+}
+
+func UploadCsvDataFournisseur(c *fiber.Ctx) error {
+	db := database.DB
+
+	type UploadCSV struct {
+		Data           []models.Fournisseur `json:"data"`
+		CodeEntreprise uint64               `json:"code_entreprise"`
+		Signature      string               `json:"signature"`
+	}
+
+	var dataUpload UploadCSV
+	if err := json.Unmarshal(c.Body(), &dataUpload); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
+	var f models.Fournisseur
+
+	for _, fournisseur := range dataUpload.Data {
+		f = models.Fournisseur{
+			Name:           fournisseur.Name,
+			Telephone:      fournisseur.Telephone,
+			Email:          fournisseur.Email,
+			Adress:         fournisseur.Adress,
+			TypeFourniture: fournisseur.TypeFourniture,
+			Signature:      dataUpload.Signature,
+			CodeEntreprise: dataUpload.CodeEntreprise,
+		}
+		if f.Name == "" {
+			continue
+		}
+		f.UUID = uuid.New().String()
+		db.Create(&f)
+	}
+
+	fmt.Println("clients uploaded success")
+
+	return c.JSON(
+		fiber.Map{
+			"status":  "success",
+			"message": "clients uploaded success",
+			// "data":    dataUpload,
+		},
+	)
+}
+
+func GetDataUpload(data map[string]interface{}) ([]string, error) {
+	var dataList []string
+
+	dataStr, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+	dataList = append(dataList, string(dataStr))
+
+	return dataList, nil
 }

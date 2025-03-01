@@ -37,11 +37,14 @@ func GetPaginatedLivraisonEntreprise(c *fiber.Ctx) error {
 	db.Model(&models.Livraison{}).Where("code_entreprise = ?", codeEntreprise).
 		Where("created_at BETWEEN ? AND ?", start_date, end_date).
 		Count(&length)
+
 	db.Joins("JOIN clients ON livraisons.client_uuid = clients.uuid").
 		Joins("JOIN livreurs ON livraisons.livreur_uuid = livreurs.uuid").
 		Joins("JOIN areas ON livraisons.area_uuid = areas.uuid").
+
 		Where("livraisons.code_entreprise = ?", codeEntreprise).
-		Where("created_at BETWEEN ? AND ?", start_date, end_date).
+		Where("livraisons.created_at BETWEEN ? AND ?", start_date, end_date).
+
 		Where("livreurs.name_society LIKE ? OR livreurs.livreur_name LIKE ? OR operator_name LIKE ? OR clients.fullname LIKE ? OR areas.name LIKE ? OR livraisons.status LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -114,7 +117,7 @@ func GetPaginatedLivraison(c *fiber.Ctx) error {
 		Joins("JOIN areas ON livraisons.area_uuid = areas.uuid").
 		Where("livraisons.code_entreprise = ?", codeEntreprise).
 		Where("livraisons.pos_uuid = ?", posuuId).
-		Where("created_at BETWEEN ? AND ?", start_date, end_date).
+		Where("livraisons.created_at BETWEEN ? AND ?", start_date, end_date).
 		Where("livreurs.name_society LIKE ? OR livreurs.livreur_name LIKE ? OR operator_name LIKE ? OR clients.fullname LIKE ? OR areas.name LIKE ? OR livraisons.status LIKE ?", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%", "%"+search+"%").
 		Offset(offset).
 		Limit(limit).
@@ -211,11 +214,11 @@ func GetLivraison(c *fiber.Ctx) error {
 
 	var livraison models.Livraison
 	db.
-		Preload("Client").
+		Where("uuid = ?", uuid).Preload("Client").
 		Preload("Livreur").
 		Preload("Area").
-		Preload("Pos").
-		Find(&livraison, uuid)
+		Preload("Pos").First(&livraison)
+
 	if livraison.OperatorName == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -285,7 +288,7 @@ func UpdateLivraison(c *fiber.Ctx) error {
 
 	livraison := new(models.Livraison)
 
-	db.First(&livraison, uuid)
+	db.Where("uuid = ?", uuid).First(&livraison)
 	livraison.OperatorName = updateData.OperatorName
 	livraison.AreaUUID = updateData.AreaUUID
 	livraison.ClientUUID = updateData.ClientUUID
@@ -315,7 +318,7 @@ func DeleteLivraison(c *fiber.Ctx) error {
 	db := database.DB
 
 	var livraison models.Livraison
-	db.First(&livraison, uuid)
+	db.Where("uuid = ?", uuid).First(&livraison)
 	if livraison.OperatorName == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

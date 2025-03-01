@@ -20,7 +20,7 @@ func GetPaginatedCaisseItems(c *fiber.Ctx) error {
 	//  Synchronize data from API to local
 	if utils.IsInternetAvailable() {
 		go SyncDataWithAPICaisseItem(caisseUUID)
-	} 
+	}
 
 	start_date := c.Query("start_date")
 	end_date := c.Query("end_date")
@@ -117,6 +117,59 @@ func GetAllCaisseItemBySearch(c *fiber.Ctx) error {
 	})
 }
 
+// Get total inject for today
+func GetTotalCaisseItemToday(c *fiber.Ctx) error {
+	caisseUUID := c.Params("caisse_uuid")
+	db := database.DB
+
+	startDate := c.Query("start_date", utils.GetCurrentDate())
+	endDate := c.Query("end_date", utils.GetCurrentDate())
+
+	var totalEntries float64 = 0
+	var totalSorties float64 = 0
+	var totalFondDeCaisse float64 = 0
+
+	db.Model(&models.CaisseItem{}).
+		Where("caisse_uuid = ?", caisseUUID).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Where("type_transaction = ?", "Entree").
+		Select("COALESCE(SUM(montant), 0) as total_amount").
+		Scan(&totalEntries)
+
+	db.Model(&models.CaisseItem{}).
+		Where("caisse_uuid = ?", caisseUUID).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Where("type_transaction = ?", "Sortie").
+		Select("COALESCE(SUM(montant), 0) as total_amount").
+		Scan(&totalSorties)
+
+	db.Model(&models.CaisseItem{}).
+		Where("caisse_uuid = ?", caisseUUID).
+		Where("created_at BETWEEN ? AND ?", startDate, endDate).
+		Where("type_transaction = ?", "FondDeCaisse").
+		Select("COALESCE(SUM(montant), 0) as total_amount").
+		Scan(&totalFondDeCaisse)
+
+	solde := totalEntries - totalSorties
+	totalGlobal := totalEntries + totalFondDeCaisse - totalSorties
+
+	response := map[string]interface{}{
+		"total_entries":        totalEntries,
+		"total_sorties":        totalSorties,
+		"solde":                solde,
+		"total_fond_de_caisse": totalFondDeCaisse,
+		"total_global":         totalGlobal,
+	}
+
+	return c.JSON(
+		fiber.Map{
+			"status":  "success",
+			"message": "CaisseItem stats",
+			"data":    response,
+		},
+	)
+}
+
 // Get one data
 func GetCaisseItem(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
@@ -151,7 +204,7 @@ func CreateCaisseItem(c *fiber.Ctx) error {
 	}
 
 	p.UUID = uuid.New().String()
-	
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -169,7 +222,7 @@ func UpdateCaisseItem(c *fiber.Ctx) error {
 	db := database.DB
 
 	type UpdateData struct {
-		CaisseUUID        string  `json:"caisse_uuid"`
+		CaisseUUID      string  `json:"caisse_uuid"`
 		TypeTransaction string  `json:"type_transaction"` // Entreé ou Sortie
 		Montant         float64 `json:"montant"`          // Montant de la transaction
 		Libelle         string  `json:"libelle"`          // Description de la transaction
@@ -192,7 +245,7 @@ func UpdateCaisseItem(c *fiber.Ctx) error {
 
 	caisseItem := new(models.CaisseItem)
 
-	db.First(&caisseItem, uuid)
+	db.Where("uuid = ?", uuid).First(&caisseItem)
 	caisseItem.CaisseUUID = updateData.CaisseUUID
 	caisseItem.TypeTransaction = updateData.TypeTransaction
 	caisseItem.Montant = updateData.Montant
@@ -220,7 +273,8 @@ func DeleteCaisseItem(c *fiber.Ctx) error {
 	db := database.DB
 
 	var caisseItem models.CaisseItem
-	db.First(&caisseItem, uuid)
+	db.Where("uuid = ?", uuid).First(&caisseItem)
+
 	if caisseItem.TypeTransaction == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

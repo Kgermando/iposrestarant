@@ -1,11 +1,11 @@
 package area
 
-import ( 
+import (
 	"fmt"
 	"iposrestaurant/database"
 	"iposrestaurant/models"
-	
-	"log" 
+
+	"log"
 	"sync"
 )
 
@@ -55,41 +55,48 @@ func SyncDataWithAPI(code_entreprise string) {
 	}
 
 	// Synchroniser les données du local vers l'API
-	for _, localData := range localDataList {
-		// Check if the local data is newer than the external data
-		externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
-
-		if err != nil {
-			// If data does not exist externally, create it
-			if err := sendLocalDataToAPI(localData); err != nil {
-				log.Println("Error creating external data :", err)
+	if len(localDataList) > 0 {
+		for _, localData := range localDataList {
+			// Check if the local data is newer than the external data
+			externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
+			if err != nil {
+				log.Println("Error external data :", err)
+				// continue
 			}
-			continue
-		}
 
-		if !isEqual(localData, externalData) {
-			// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
-			if localData.UpdatedAt.After(externalData.UpdatedAt) {
-				if err := updateExternalDataInAPI(localData); err != nil {
-					log.Println("Error updating external data to API:", err)
+			// Mettre une condition sil n'y a pas de donnee
+			if externalData.UUID == "00000000-0000-0000-0000-000000000000" || externalData.UUID == "" {
+				if err := sendLocalDataToAPI(localData); err != nil {
+					log.Println("Error creating external data :", err)
+				}
+			}
+
+			if !isEqual(localData, externalData) {
+				// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe
+				if localData.UpdatedAt.After(externalData.UpdatedAt) {
+					if err := updateExternalDataInAPI(localData); err != nil {
+						log.Println("Error updating external data to API:", err)
+					}
 				}
 			}
 		}
 	}
 
 	// Delete online data if it has been deleted locally
-	for _, externalData := range externalDataList {
-		var localData models.Area
-		if err := database.DB.Where("uuid = ?", externalData.UUID).First(&localData).Error; err != nil {
-			if err := deleteExternalDataInAPI(externalData.UUID); err != nil {
-				log.Println("Error deleting external data:", err)
+	if len(externalDataList) > 0 {
+		for _, externalData := range externalDataList {
+			var localData models.Area
+			if err := database.DB.Where("uuid = ?", externalData.UUID).First(&localData).Error; err != nil {
+				if err := deleteExternalDataInAPI(externalData.UUID); err != nil {
+					log.Println("Error deleting external data:", err)
+				}
 			}
 		}
 	}
 }
 
 // Récupérer des données externes à partir de l'API
-func fetchExternalDataFromAPI(code_entreprise string) ([]models.Area, error) { 
+func fetchExternalDataFromAPI(code_entreprise string) ([]models.Area, error) {
 	db := database.PGDB
 
 	var dataList []models.Area
@@ -105,55 +112,30 @@ func fetchExternalDataItemFromAPI(dataUUID string) (models.Area, error) {
 	var data models.Area
 	db.Where("uuid = ?", dataUUID).First(&data)
 
-	// URL de l'API
-	// apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/get/%s", dataUUID)
-
-	// resp, err := http.Get(apiURL)
-	// if err != nil {
-	// 	return models.Area{}, err
-	// }
-	// defer resp.Body.Close()
-
-	// if resp.StatusCode != http.StatusOK {
-	// 	return models.Area{}, fmt.Errorf("failed to fetch data: %s", resp.Status)
-	// }
-
-	// var response struct {
-	// 	Data models.Area `json:"data"`
-	// }
-	// if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-	// 	return models.Area{}, err
-	// }
-
 	return data, nil
+}
+
+// ParseData parses the input data to the appropriate format
+func ParseData(data models.Area) models.Area {
+	return data
 }
 
 // Envoyer des données locales à l'API
 func sendLocalDataToAPI(data models.Area) error {
 	db := database.PGDB
 
-	fmt.Println("data send: ", data)
- 
-	// Sauvegarde des données dans la base de données
-	db.Create(data)
-
-	// // Soumission des données vers l'API
-	// apiURL := "https://i-pos-restaurant-api.up.railway.app/api/areas/create"
+	// Parse the data before saving
+	parsedData := ParseData(data)
 
 	// dataItem, err := json.Marshal(data)
 	// if err != nil {
 	// 	return err
 	// }
 
-	// resp, err := http.Post(apiURL, "application/json", bytes.NewBuffer(dataItem))
-	// if err != nil {
-	// 	return err
-	// }
-	// defer resp.Body.Close()
+	fmt.Println("data send: ", parsedData)
 
-	// if resp.StatusCode != http.StatusOK {
-	// 	return fmt.Errorf("failed to send data: %s", resp.Status)
-	// }
+	// Sauvegarde des données dans la base de données
+	db.Create(&parsedData)
 
 	return nil
 }
@@ -163,8 +145,9 @@ func updateExternalDataInAPI(data models.Area) error {
 
 	db := database.PGDB
 
-	db.Model(&data).Updates(data)
+	parsedData := ParseData(data)
 
+	db.Model(&data).Updates(parsedData)
 
 	// // URL de l'API
 	// apiURL := fmt.Sprintf("https://i-pos-restaurant-api.up.railway.app/api/areas/update/%s", data.UUID)
@@ -200,7 +183,7 @@ func deleteExternalDataInAPI(dataUUID string) error {
 	db := database.PGDB
 
 	var data models.Area
-	db.First(&data, dataUUID)
+	db.Where("uuid = ?", dataUUID).First(&data)
 
 	db.Delete(&data)
 

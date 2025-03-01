@@ -15,5 +15,5 @@ type TableBox struct {
 	Status         string     `json:"status"` // Ouverte et Fermée
 	Signature      string     `json:"signature"`
 	CodeEntreprise uint64     `json:"code_entreprise"`
-	Commandes      []Commande `gorm:"foreignKey:TableBoxUUID;references:UUID"`
+	Commandes      []Commande `gorm:"foreignKey:TableBoxUUID;references:UUID"` 
 }

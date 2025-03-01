@@ -123,8 +123,9 @@ func GetStock(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
 
-	var stock models.Stock
-	db.Find(&stock, uuid)
+	var stock models.Stock 
+	db.Where("uuid = ?", uuid).Preload("Product").Preload("Fournisseur").First(&stock)
+
 	if stock.ProductUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -193,8 +194,8 @@ func UpdateStock(c *fiber.Ctx) error {
 	}
 
 	stock := new(models.Stock)
-
-	db.First(&stock, uuid)
+ 
+	db.Where("uuid = ?", uuid).First(&stock)
 	stock.PosUUID = updateData.PosUUID
 	stock.ProductUUID = updateData.ProductUUID
 	stock.Description = updateData.Description
@@ -223,7 +224,7 @@ func DeleteStock(c *fiber.Ctx) error {
 	db := database.DB
 
 	var stock models.Stock
-	db.First(&stock, uuid)
+	db.Where("uuid = ?", uuid).First(&stock)
 	if stock.ProductUUID == "00000000-0000-0000-0000-000000000000" {
 		return c.Status(404).JSON(
 			fiber.Map{

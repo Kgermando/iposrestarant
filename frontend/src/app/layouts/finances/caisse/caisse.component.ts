@@ -90,7 +90,7 @@ export class CaisseComponent implements OnInit {
         this.isLoadingData = false;
       });
     }
-    this.GetTotalAllCaisses(currentUser);
+    // this.GetTotalAllCaisses(currentUser);
   }
 
   getCaisseID(c: any) {
@@ -98,15 +98,15 @@ export class CaisseComponent implements OnInit {
     console.log("caisseID");
   }
 
-  GetTotalAllCaisses(currentUser: IUser) {
-    this.caisseService.GetTotalAllCaisses(currentUser.entreprise?.code!).subscribe((res) => {
-      this.total = res.data.total;
-      this.totalEntree = res.data.totalentree;
-      this.totalSortie = res.data.totalsortie;
-      this.solde = res.data.solde;
-      this.pourcent = res.data.pourcent; 
-    });
-  }
+  // GetTotalAllCaisses(currentUser: IUser) {
+  //   this.caisseService.GetTotalAllCaisses(currentUser.entreprise?.code!).subscribe((res) => {
+  //     this.total = res.data.total;
+  //     this.totalEntree = res.data.totalentree;
+  //     this.totalSortie = res.data.totalsortie;
+  //     this.solde = res.data.solde;
+  //     this.pourcent = res.data.pourcent; 
+  //   });
+  // }
 
 
   // Format de devise

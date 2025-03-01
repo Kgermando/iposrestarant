@@ -149,8 +149,8 @@ func GetTableBox(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
 
-	var tableBox models.TableBox
-	db.Preload("Commandes").Find(&tableBox, uuid)
+	var tableBox models.TableBox // Find tableBox by uuid
+	db.Where("uuid = ?", uuid).Preload("Commandes").First(&tableBox)
 	if tableBox.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -218,7 +218,7 @@ func UpdateTableBox(c *fiber.Ctx) error {
 
 	tableBox := new(models.TableBox)
 
-	db.First(&tableBox, uuid)
+	db.Where("uuid = ?", uuid).First(&tableBox)
 	tableBox.PosUUID = updateData.PosUUID
 	tableBox.Name = updateData.Name
 	tableBox.Numero = updateData.Numero
@@ -244,8 +244,8 @@ func DeleteTableBox(c *fiber.Ctx) error {
 
 	db := database.DB
 
-	var tableBox models.TableBox
-	db.First(&tableBox, uuid)
+	var tableBox models.TableBox 
+	db.Where("uuid = ?", uuid).First(&tableBox)
 	if tableBox.Name == "" {
 		return c.Status(404).JSON(
 			fiber.Map{

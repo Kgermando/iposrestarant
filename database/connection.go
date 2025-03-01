@@ -50,7 +50,6 @@ func Connect() {
 		&models.Livraison{},      
 		&models.Livreur{},        
 		&models.Caisse{},         
-		&models.CaisseItem{},
-		
+		&models.CaisseItem{}, 
 	)
 }
