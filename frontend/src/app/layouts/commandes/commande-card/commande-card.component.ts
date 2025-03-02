@@ -45,7 +45,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
   currentUser!: IUser;
   isLoading = false;
 
-  tableId!: any;
+  tableuuId!: any;
   tableBox!: ITableBox;
 
   clientList: IClient[] = [];
@@ -87,8 +87,8 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
     this.loadUserData = true;
     this.isLoadingData = true;
     this.route.params.subscribe(routeParams => {
-      this.tableId = routeParams['id'];
-      this.getProduct(this.tableId);
+      this.tableuuId = routeParams['uuid'];
+      this.getProduct(this.tableuuId);
     });
 
     this.formGroup = this._formBuilder.group({
@@ -99,8 +99,8 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
 
   
   // Get One commande
-  getProduct(id: any) {
-    this.tableBoxService.get(id).subscribe(res => {
+  getProduct(uuid: any) {
+    this.tableBoxService.get(uuid).subscribe(res => {
       this.tableBox = res.data;
       this.loading = false; 
     });
@@ -115,7 +115,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
 
   fetchProducts(currentUser: IUser) {
     this.commandeService.getPaginatedCommandeByTableBox(currentUser.entreprise?.code!, currentUser.pos?.uuid!, 
-      this.tableId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+      this.tableuuId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
       this.dataList = res.data;
       this.totalItems = res.pagination.total_pages;
       this.length = res.pagination.length; 
@@ -153,7 +153,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
       const body: ICommande = {
         ncommande: code,
         status: 'En cours',
-        table_box_uuid: this.tableId,
+        table_box_uuid: this.tableuuId,
         signature: this.currentUser.fullname,
         pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
@@ -167,10 +167,10 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
           pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.tableBoxService.update(this.tableId, body).subscribe(() => {
+        this.tableBoxService.update(this.tableuuId, body).subscribe(() => {
           this.isLoading = false;
           this.toastr.success('Commande crée avec succès!', 'Success!');
-          this.router.navigate(['/web/table-box/commandes', res.data.ID, 'line']);
+          this.router.navigate(['/web/table-box/commandes', res.data.uuid, 'line']);
         });
       });
     } catch (error) {
@@ -211,7 +211,7 @@ export class CommandeCardComponent implements OnInit, AfterViewInit {
         pos_uuid: this.currentUser.pos!.uuid!,
         code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
       };
-      this.tableBoxService.update(this.tableId, body).subscribe(() => {
+      this.tableBoxService.update(this.tableuuId, body).subscribe(() => {
         this.commandeService.delete(this.uuidItem).subscribe(() => {
           this.formGroup.reset();
           this.toastr.info('Supprimé avec succès!', 'Success!');

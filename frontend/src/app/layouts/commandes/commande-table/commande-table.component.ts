@@ -124,6 +124,8 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
   }
 
   fetchProducts(currentUser: IUser) {
+    console.log("tableuuid", this.tableuuId );
+
     this.commandeService.getPaginatedCommandeByTableBox(currentUser.entreprise?.code!, currentUser.pos?.uuid!,
       this.tableuuId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
         this.dataList = res.data;
@@ -182,8 +184,8 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
         this.tableBoxService.update(this.tableuuId, body).subscribe(() => {
           this.isLoading = false;
           this.toastr.success('Commande crée avec succès!', 'Success!');
-          console.log("res.data.ID", res.data.ID)
-          this.router.navigate(['/web/table-box/commandes', res.data.ID, 'line']); 
+          console.log("res.data.uuid", res.data.uuid)
+          this.router.navigate(['/web/table-box/commandes', res.data.uuid, 'line']); 
         });
       });
     } catch (error) {

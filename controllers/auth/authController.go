@@ -207,15 +207,16 @@ func UpdateInfo(c *fiber.Ctx) error {
 	}
 
 	cookie := c.Cookies("token")
-	Id, _ := utils.VerifyJwt(cookie)
+	uuid, _ := utils.VerifyJwt(cookie)
 
-	userId, _ := strconv.Atoi(Id)
+	useruuid, _ := strconv.Atoi(uuid)
 
 	user := new(models.User)
 
 	db := database.DB
 
-	db.First(&user, userId)
+	db.First(&user, useruuid)
+	db.Where("uuid = ?", useruuid).First(&user)
 	user.Fullname = updateData.Fullname
 	user.Signature = updateData.Signature
 
@@ -273,9 +274,9 @@ func ChangePassword(c *fiber.Ctx) error {
 	}
 
 	db := database.DB
-
-	db.First(&user, user.ID)
-	user.Password = p
+ 
+	db.Where("uuid = ?", user.UUID).First(&user)
+	user.Password = p 
 
 	db.Save(&user)
 

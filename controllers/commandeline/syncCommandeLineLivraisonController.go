@@ -52,15 +52,14 @@ func SyncDataWithAPICmdLineLivraison(livraison_uuid string) {
 	if len(localDataList) > 0  {
 		for _, localData := range localDataList {
 			// Check if the local data is newer than the external data
-			externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
+			externalData, err := fetchExternalDataItemFromAPICmdLineLivraison(localData.UUID)
 			if err != nil {
-				log.Println("Error external data :", err)
-				// continue
+				log.Println("Error fetching external data:", err)
+				continue
 			}
-	
-			if externalData.UUID == "00000000-0000-0000-0000-000000000000" || externalData.UUID == "" {
-				if err := sendLocalDataToAPI(localData); err != nil {
-					log.Println("Error creating external data :", err)
+			if externalData.UUID == "" {
+				if err := sendLocalDataToAPICmdLineLivraison(localData); err != nil {
+					log.Println("Error creating external data:", err)
 				}
 			}
 	

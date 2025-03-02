@@ -47,17 +47,18 @@ export class CommandesLinesComponent implements OnInit {
 
   isLoading = false;
 
-  searchField = '';
-  clientList: IClient[] = [];
-  clientListFilter: IClient[] = [];
-  filteredOptionsClient: IClient[] = [];
-  totalItemsClient: number = 0;
-  pageSizeClient: number = 15;
-  pageIndexClient: number = 0;
-  lengthClient: number = 0;
-  @ViewChild('client_id') client_id!: ElementRef<HTMLInputElement>;
-  clientId!: string;
-  isloadClient = signal<boolean>(false);
+  // searchField = '';
+  // clientList: IClient[] = [];
+  // clientListFilter: IClient[] = [];
+  // filteredOptionsClient: IClient[] = [];
+  // totalItemsClient: number = 0;
+  // pageSizeClient: number = 15;
+  // pageIndexClient: number = 0;
+  // lengthClient: number = 0;
+
+  // @ViewChild('client_id') client_id!: ElementRef<HTMLInputElement>;
+  // clientId!: string;
+  // isloadClient = signal<boolean>(false);
   
 
   constructor(
@@ -69,7 +70,7 @@ export class CommandesLinesComponent implements OnInit {
     private commaneLineService: CommandeLineService,
     private idDataService: IdDataService,
     private pdfService: PdfService,
-    private clientService: ClientService,
+    // private clientService: ClientService,
     private caisseService: CaisseService,
     private toastr: ToastrService
   ) { }
@@ -77,7 +78,7 @@ export class CommandesLinesComponent implements OnInit {
   ngOnInit() {
     this.loadUserData = true;
     this.loading = true;
-    this.isloadClient.set(true);
+    // this.isloadClient.set(true);
     this.route.params.subscribe(routeParams => {
       this.commandeuuId = routeParams['uuid'];
       this.idDataService.changeId(this.commandeuuId);
@@ -135,32 +136,32 @@ export class CommandesLinesComponent implements OnInit {
   }
 
 
-  getAllClient(currentUser: IUser): void { 
-    const filterValue = this.client_id.nativeElement.value.toLowerCase();
-    this.clientService.getPaginatedEntreprise(currentUser.entreprise?.code!, this.pageIndexClient, this.pageSizeClient, this.searchField).subscribe((res) => {
-      this.clientList = res.data;
-      this.clientListFilter = this.clientList;
-      this.filteredOptionsClient = this.clientListFilter.filter(o => o.fullname.toLowerCase().includes(filterValue));
-      this.totalItemsClient = res.pagination.total_pages;
-      this.lengthClient = res.pagination.length;
-      this.isloadClient.set(false);
-    });
-  }
+  // getAllClient(currentUser: IUser): void { 
+  //   const filterValue = this.client_id.nativeElement.value.toLowerCase();
+  //   this.clientService.getPaginatedEntreprise(currentUser.entreprise?.code!, this.pageIndexClient, this.pageSizeClient, this.searchField).subscribe((res) => {
+  //     this.clientList = res.data;
+  //     this.clientListFilter = this.clientList;
+  //     this.filteredOptionsClient = this.clientListFilter.filter(o => o.fullname.toLowerCase().includes(filterValue));
+  //     this.totalItemsClient = res.pagination.total_pages;
+  //     this.lengthClient = res.pagination.length;
+  //     this.isloadClient.set(false);
+  //   });
+  // }
 
-  displayFnClient(client: any): any {
-    return client && client.fullname ? client.fullname : '';
-  }
+  // displayFnClient(client: any): any {
+  //   return client && client.fullname ? client.fullname : '';
+  // }
 
-  optionSelectedClient(event: MatAutocompleteSelectedEvent) {
-    const selectedOption = event.option.value;
-    this.clientId = selectedOption.ID;
-  }
+  // optionSelectedClient(event: MatAutocompleteSelectedEvent) {
+  //   const selectedOption = event.option.value;
+  //   this.clientId = selectedOption.ID;
+  // }
 
 
-  onChange(event: any) {
-    console.log("Submit", event.value)
-    // this.onSubmit();
-  }
+  // onChange(event: any) {
+  //   console.log("Submit", event.value)
+  //   // this.onSubmit();
+  // }
 
 
   // Plat
@@ -203,26 +204,6 @@ export class CommandesLinesComponent implements OnInit {
   }
 
 
-  onSubmit() {
-    try {
-      this.isLoading = true;
-      const body: ICommande = {
-        ncommande: this.commande.ncommande,
-        status: this.commande.status,
-        table_box_uuid: this.commande.table_box_uuid,
-        client_uuid: this.clientId,
-        signature: this.currentUser.fullname,
-        pos_uuid: this.currentUser.pos!.uuid!,
-        code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
-      };
-      this.commandeService.update(this.commande.uuid!, body).subscribe((res) => {
-        this.isLoading = false;
-        this.toastr.success('Client ajoutée avec succès!', 'Success!');
-      });
-    } catch (error) {
-      this.isLoading = false;
-      console.log(error);
-    }
-  }
+
 }
 

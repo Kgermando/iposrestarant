@@ -40,7 +40,7 @@
                             </div>
                             <div class="col-sm-8">
                                 <div class="d-flex align-items-center flex-wrap row-gap-2 justify-content-sm-end">
-                                    <div class="dropdown me-2">
+                                    <!-- <div class="dropdown me-2">
                                         <a href="javascript:void(0);" class="dropdown-toggle"
                                             data-bs-toggle="dropdown"><i
                                                 class="ti ti-package-export me-2"></i>Export</a>
@@ -59,7 +59,7 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> -->
                                     @if(currentUser.permission === 'ALL' ||
                                     currentUser.permission === 'AM' ||
                                     currentUser.permission === 'A') {
@@ -82,66 +82,67 @@
                             <div class="col-xxl-3 col-xl-4 col-md-6">
                                 <div class="card border">
                                     @if (isLoading) {
-                                        <div class="spinner-border text-center d-flex justify-content-center align-items-center" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
+                                    <div class="spinner-border text-center d-flex justify-content-center align-items-center"
+                                        role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
                                     }@else {
-                                        <div class="card-body">
-                                            <div
-                                                class="d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-3">
-                                                <div class="d-flex align-items-center">
+                                    <div class="card-body">
+
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap row-gap-2 mb-3"
+                                            [ngStyle]="{'background-color': item.status === 'Libre' ? 'rgba(0, 128, 0, 0.5)' : item.status === 'Occuper' ? 'rgba(255, 0, 0, 0.5)' : item.status === 'Reserver' ? 'rgba(255, 255, 0, 0.5)' : 'transparent'}">
+                                            <div class="d-flex align-items-center">
+                                                <a [routerLink]="['/web/table-box/commandes', item.uuid, 'table-view']"
+                                                    class="avatar avatar-lg border rounded flex-shrink-0 me-2">
+                                                    <img src="img/table.png" class="w-auto h-auto" alt="img" />
+                                                </a>
+                                                <div>
                                                     <a [routerLink]="['/web/table-box/commandes', item.uuid, 'table-view']"
-                                                        class="avatar avatar-lg border rounded flex-shrink-0 me-2">
-                                                        <img src="img/table.png"
-                                                            class="w-auto h-auto" alt="img" />
-                                                    </a>
-                                                    <div>
+                                                        class="fw-medium">
                                                         <h6>
-                                                            <a [routerLink]="['/web/table-box/commandes', item.uuid, 'table-view']"
-                                                                class="fw-medium">
-                                                                {{ item.name }}
-                                                            </a>
+                                                            {{ item.name }}
+                                                            <div class="set-star text-default">
+                                                                <i class="fa fa-star filled me-1"></i>
+                                                                {{ item.numero }}
+                                                            </div>
                                                         </h6>
-                                                        <div class="set-star text-default">
-                                                            <i class="fa fa-star filled me-1"></i> 
-                                                            {{ item.numero }}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="dropdown table-action">
-                                                    <a href="javascript:void(0);" class="action-icon"
-                                                        data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fa fa-ellipsis-v"></i>
                                                     </a>
-                                                    <div class="dropdown-menu dropdown-menu-right">
-                                                        <a class="dropdown-item" href="javascript:void(0);"
-                                                            data-bs-toggle="offcanvas" data-bs-target="#offcanvas_edit"
-                                                            (click)="findValue(item.uuid!)">
-                                                            <i class="ti ti-edit text-blue"></i> Edit</a>
-                                                        <a class="dropdown-item" href="javascript:void(0);"
-                                                            data-bs-toggle="modal" data-bs-target="#delete_contact"
-                                                            (click)="findValue(item.uuid!)">
-                                                            <i class="ti ti-trash text-danger"></i> Delete</a>
-                                                        <!-- <a class="dropdown-item" [routerLink]="routes.tableBoxList"><i
+                                                </div>
+                                            </div>
+                                            <div class="dropdown table-action">
+                                                <a href="javascript:void(0);" class="action-icon"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fa fa-ellipsis-v"></i>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item" href="javascript:void(0);"
+                                                        data-bs-toggle="offcanvas" data-bs-target="#offcanvas_edit"
+                                                        (click)="findValue(item.uuid!)">
+                                                        <i class="ti ti-edit text-blue"></i> Edit</a>
+                                                    <a class="dropdown-item" href="javascript:void(0);"
+                                                        data-bs-toggle="modal" data-bs-target="#delete_contact"
+                                                        (click)="findValue(item.uuid!)">
+                                                        <i class="ti ti-trash text-danger"></i> Delete</a>
+                                                    <!-- <a class="dropdown-item" [routerLink]="routes.tableBoxList"><i
                                                                     class="ti ti-eye text-blue-light"></i>
                                                                 Preview</a> -->
-                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="d-block"> 
-                                                <div class="d-flex align-items-center">
-                                                    @if (item.status == 'Libre') {
-                                                    <span class="badge badge-tag badge-success-light me-2">Libre</span>
-                                                    } @else if(item.status == 'Occuper') {
-                                                    <span class="badge badge-tag badge-danger-light me-2">Occuper</span>
-                                                    } @else if(item.status == 'Reserver') {
-                                                    <span class="badge badge-tag badge-warning-light">Reserver</span>
-                                                    }
-                                                </div>
+                                        </div>
+                                        <div class="d-block">
+                                            <div class="d-flex align-items-center">
+                                                @if (item.status == 'Libre') {
+                                                <span class="badge badge-tag badge-success-light me-2">Libre</span>
+                                                } @else if(item.status == 'Occuper') {
+                                                <span class="badge badge-tag badge-danger-light me-2">Occuper</span>
+                                                } @else if(item.status == 'Reserver') {
+                                                <span class="badge badge-tag badge-warning-light">Reserver</span>
+                                                }
                                             </div>
-                                            <div
-                                                class="d-flex justify-content-between align-items-center flex-wrap row-gap-2 border-top pt-3 mt-3">
-                                                <!-- <div class="avatar-list-stacked avatar-group-xs">
+                                        </div>
+                                        <div
+                                            class="d-flex justify-content-between align-items-center flex-wrap row-gap-2 border-top pt-3 mt-3">
+                                            <!-- <div class="avatar-list-stacked avatar-group-xs">
                                                     <span class="avatar border-0">
                                                         <img src="assets/img/profiles/avatar-01.jpg" class="rounded-circle"
                                                             alt="img" />
@@ -159,13 +160,12 @@
                                                             alt="img" />
                                                     </span>
                                                 </div> -->
-                                                <div class="d-flex align-items-center grid-social-links">
-                                                    <app-table-total-cmd [code]="currentUser.entreprise?.code!"
-                                                    [table_box_uuid]="item.uuid!"
-                                                    ></app-table-total-cmd>
-                                                </div>
+                                            <div class="d-flex align-items-center grid-social-links">
+                                                <app-table-total-cmd [code]="currentUser.entreprise?.code!"
+                                                    [table_box_uuid]="item.uuid!"></app-table-total-cmd>
                                             </div>
                                         </div>
+                                    </div>
                                     }
                                 </div>
                             </div>

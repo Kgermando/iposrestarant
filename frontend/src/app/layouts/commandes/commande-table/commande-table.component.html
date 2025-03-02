@@ -116,13 +116,14 @@
                                                                             'bg-success': (element.status != 'Créance' && element.status != 'En cours') ? element.status : '',
                                                                             'bg-blue': (element.status === 'En cours') ? 'En cours' : ''
                                                                         }">
-                                            @if (element.status === 'Créance') {
+                                            <!-- @if (element.status === 'Créance') {
                                                 {{ element.status }}
                                             } @else if (element.status != 'Créance' && element.status != 'En cours') {
                                             {{ element.status }}
                                             } @else if (element.status === 'En cours') {
                                                 {{ element.status }}
-                                            }
+                                            } -->
+                                            {{ element.status }}
                                         </span>
                                     </td>
                                 </ng-container>

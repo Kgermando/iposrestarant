@@ -59,17 +59,16 @@ func SyncDataWithAPI(entrepriseUUID string) {
 	if len(localDataList) > 0  {
 		for _, localData := range localDataList {
 			// Check if the local data is newer than the external data
-				externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
-				if err != nil {
-					log.Println("Error external data :", err)
-					// continue
+			externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
+			if err != nil {
+				log.Println("Error fetching external data:", err)
+				continue
+			}
+			if externalData.UUID == "" {
+				if err := sendLocalDataToAPI(localData); err != nil {
+					log.Println("Error creating external data:", err)
 				}
-	
-				if externalData.UUID == "00000000-0000-0000-0000-000000000000" || externalData.UUID == "" {
-					if err := sendLocalDataToAPI(localData); err != nil {
-						log.Println("Error creating external data :", err)
-					}
-				}
+			}
 	
 			if !isEqual(localData, externalData) {
 				// Si l'utilisateur local est plus récent que l'utilisateur externe, mettez à jour l'utilisateur externe

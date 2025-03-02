@@ -3,7 +3,7 @@ package models
 import "time"
 
 type PasswordReset struct {
-	Id             uint      `json:"-"`
+	UUID          string      `json:"-"`
 	Email          string    `json:"email" validate:"required,email"`
 	Token          string    `json:"-"`
 	ExpirationTime time.Time `json:"-"`

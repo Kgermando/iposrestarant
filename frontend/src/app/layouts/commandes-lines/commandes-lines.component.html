@@ -95,25 +95,6 @@
     <div class="offcanvas-header border-bottom justify-content-between">
         <h4>Facture <span class="text-purple ms-2">#{{ commande.ncommande }}</span></h4>
         <div class="d-flex align-items-center">
-            <div class="toggle-header-popup">
-                <div class="mb-3">
-                    <input #client_id type="text" matInput [matAutocomplete]="auto1" placeholder="Ajouter le Client"
-                        class="form-control" (input)="getAllClient(currentUser)" (focus)="getAllClient(currentUser)"
-                        (change)="onChange($event)">
-                    @if (isloadClient()) {
-                    <div class="d-flex align-items-center">
-                        <strong role="status">Loading...</strong>
-                        <div class="spinner-border ms-auto" aria-hidden="true"></div>
-                    </div>
-                    }
-                    <mat-autocomplete requireSelection1 #auto1="matAutocomplete"
-                        (optionSelected)="optionSelectedClient($event)" [displayWith]="displayFnClient">
-                        @for (item of filteredOptionsClient; track item.ID) {
-                        <mat-option [value]="item"> {{item.fullname}} </mat-option>
-                        }
-                    </mat-autocomplete>
-                </div>
-            </div>
             <button type="button"
                 class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center justify-content-center rounded-circle"
                 data-bs-dismiss="offcanvas" aria-label="Close">

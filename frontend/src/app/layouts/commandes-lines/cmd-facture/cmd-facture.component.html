@@ -16,7 +16,7 @@
           <th>P.U.</th>
           <th>TVA</th>
           <th>Total</th>
-          @if (commande.status !== 'Cash'){
+          @if  (commande.status == 'Créance' || commande.status == 'En cours') {
           <th> <i class="ti ti-trash"></i> </th>
           }
         </tr>
@@ -46,14 +46,14 @@
           <td>
             {{ formatCurrency(item.quantity * item.Plat!.prix_vente, currentUser.currency) }}
           </td>
-          @if (commande.status !== 'Cash'){
+          @if  (commande.status == 'Créance' || commande.status == 'En cours') {
           <td>
-            <button type="button" (click)="restitutionBtn(item.ID!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
+            <button type="button" (click)="restitutionBtn(item.uuid!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
                         justify-content-center rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close">
               <i class="ti ti-x"></i>
             </button>
           </td>
-          }
+          }`
 
         </tr>
         }@else if (item.Product!.uuid! !== "00000000-0000-0000-0000-000000000000") {
@@ -79,9 +79,9 @@
           <td>
             {{ formatCurrency(item.quantity * item.Product!.prix_vente, currentUser.currency) }}
           </td>
-          @if (commande.status !== 'Cash') {
+          @if  (commande.status == 'Créance' || commande.status == 'En cours') {
           <td>
-            <button type="button" (click)="restitutionBtn(item.ID!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
+            <button type="button" (click)="restitutionBtn(item.uuid!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
                       justify-content-center rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close">
               <i class="ti ti-x"></i>
             </button>
@@ -122,66 +122,63 @@
   </div>
 </div>
 
+  @if  (commande.status == 'Créance' || commande.status == 'En cours') {
+  <div class="toggle-header-popup mt-5">
+    <div class="mb-3">
+        <input #client_id type="text" matInput [matAutocomplete]="auto1" placeholder="Ajouter le Client"
+            class="form-control" (input)="getAllClient(currentUser)" (focus)="getAllClient(currentUser)"
+            (change)="onChange($event)"> 
+        <mat-autocomplete requireSelection1 #auto1="matAutocomplete"
+            (optionSelected)="optionSelectedClient($event)" [displayWith]="displayFnClient">
+            @for (item of filteredOptionsClient; track item.ID) {
+            <mat-option [value]="item"> {{item.fullname}} </mat-option>
+            }
+        </mat-autocomplete>
+        @if (isloadClient) {
+          <div class="d-flex align-items-center">
+              <strong role="status">Loading...</strong>
+              <div class="spinner-border ms-auto" aria-hidden="true"></div>
+          </div>
+          }
+    </div>
+  </div>
+  
 
-<div class="button-container mt-5">
-  <!-- @for (item of selectCaisseList; track $index) {
-    <button class="button btn btn-success btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Cash')"
-      data-bs-dismiss="offcanvas">
-      {{ item.name }}
-    </button>
-  } -->
-  <div class="dropdown full-width-50">
-    <button class="button btn btn-success btn-w-lg me-0 rounded-pill dropdown-toggle" type="button" id="dropdownMenuButton"
-      data-bs-toggle="dropdown" aria-expanded="false">
+  <div class="button-container mt-5">
+   
+    <button class="button btn btn-success btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
+      id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
       Sélectionner le Paiement
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
-        <li>
-          <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.uuid!)">
-            {{ item.name }}
-          </a>
-        </li>
+      <li>
+        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.uuid!)">
+          {{ item.name }}
+        </a>
+      </li>
       }
     </ul>
-  </div>
-  <div class="dropdown full-width-50">
-    <button class="button btn btn-warning  btn-w-lg me-0 rounded-pill dropdown-toggle" type="button" id="dropdownMenuButton"
-      data-bs-toggle="dropdown" aria-expanded="false">
+    <button class="button btn btn-warning  btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
+      id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
       Paiement par Créance
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       @for (item of selectCaisseList; track item.ID!) {
-        <li>
-          <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.uuid!)">
-            {{ item.name }}
-          </a>
-        </li>
+      <li>
+        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.uuid!)">
+          {{ item.name }}
+        </a>
+      </li>
       }
     </ul>
+    <button class="button btn btn-outline-danger btn-w-lg me-0 
+            rounded-pill full-width" data-bs-toggle="modal" data-bs-target="#delete_commande">
+      Annuler
+    </button>
   </div>
-  <!-- <button class="button btn btn-warning btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Créance', item.uuid!)"
-    data-bs-dismiss="offcanvas">
-    Créance
-  </button> -->
-  <!-- <button class="button btn btn-success btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Cash')"
-    data-bs-dismiss="offcanvas">
-    Cash
-  </button> -->
- 
-  <!-- <button class="button btn btn-outline-warning btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Créance')"
-    data-bs-dismiss="offcanvas">
-    Print Créance
-  </button>
-  <button class="button btn btn-outline-success btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Cash')"
-    data-bs-dismiss="offcanvas">
-    Print Cash
-  </button> -->
-  <button class="button btn btn-outline-danger btn-w-lg me-0 
-          rounded-pill full-width" data-bs-toggle="modal" data-bs-target="#delete_commande">
-    Annuler
-  </button>
-</div>
+}
+
 
 <!-- Delete data item -->
 <div class="modal fade" id="delete_commande" role="dialog">
@@ -197,7 +194,7 @@
           <div class="d-flex align-items-center justify-content-center mt-4">
             <a href="javascript:void(0);" class="btn btn-light me-2" data-bs-dismiss="modal">Annuler</a>
             <button (click)="delete()" class="btn btn-danger" data-bs-dismiss="modal">
-              Yes, Delete it
+              Oui, Supprimez le !
             </button>
           </div>
         </div>

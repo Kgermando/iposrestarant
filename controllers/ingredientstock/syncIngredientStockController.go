@@ -54,13 +54,12 @@ func SyncDataWithAPI(ingredient_id string) {
 			// Check if the local data is newer than the external data
 			externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
 			if err != nil {
-				log.Println("Error external data :", err)
-				// continue
+				log.Println("Error fetching external data:", err)
+				continue
 			}
-
-			if externalData.UUID == "00000000-0000-0000-0000-000000000000" || externalData.UUID == "" {
+			if externalData.UUID == "" {
 				if err := sendLocalDataToAPI(localData); err != nil {
-					log.Println("Error creating external data :", err)
+					log.Println("Error creating external data:", err)
 				}
 			}
 	

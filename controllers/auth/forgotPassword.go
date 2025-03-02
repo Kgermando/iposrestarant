@@ -83,7 +83,7 @@ func ResetPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	if rp.Id == 0 {
+	if rp.UUID == "00000000-0000-0000-0000-000000000000" {
 		c.Status(400)
 		return c.JSON(fiber.Map{
 			"message": "invalid token",

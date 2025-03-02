@@ -55,13 +55,12 @@ func SyncDataWithAPI(entrepriseUUID string) {
 			// Check if the local user is newer than the external user
 			externalData, err := fetchExternalDataItemFromAPI(localData.UUID)
 			if err != nil {
-				log.Println("Error external data :", err)
-				// continue
+				log.Println("Error fetching external data:", err)
+				continue
 			}
-	
 			if externalData.UUID == "" {
 				if err := sendLocalDataToAPI(localData); err != nil {
-					log.Println("Error creating external data :", err)
+					log.Println("Error creating external data:", err)
 				}
 			}
 	

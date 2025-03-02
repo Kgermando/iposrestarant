@@ -63,7 +63,7 @@ export class DataService {
       separateRoute: false,
       menu: [ 
         {
-          menuValue: 'Caisse',
+          menuValue: 'Caisses',
           icon: 'receipt',
           base: 'finances',
           hasSubRoute: false,
@@ -200,7 +200,7 @@ export class DataService {
       separateRoute: false,
       menu: [ 
         {
-          menuValue: 'Caisse',
+          menuValue: 'Caisses',
           icon: 'receipt',
           base: 'finances',
           hasSubRoute: false,
@@ -395,7 +395,7 @@ export class DataService {
       separateRoute: false,
       menu: [ 
         {
-          menuValue: 'Caisse',
+          menuValue: 'Caisses',
           icon: 'receipt',
           base: 'finances',
           hasSubRoute: false,
@@ -569,7 +569,7 @@ export class DataService {
       separateRoute: false,
       menu: [ 
         {
-          menuValue: 'Caisse',
+          menuValue: 'Caisses',
           icon: 'receipt',
           base: 'finances',
           hasSubRoute: false,
