@@ -2,6 +2,7 @@ import { HttpClient, HttpEvent, HttpEventType, HttpHeaders, HttpParams } from '@
 import { Injectable } from '@angular/core';
 import { map, Observable, Subject, tap } from 'rxjs'; 
 import { ApiResponse } from '../model/api-response.model';
+import saveAs from 'file-saver';
 
 @Injectable({
   providedIn: 'root'
@@ -233,5 +234,25 @@ export abstract class ApiService {
         this._refreshData$.next();
       })
     );
+  }
+
+  downloadInvoice() {
+    this.http.get(`${this.endpoint}/invoice`, { responseType: 'blob' }).subscribe({
+      next: (response) => {
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const newWindow = window.open(url);
+        if (newWindow) {
+          newWindow.onload = () => {
+            newWindow.print();
+          };
+        } else {
+          console.error('Erreur lors de l\'ouverture de la nouvelle fenêtre.');
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors du téléchargement de la facture :', err);
+      }
+    });
   }
 }

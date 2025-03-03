@@ -18,6 +18,7 @@ import (
 	"iposrestaurant/controllers/livreur"
 	"iposrestaurant/controllers/plat"
 	"iposrestaurant/controllers/pos"
+	"iposrestaurant/controllers/printer"
 	"iposrestaurant/controllers/product"
 	"iposrestaurant/controllers/stock"
 	"iposrestaurant/controllers/tablebox"
@@ -299,4 +300,9 @@ func Setup(app *fiber.App) {
 	dash.Get("/:code_entreprise/cl-fseur-liv/courbe-areas", dashboard.GetCourbeZoneLivraison)
 	dash.Get("/:code_entreprise/cl-fseur-liv/best-clients", dashboard.GetClientsWithMostDeliveries)
 	dash.Get("/:code_entreprise/cl-fseur-liv/best-fournisseurs", dashboard.GetTop10FournisseursWithMostStockValue)
+
+
+	// Printer
+	print := api.Group("/invoice")
+	print.Get("", printer.CreatePrint)
 }

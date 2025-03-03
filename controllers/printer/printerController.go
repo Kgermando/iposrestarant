@@ -1,55 +1,72 @@
 package printer
 
-// import (
-//     "fmt"
-//     "github.com/gofiber/fiber/v2"
-//     "github.com/kenshaw/escpos"
-//     "github.com/kenshaw/escpos/driver"
-// )
+import (
+	"fmt"
+	"iposrestaurant/models"
 
-// type PrintRequest struct {
-//     Header  string `json:"header"`
-//     Items   []Item `json:"items"`
-//     Footer  string `json:"footer"`
-// }
+	"github.com/gofiber/fiber/v2"
+	"github.com/jung-kurt/gofpdf"
+)
 
-// type Item struct {
-//     Name     string  `json:"name"`
-//     Quantity int     `json:"quantity"`
-//     Price    float64 `json:"price"`
-// }
+func generateInvoice(dataList []models.Printer) *gofpdf.Fpdf {
+	pdf := gofpdf.New("P", "mm", "80mm", "") // Définir la largeur à 80mm
+	pdf.AddPage()
+	pdf.SetFont("Arial", "B", 12)
+	pdf.Cell(80, 10, "Facture de consommation")
+	pdf.Ln(10)
 
-// func formatReceipt(req PrintRequest) string {
-//     receipt := fmt.Sprintf("%s\n\n", req.Header)
-//     receipt += "--------------------------------\n"
-//     for _, item := range req.Items {
-//         receipt += fmt.Sprintf("%-20s %3d x %6.2f\n", item.Name, item.Quantity, item.Price)
-//     }
-//     receipt += "--------------------------------\n"
-//     receipt += fmt.Sprintf("%s\n", req.Footer)
-//     return receipt
-// }
+	pdf.SetFont("Arial", "", 10)
 
-// func printHandler(c *fiber.Ctx) error {
-//     var req PrintRequest
-//     if err := c.BodyParser(&req); err != nil {
-//         return c.Status(fiber.StatusBadRequest).SendString("Invalid request")
-//     }
+	// En-têtes de tableau
+	pdf.CellFormat(40, 10, "Nom", "1", 0, "C", false, 0, "")
+	pdf.CellFormat(20, 10, "Prix Unitaire", "1", 0, "C", false, 0, "")
+	pdf.CellFormat(10, 10, "Qté", "1", 0, "C", false, 0, "")
+	pdf.CellFormat(10, 10, "Total", "1", 1, "C", false, 0, "")
 
-//     // Connect to the printer
-//     p, err := escpos.New(driver.NewUSB())
-//     if err != nil {
-//         return c.Status(fiber.StatusInternalServerError).SendString("Failed to connect to printer")
-//     }
-//     defer p.Close()
+	var subTotal float64
+	for _, item := range dataList {
+		pdf.CellFormat(40, 10, item.Name, "1", 0, "", false, 0, "")
+		pdf.CellFormat(20, 10, fmt.Sprintf("%.2f", item.UnitPrice), "1", 0, "R", false, 0, "")
+		pdf.CellFormat(10, 10, fmt.Sprintf("%d", item.Quantity), "1", 0, "R", false, 0, "")
+		pdf.CellFormat(10, 10, fmt.Sprintf("%.2f", item.Total), "1", 1, "R", false, 0, "")
+		subTotal += item.Total
+	}
 
-//     // Format the receipt content
-//     receiptContent := formatReceipt(req)
+	// Calculer la TVA et le total
+	tva := subTotal * 0.16
+	total := subTotal + tva
 
-//     // Print the content
-//     p.Write([]byte(receiptContent))
-//     p.Formfeed()
-//     p.Cut()
+	pdf.Ln(5)
+	pdf.CellFormat(60, 10, "Sous-total", "1", 0, "R", false, 0, "")
+	pdf.CellFormat(20, 10, fmt.Sprintf("%.2f", subTotal), "1", 1, "R", false, 0, "")
+	pdf.CellFormat(60, 10, "TVA (16%)", "1", 0, "R", false, 0, "")
+	pdf.CellFormat(20, 10, fmt.Sprintf("%.2f", tva), "1", 1, "R", false, 0, "")
+	pdf.CellFormat(60, 10, "Total", "1", 0, "R", false, 0, "")
+	pdf.CellFormat(20, 10, fmt.Sprintf("%.2f", total), "1", 1, "R", false, 0, "")
 
-//     return c.SendString("Printed successfully")
-// }
+	return pdf
+}
+
+// Create data
+func CreatePrint(c *fiber.Ctx) error {
+
+	items := []models.Printer{
+		{Name: "Article 1", UnitPrice: 10.0, Quantity: 2, Total: 20.0},
+		{Name: "Article 2", UnitPrice: 5.0, Quantity: 3, Total: 15.0},
+		{Name: "Article 3", UnitPrice: 7.0, Quantity: 1, Total: 7.0},
+	}
+	pdf := generateInvoice(items)
+
+	err := pdf.OutputFileAndClose("facture.pdf")
+	if err != nil {
+		return c.Status(500).SendString("Erreur lors de la génération de la facture")
+	}
+
+	return c.JSON(
+		fiber.Map{
+			"status":  "success",
+			"message": "product created success",
+			"data":    pdf,
+		},
+	)
+}

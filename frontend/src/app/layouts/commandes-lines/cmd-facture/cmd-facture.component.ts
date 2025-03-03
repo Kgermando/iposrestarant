@@ -97,6 +97,7 @@ export class CmdFactureComponent implements OnInit {
   ngOnInit() {
     this.isloadClient = true;
     this.getAllClient(this.currentUser);
+    this.isloadClient = false;
   }
 
 
@@ -235,5 +236,7 @@ export class CmdFactureComponent implements OnInit {
   }
 
 
+
+  
 
 } 

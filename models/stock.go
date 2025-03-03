@@ -9,7 +9,7 @@ import (
 type Stock struct {
 	gorm.Model
 
-	UUID            string      `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID            string      `gorm:"not null;unique" json:"uuid"`
 	PosUUID         string      `json:"pos_uuid"`
 	Pos             Pos         `gorm:"foreignKey:PosUUID"`                     // Added foreign key for Product ID
 	ProductUUID     string      `json:"product_uuid"`                           // Added foreign key for Product Uuid

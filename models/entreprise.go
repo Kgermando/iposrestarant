@@ -9,7 +9,7 @@ import (
 type Entreprise struct {
 	gorm.Model
 
-	UUID           string    `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string    `gorm:"not null;unique" json:"uuid"`
 	TypeEntreprise string    `gorm:"not null" json:"type_entreprise"` // PME, GE, Particulier
 	Name           string    `gorm:"not null" json:"name"`
 	Code           string    `gorm:"not null" json:"code"` // Code entreprise

@@ -7,7 +7,7 @@ import (
 type Product struct {
 	gorm.Model
 
-	UUID           string         `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string         `gorm:"not null;unique" json:"uuid"`
 	Reference      string         `gorm:"not null" json:"reference"`
 	Name           string         `gorm:"not null" json:"name"`
 	Description    string         `gorm:"not null" json:"description"`

@@ -242,7 +242,7 @@ export class CaisseItemComponent implements OnInit {
           caisse_uuid: this.caisse_uuid,
           type_transaction: 'FondDeCaisse', // this.formGroup.value.type_transaction,
           montant: parseFloat(this.formGroup.value.montant),
-          libelle: this.formGroup.value.libelle,
+          libelle: "Fond de caisse",
           reference: code.toString(),
           signature: this.currentUser.fullname,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
@@ -250,6 +250,7 @@ export class CaisseItemComponent implements OnInit {
         this.caisseItemService.create(body).subscribe((res) => {
           this.isLoading = false;
           this.formGroup.reset();
+          this.getStat();
           this.toastr.success(`Transaction ${res.data.type_transaction} ajoutée avec succès!`, 'Success!');
         });
       }

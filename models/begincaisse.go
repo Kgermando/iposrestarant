@@ -7,7 +7,7 @@ import (
 type BeginCaisse struct {
 	gorm.Model
 
-	UUID           string  `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string  `gorm:"not null;unique" json:"uuid"`
 	CaisseUUID     string  `json:"caisse_uuid"`
 	Caisse         Caisse  `gorm:"foreignKey:CaisseUUID;references:UUID"`
 	Libelle        string  `gorm:"type:varchar(100);not null" json:"libelle"`

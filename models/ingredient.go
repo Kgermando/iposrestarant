@@ -7,7 +7,7 @@ import (
 type Ingredient struct {
 	gorm.Model
 
-	UUID           string        `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string        `gorm:"not null;unique" json:"uuid"`
 	Name           string        `gorm:"not null" json:"name"`
 	Description    string        `json:"description"`
 	Unite          string        `gorm:"not null" json:"unite"`

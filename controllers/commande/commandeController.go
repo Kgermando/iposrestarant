@@ -140,7 +140,9 @@ func GetAllCommandes(c *fiber.Ctx) error {
 	posuuId := c.Params("pos_uuid")
 
 	// Sync data with API
-	go SyncDataWithAPI(codeEntreprise, posuuId)
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(codeEntreprise, posuuId)
+	}
 
 	var data []models.Commande
 	db.Where("code_entreprise = ?", codeEntreprise).

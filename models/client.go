@@ -7,7 +7,7 @@ import (
 type Client struct {
 	gorm.Model
 
-	UUID           string `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string `gorm:"not null;unique" json:"uuid"`
 	Fullname       string `gorm:"not null" json:"fullname"`
 	Email          string `gorm:"unique; not null" json:"email"`
 	Telephone      string `gorm:"unique; not null" json:"telephone"`

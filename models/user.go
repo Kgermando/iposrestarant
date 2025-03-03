@@ -8,7 +8,7 @@ import (
 )
 
 type User struct {
-	// ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	// ID        uuid.UUID `gorm:"primaryKey;default:uuid_generate_v4()"`
 
 	gorm.Model
 

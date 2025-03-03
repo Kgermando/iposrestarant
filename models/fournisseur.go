@@ -7,7 +7,7 @@ import (
 type Fournisseur struct {
 	gorm.Model
 
-	UUID           string  `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string  `gorm:"not null;unique" json:"uuid"`
 	Name           string  `gorm:"not null" json:"name"`
 	Telephone      string  `json:"telephone"`
 	Email          string  `json:"email"`

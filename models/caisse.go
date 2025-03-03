@@ -7,7 +7,7 @@ import (
 type Caisse struct {
 	gorm.Model
 
-	UUID           string       `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string       `gorm:"not null;unique" json:"uuid"`
 	Name           string       `gorm:"not null" json:"name"`                  // Nom de la caisse
 	Signature      string       `json:"signature"`                             // Signature de la transaction
 	PosUUID        string       `json:"pos_uuid"`                              // ID du point de vente

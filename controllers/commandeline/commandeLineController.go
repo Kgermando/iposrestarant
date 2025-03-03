@@ -90,6 +90,11 @@ func GetAllCommandeLineById(c *fiber.Ctx) error {
 	db := database.DB
 	commandeUUID := c.Params("commande_uuid")
 
+	// Sync data with API
+	if utils.IsInternetAvailable() {
+		go SyncDataWithAPI(commandeUUID)
+	}
+
 	var dataList []models.CommandeLine
 	db.Where("commande_lines.commande_uuid = ?", commandeUUID).
 		Order("commande_lines.updated_at DESC").
@@ -144,12 +149,17 @@ func GetAllCommandeLines(c *fiber.Ctx) error {
 func GetTotalCommandeLine(c *fiber.Ctx) error {
 	db := database.DB
 	productuuId := c.Params("product_uuid")
+	platuuId := c.Params("plat_uuid")
 
 	// var data []models.CommandeLine
 	var totalQty int64
 
 	if productuuId != "00000000-0000-0000-0000-000000000000" {
-		db.Model(&models.CommandeLine{}).Where("product_id = ?", productuuId).Select("SUM(quantity)").Scan(&totalQty)
+		db.Model(&models.CommandeLine{}).Where("product_uuid = ?", productuuId).Select("SUM(quantity)").Scan(&totalQty)
+	}
+
+	if platuuId != "00000000-0000-0000-0000-000000000000" {
+		db.Model(&models.CommandeLine{}).Where("plat_uuid = ?", platuuId).Select("SUM(quantity)").Scan(&totalQty)
 	}
 
 	return c.JSON(fiber.Map{

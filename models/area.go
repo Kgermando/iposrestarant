@@ -7,7 +7,7 @@ import (
 type Area struct {
 	gorm.Model
 
-	UUID           string      `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string      `gorm:"not null;unique" json:"uuid"`
 	Name           string      `gorm:"not null" json:"name"`
 	Province       string      `gorm:"not null" json:"province"`
 	Signature      string      `json:"signature"`

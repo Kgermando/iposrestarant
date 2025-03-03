@@ -86,13 +86,29 @@
                     @if(currentUser.permission === 'ALL' ||
                     currentUser.permission === 'AM' ||
                     currentUser.permission === 'A') {
-                    <a href="javascript:void(0);" class="btn btn-primary btn-added" data-bs-toggle="offcanvas"
-                        data-bs-target="#offcanvas_add">
-                        <span class="me-1 d-flex align-items-center">
-                            <i class="feather icon-upload feather-16"></i>
-                        </span>
-                        Ajouter une sortie
-                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="me-1 d-flex align-items-center"> 
+                                <i class="feather icon-upload feather-16 text-white"></i>
+                            </span>
+                            <span class="me-2"></span> 
+                            Opérations
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li>
+                                <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="offcanvas" 
+                                    data-bs-target="#offcanvas_add">
+                                    Ajouter une sortie
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="offcanvas" 
+                                        data-bs-target="#offcanvas_FondDeCaisse">
+                                    Ajouter fond de caisse
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     }
                     }
                 </div>
@@ -261,6 +277,55 @@
                                         class="text-danger">*</span></label>
                             </div>
                             <input type="text" class="form-control" formControlName="libelle" required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-end">
+                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Cancel</button>
+                @if (isLoading) {
+                <button disabled class="btn btn-primary">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </button>
+                }
+                @if (!isLoading) {
+                <button type="submit" class="btn btn-primary" data-bs-dismiss="offcanvas"
+                    data-bs-target="#create_success">Soumettre</button>
+                }
+            </div>
+        </form>
+    </div>
+
+</div>
+<!-- /Add data form -->
+
+<!-- Add data form -->
+<div class="offcanvas offcanvas-end offcanvas-large" tabindex="-1" id="offcanvas_FondDeCaisse">
+
+    <div class="offcanvas-header border-bottom">
+        <h4>Entrer un fond de caisse</h4>
+        <button type="button"
+            class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center justify-content-center rounded-circle"
+            data-bs-dismiss="offcanvas" aria-label="Close">
+            <i class="ti ti-x"></i>
+        </button>
+    </div>
+    <div class="offcanvas-body">
+        <form [formGroup]="formGroup" (ngSubmit)="onSubmitFondDeCaisse()">
+            <div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <label class="col-form-label" for="montant">Montant <span
+                                        class="text-danger">*</span></label>
+                            </div>
+                            <input type="text" class="form-control" formControlName="montant" required />
+                            <mat-error *ngIf="formGroup.controls['montant'].hasError('required')">
+                                Ce champs est obligatoire
+                            </mat-error>
                         </div>
                     </div>
                 </div>

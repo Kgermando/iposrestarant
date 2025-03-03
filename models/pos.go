@@ -7,7 +7,7 @@ import (
 type Pos struct {
 	gorm.Model
 
-	UUID           string     `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string     `gorm:"not null;unique" json:"uuid"`
 	EntrepriseUUID string     `json:"entreprise_uuid"`
 	Entreprise     Entreprise `gorm:"foreignKey:EntrepriseUUID;references:UUID"`
 	Name           string     `gorm:"not null" json:"name"`

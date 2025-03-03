@@ -7,7 +7,7 @@ import (
 type Livraison struct {
 	gorm.Model
 
-	UUID           string         `gorm:"type:uuid;not null;unique" json:"uuid"`
+	UUID           string         `gorm:"not null;unique" json:"uuid"`
 	OperatorName   string         `gorm:"not null" json:"operator_name"`
 	AreaUUID       string         `json:"area_uuid"`
 	Area           Area           `gorm:"foreignkey:AreaUUID;references:UUID"`
