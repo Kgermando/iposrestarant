@@ -11,7 +11,7 @@ export class CommandeLineService extends ApiService {
 
 
   getAllByIdLivraison(livraison_uuid: string): Observable<any> {
-    return this.http.get(`${this.endpoint}/all/livraison/${livraison_uuid}`);
+    return this.http.get(`${this.endpoint}/all/livraison/${livraison_uuid}`); 
   }
   
 } 

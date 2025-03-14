@@ -22,7 +22,7 @@ export class LivFactureComponent {
   @Input() commandeLineList: ICommandeLine[] = [];
   @Input() selectCaisseList: ICaisse[] = [];
   isLoading = false;
-  
+
 
   constructor(private router: Router,
     private currencyPipe: CurrencyPipe,
@@ -74,7 +74,7 @@ export class LivFactureComponent {
   formatCurrency(price: number, currency: string): string {
     return this.currencyPipe.transform(price, currency, 'symbol', '1.2-2', 'fr-FR') || '';
   }
- 
+
 
   onSubmitFacture(status: string, caisse_uuid: string) {
     try {

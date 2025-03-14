@@ -113,7 +113,7 @@ func GetAllCommandeLineById(c *fiber.Ctx) error {
 func GetAllCommandeLineByIdLivraison(c *fiber.Ctx) error { 
 	db := database.DB
 	livraisonUUID := c.Params("livraison_uuid")
- 
+	
 	// Sync data with API
 	if utils.IsInternetAvailable() {
 		go SyncDataWithAPICmdLineLivraison(livraisonUUID)
@@ -126,6 +126,7 @@ func GetAllCommandeLineByIdLivraison(c *fiber.Ctx) error {
 		Preload("Product").
 		Preload("Plat").
 		Find(&dataList)
+
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All commande lines",

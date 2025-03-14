@@ -17,5 +17,4 @@ export interface ICommandeLine {
     Commande?: ICommande;
     Product?: IProduct;
     Plat?: IPlat;
-
 }

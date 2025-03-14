@@ -49,7 +49,7 @@
                                         </thead>
                                         <tbody>
                                             @for (item of commandeLineList; track item.ID) {
-                                            @if (item.Plat!.uuid! != "00000000-0000-0000-0000-000000000000") { 
+                                            @if (item.plat_uuid != "00000000-0000-0000-0000-000000000000") { 
                                             <tr>
                                               <td>
                                                 {{ item.Plat!.name }}
@@ -73,8 +73,8 @@
                                                 {{ formatCurrency(item.quantity * item.Plat!.prix_vente, currentUser.currency) }}
                                               </td>
                                             </tr>
-                                            }@else if (item.Product!.uuid! != "00000000-0000-0000-0000-000000000000") {
-                                            <tr>
+                                            }@else if (item.product_uuid != "00000000-0000-0000-0000-000000000000") {
+                                            <tr> 
                                               <td>
                                                 {{ item.Product!.name }}
                                               </td>

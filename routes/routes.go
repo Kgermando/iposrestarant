@@ -169,7 +169,7 @@ func Setup(app *fiber.App) {
 	cmdl := api.Group("/commandes-lines")
 	cmdl.Get("/all", commandeline.GetAllCommandeLines)
 	cmdl.Get("/all/:commande_uuid", commandeline.GetAllCommandeLineById)
-	cmdl.Get("/all/livraison/:livraison_id", commandeline.GetAllCommandeLineByIdLivraison)
+	cmdl.Get("/all/livraison/:livraison_uuid", commandeline.GetAllCommandeLineByIdLivraison)
 	cmdl.Get("/all/paginate/:commande_uuid", commandeline.GetPaginatedCommandeLineByID)
 	cmdl.Get("/all/total/:product_uuid", commandeline.GetTotalCommandeLine) 
 	cmdl.Get("/get/:uuid", commandeline.GetCommandeLine)
