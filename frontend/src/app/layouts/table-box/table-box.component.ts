@@ -33,8 +33,6 @@ export class TableBoxComponent implements OnInit {
   uuidItem!: string; // Single data
   dataItem!: ITableBox; // Single data 
 
-
-
   formGroup!: FormGroup;
   currentUser!: IUser;
   isLoading = false;
@@ -173,14 +171,14 @@ export class TableBoxComponent implements OnInit {
     });
   }
 
-
   delete(): void {
+    console.log("this.uuidItem", this.uuidItem)
     this.isLoading = true;
     this.tableBoxService.delete(this.uuidItem).subscribe(() => {
       this.formGroup.reset();
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;
-    });
+    }); 
   }
 
 }

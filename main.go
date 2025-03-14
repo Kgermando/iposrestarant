@@ -107,28 +107,18 @@ func downloadFile(url, fileName string) error {
 }
 
 func main() {
-
-	// Vérifier si une connexion Internet est disponible
-	// if isInternetAvailable() {
-	// 	// Vérifier les mises à jour logicielles
-	// 	CheckAndDownloadUpdates()
-	// }
-
-	// Create an instance of the app structure
-	app := NewApp()
-
 	database.Connect()
 
 	if isInternetAvailable() {
 		database.PGConnect()
-	}
+	} 
 
 	// Initialize Fiber
 	fiberApp := fiber.New()
 
 	// Middleware
 	fiberApp.Use(cors.New(cors.Config{
-		AllowOrigins:     "*", // "http://localhost:4300, https://i-pos-restaurant-api.up.railway.app",
+		AllowOrigins:     "*",
 		AllowHeaders:     "Origin, Content-Type, Accept",
 		AllowCredentials: false,
 		AllowMethods: strings.Join([]string{
@@ -150,6 +140,14 @@ func main() {
 			log.Fatalf("Error starting Fiber server: %v", err)
 		}
 	}()
+
+	// Check for internet availability and download updates if available
+	if isInternetAvailable() {
+		CheckAndDownloadUpdates()
+	}
+
+	// Create an instance of the app structure
+	app := NewApp()
 
 	// Create application with options
 	err := wails.Run(&options.App{

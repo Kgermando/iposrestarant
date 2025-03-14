@@ -67,6 +67,23 @@ func GetPaginatedComposition(c *fiber.Ctx) error {
 	})
 }
 
+
+// Get all data by PlatUUID 
+func GetCompositionByPlatUUID(c *fiber.Ctx) error { 
+	db := database.DB
+	platUUID := c.Params("plat_uuid")
+
+	var dataList []models.Composition
+
+	db.Where("plat_uuid = ?", platUUID).Preload("Plat").Preload("Ingredient").Find(&dataList)
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Compositions by PlatUUID",
+		"data":    dataList,
+	})
+}
+
 // Get data
 func GetCompositionMargeBeneficiaire(c *fiber.Ctx) error {
 	db := database.DB

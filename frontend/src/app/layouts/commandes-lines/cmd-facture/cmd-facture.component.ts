@@ -171,7 +171,7 @@ export class CmdFactureComponent implements OnInit {
           pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.tableBoxService.update(this.commande.TableBox!.ID!, body).subscribe(() => {
+        this.tableBoxService.update(this.commande.TableBox!.uuid!, body).subscribe(() => {
           var code = Math.floor(1000000000 + Math.random() * 90000000000);
           const body: ICaisseItem = {
             caisse_uuid: caisse_uuid,

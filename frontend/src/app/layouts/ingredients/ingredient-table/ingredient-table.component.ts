@@ -48,7 +48,7 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
   currentUser!: IUser;
   isLoading = false;
 
-  uniteVenteList: string[] = uniteVentes; 
+  uniteVenteList: string[] = uniteVentes;
 
   constructor(
     private router: Router,
@@ -95,7 +95,6 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
     this.fetchProducts(this.currentUser);
   }
 
-
   fetchProducts(currentUser: IUser) {
     if (currentUser.role === 'Manager général' ||
       currentUser.role === 'Support') {
@@ -140,7 +139,6 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
   }
 
 
-
   // Format de devise
   formatCurrency(price: number, currency: string): string {
     return this.currencyPipe.transform(price, currency, 'symbol', '1.2-2', 'fr-FR') || '';
@@ -161,7 +159,7 @@ export class IngredientTableComponent implements OnInit, AfterViewInit {
         this.ingredientService.create(body).subscribe(() => {
           this.isLoading = false;
           this.formGroup.reset();
-          this.toastr.success('Plat ajoutée avec succès!', 'Success!');
+          this.toastr.success('Ingredient ajouté avec succès!', 'Success!');
         });
       }
     } catch (error) {

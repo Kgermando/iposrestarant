@@ -46,10 +46,10 @@ export class LivProdItemComponent implements OnInit {
   } 
 
   getTotalQty() { 
-    this.commaneLineService.getTotalQty(this.item.ID!).subscribe((res) => {
+    this.commaneLineService.getTotalQty(this.item.uuid!).subscribe((res) => {
       this.cmdLineQty.set(res.data);  
     });
-    this.stocksService.getTotalQty(this.item.ID!).subscribe((res) => {
+    this.stocksService.getTotalQty(this.item.uuid!).subscribe((res) => {
       this.stockQty.set(res.data); 
     });
     this.isloading = false;

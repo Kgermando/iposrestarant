@@ -244,7 +244,7 @@ const date = new Date();
 
   optionSelectedClient(event: MatAutocompleteSelectedEvent) {
     const selectedOption = event.option.value;
-    this.clientId = selectedOption.ID;
+    this.clientId = selectedOption.uuid;
   }
 
   getAllLivreur(currentUser: IUser): void { 
@@ -265,11 +265,11 @@ const date = new Date();
 
   optionSelectedLivreur(event: MatAutocompleteSelectedEvent) {
     const selectedOption = event.option.value; 
-    this.livreurId = selectedOption.ID;
+    this.livreurId = selectedOption.uuid;
   }
 
 
-  getAllArea(currentUser: IUser): void { 
+  getAllArea(currentUser: IUser): void {
     const filterValue = this.area_id.nativeElement.value.toLowerCase();
     this.areaService.getPaginatedEntreprise(currentUser.entreprise?.code!, this.pageIndexLivreur, this.pageSizeLivreur, this.searchField).subscribe((res) => {
       this.areaList = res.data;
@@ -287,7 +287,7 @@ const date = new Date();
 
   optionSelectedArea(event: MatAutocompleteSelectedEvent) {
     const selectedOption = event.option.value; 
-    this.areaId = selectedOption.ID; 
+    this.areaId = selectedOption.uuid; 
   }
 
 
@@ -308,8 +308,7 @@ const date = new Date();
         };
         this.livraisonService.create(body).subscribe({
           next: (res) => {
-
-            this.router.navigate(['/web/livraisons', res.data.ID, 'line']);  
+            this.router.navigate(['/web/livraisons', res.data.uuid, 'line']);  
             this.isLoading = false;
             this.formGroup.reset();
             this.toastr.success('livraison crée avec succès!', 'Success!');

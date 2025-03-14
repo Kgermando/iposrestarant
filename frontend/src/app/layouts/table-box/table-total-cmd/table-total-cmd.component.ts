@@ -7,7 +7,7 @@ import { CommandeService } from '../../commandes/commande.service';
   styleUrl: './table-total-cmd.component.scss'
 })
 export class TableTotalCmdComponent implements OnInit {
-  @Input() table_box_uuid!: string;
+  @Input() table_box_uuid!: string; 
   @Input() code!: number;
 
   totalCmdTable = 0;

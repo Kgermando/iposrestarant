@@ -128,6 +128,7 @@ export class CommandeTableComponent implements OnInit, AfterViewInit {
 
     this.commandeService.getPaginatedCommandeByTableBox(currentUser.entreprise?.code!, currentUser.pos?.uuid!,
       this.tableuuId, this.pageIndex, this.pageSize, this.search).subscribe((res) => {
+        console.log("res", res);
         this.dataList = res.data;
         this.totalItems = res.pagination.total_pages;
         this.length = res.pagination.length;

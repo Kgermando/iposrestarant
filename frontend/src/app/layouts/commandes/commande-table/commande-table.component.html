@@ -97,11 +97,11 @@
                                         @if (element.status != 'Créance' && element.status != 'En cours') {
                                         <a
                                             [routerLink]="['/web/table-box/commandes', element.uuid, 'facture', element.ncommande ]">
-                                            {{element.CreatedAt | date: 'dd/mm/yyy HH:mm' }}
+                                            {{element.CreatedAt | date: 'dd/MM/YYYY HH:mm' }}
                                         </a>
                                         } @else {
                                         <a [routerLink]="['/web/table-box/commandes', element.uuid, 'line' ]">
-                                            {{element.CreatedAt | date: 'dd/mm/yyy HH:mm' }}
+                                            {{element.CreatedAt | date: 'dd/MM/YYYY HH:mm' }}
                                         </a>
                                         }
                                     </td>

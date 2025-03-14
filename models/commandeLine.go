@@ -19,3 +19,4 @@ type CommandeLine struct {
 	Quantity       uint64    `gorm:"not null" json:"quantity"`
 	CodeEntreprise uint64    `json:"code_entreprise"`
 }
+ 

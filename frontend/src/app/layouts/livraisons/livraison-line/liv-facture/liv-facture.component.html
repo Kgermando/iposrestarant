@@ -16,7 +16,7 @@
           <th>P.U.</th>
           <th>TVA</th>
           <th>Total</th>
-          @if (livraison.status !== 'Cash'){
+          @if (livraison.status !== 'Créance' && livraison.status !== 'En cours') {
           <th> <i class="ti ti-trash"></i> </th>
           }
         </tr>
@@ -46,9 +46,9 @@
           <td>
             {{ formatCurrency(item.quantity * item.Plat!.prix_vente, currentUser.currency) }}
           </td>
-          @if (livraison.status !== 'Cash'){
+          @if (livraison.status !== 'Créance' && livraison.status !== 'En cours') { 
           <td>
-            <button type="button" (click)="restitutionBtn(item.ID!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
+            <button type="button" (click)="restitutionBtn(item.uuid!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
                             justify-content-center rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close">
               <i class="ti ti-x"></i>
             </button>
@@ -81,7 +81,7 @@
           </td>
           @if (livraison.status !== 'Cash') {
           <td>
-            <button type="button" (click)="restitutionBtn(item.ID!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
+            <button type="button" (click)="restitutionBtn(item.uuid!)" class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center 
                           justify-content-center rounded-circle" data-bs-dismiss="offcanvas" aria-label="Close">
               <i class="ti ti-x"></i>
             </button>
@@ -124,49 +124,42 @@
 
 
 <div class="button-container mt-5">
-  <div class="dropdown full-width-50">
-    <button class="button btn btn-success btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
-      id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-      Sélectionner le Paiement
-    </button> 
-    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      @for (item of selectCaisseList; track item.ID!) {
-      <li>
-        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.ID!)">
-          {{ item.name }}
-        </a>
-      </li>
-      }
-    </ul>
-  </div>
-  <div class="dropdown full-width-50">
-    <button class="button btn btn-warning  btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
-      id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-      Paiement par Créance
-    </button>
-    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      @for (item of selectCaisseList; track item.ID!) {
-      <li>
-        <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.ID!)">
-          {{ item.name }}
-        </a> 
-      </li>
-      }
-    </ul>
-  </div>
+  <button class="button btn btn-success btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
+    id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+    Sélectionner le Paiement
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    @for (item of selectCaisseList; track item.uuid!) {
+    <li>
+      <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.uuid!)">
+        {{ item.name }}
+      </a>
+    </li>
+    }
+  </ul>
+  <button class="button btn btn-warning  btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
+    id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+    Paiement par Créance
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    @for (item of selectCaisseList; track item.uuid!) {
+    <li>
+      <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.uuid!)">
+        {{ item.name }}
+      </a>
+    </li>
+    }
+  </ul>
+  <button class="button btn btn-outline-danger btn-w-lg me-0 
+          rounded-pill full-width" data-bs-toggle="modal" data-bs-target="#delete_commande">
+    Annuler
+  </button>
 </div>
-<!-- @if (livraison.status !== 'Cash') {
-    <div class="button-container mt-5">
-      <button class="button btn btn-warning btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Créance')"
-        data-bs-dismiss="offcanvas">Créance</button>
-      <button class="button btn btn-success btn-w-lg me-0 rounded-pill" (click)="onSubmitFacture('Cash')"
-        data-bs-dismiss="offcanvas">
-        Cash
-      </button>
-      <button class="button btn btn-outline-danger btn-w-lg me-0 
-              rounded-pill full-width" data-bs-toggle="modal" data-bs-target="#delete_commande">Annuler</button>
-    </div>
-    } -->
+
+
+
+
+
 
 <!-- Delete data item -->
 <div class="modal fade" id="delete_commande" role="dialog">

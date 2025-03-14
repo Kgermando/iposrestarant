@@ -145,13 +145,12 @@
   
 
   <div class="button-container mt-5">
-   
     <button class="button btn btn-success btn-w-lg me-0 rounded-pill dropdown-toggle" type="button"
       id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
       Sélectionner le Paiement
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      @for (item of selectCaisseList; track item.ID!) {
+      @for (item of selectCaisseList; track item.uuid!) {
       <li>
         <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture(item.name, item.uuid!)">
           {{ item.name }}
@@ -164,7 +163,7 @@
       Paiement par Créance
     </button>
     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      @for (item of selectCaisseList; track item.ID!) {
+      @for (item of selectCaisseList; track item.uuid!) {
       <li>
         <a class="dropdown-item" href="javascript:void(0);" (click)="onSubmitFacture('Créance', item.uuid!)">
           {{ item.name }}

@@ -101,11 +101,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
 
 
         this.getAllIngredientFilter(this.currentUser);
-
-        this.compositionService.refreshDataList$.subscribe(() => {
-          this.getAllComposition(this.currentUser);
-        });
-        this.getAllComposition(this.currentUser);
+ 
       },
       error: (error) => {
         this.isLoadingData = false;
@@ -278,6 +274,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
         prix_vente: this.dataItem.prix_vente,
         tva: this.dataItem.tva,
       });
+      this.getAllComposition(this.dataItem.uuid!);
     });
   }
 
@@ -295,10 +292,11 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
 
 
   // ### Composition ### 
-  getAllComposition(currentUser: IUser): void {
-    this.isloadComp = true;
-    this.compositionService.getAllEntreprisePos(currentUser.entreprise?.code!, currentUser.pos?.uuid!).subscribe(res => {
+  getAllComposition(plat_uuid: string): void {
+    this.isloadComp = true; 
+    this.compositionService.GetCompositionByPlatUUID(plat_uuid).subscribe(res => {
       this.compositionList = res.data;
+      console.log('Composition:', this.compositionList);
       this.isloadComp = false;
     });
   }
@@ -345,6 +343,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
         this.compositionService.create(body).subscribe(() => {
           this.isLoading = false;
           this.formGroupComp.reset();
+          this.getAllComposition(this.dataItem.uuid!);
           this.toastr.success('Composition ajoutée avec succès!', 'Success!');
         });
       }
@@ -366,8 +365,7 @@ export class PlatCardComponent implements OnInit, AfterViewInit {
   deleteComp(): void {
     this.isloadComp = true;
     this.compositionService.delete(this.uuidItemComp).subscribe(() => {
-      this.formGroupComp.reset();
-      this.getAllComposition(this.currentUser);
+      this.formGroupComp.reset(); 
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isloadComp = false;
     });

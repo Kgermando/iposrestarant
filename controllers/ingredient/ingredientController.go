@@ -76,7 +76,6 @@ func GetPaginatedIngredient(c *fiber.Ctx) error {
 		go SyncDataWithAPI(codeEntreprise, posuuId)
 	}
 
-
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
 		page = 1 // Default page number
@@ -183,6 +182,7 @@ func GetIngredient(c *fiber.Ctx) error {
 			},
 		)
 	}
+
 	return c.JSON(
 		fiber.Map{
 			"status":  "success",
@@ -225,7 +225,7 @@ func UpdateIngredient(c *fiber.Ctx) error {
 		Name           string `json:"name"`
 		Description    string `json:"description"`
 		Unite          string `json:"unite"`
-		PosUUID          string `json:"pos_uuid"`
+		PosUUID        string `json:"pos_uuid"`
 		Signature      string `json:"signature"`
 		CodeEntreprise uint64 `json:"code_entreprise"`
 	}

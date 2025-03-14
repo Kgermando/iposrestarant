@@ -110,10 +110,10 @@ func GetAllCommandeLineById(c *fiber.Ctx) error {
 }
 
 // Get All data
-func GetAllCommandeLineByIdLivraison(c *fiber.Ctx) error {
+func GetAllCommandeLineByIdLivraison(c *fiber.Ctx) error { 
 	db := database.DB
 	livraisonUUID := c.Params("livraison_uuid")
-
+ 
 	// Sync data with API
 	if utils.IsInternetAvailable() {
 		go SyncDataWithAPICmdLineLivraison(livraisonUUID)
@@ -146,7 +146,7 @@ func GetAllCommandeLines(c *fiber.Ctx) error {
 }
 
 // Get Total data
-func GetTotalCommandeLine(c *fiber.Ctx) error {
+func GetTotalCommandeLine(c *fiber.Ctx) error { 
 	db := database.DB
 	productuuId := c.Params("product_uuid")
 	platuuId := c.Params("plat_uuid")

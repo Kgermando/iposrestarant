@@ -42,10 +42,9 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-
   // Forms  
   uuidItem!: string;
-  dataItem!: IIngredientStock; // Single data 
+  dataItem!: IIngredientStock; // Single data
 
   formGroup!: FormGroup;
   currentUser!: IUser;
@@ -92,7 +91,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
         });
         this.fetchProducts();
         this.getFournisseurs(this.currentUser);
-        this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+        this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
       },
       error: (error) => {
         this.isLoadingData = false;
@@ -107,7 +106,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
     this.isLoadingData = true;
     this.route.params.subscribe(routeParams => {
       this.ingredientUuid = routeParams['uuid'];
-      this.getProduct(Number(this.ingredientUuid));
+      this.getProduct(this.ingredientUuid);
     });
 
     const date = new Date();
@@ -137,7 +136,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
     this.dateRange.valueChanges.subscribe(val => {
       this.start_date = formatDate(val.rangeValue[0], 'yyyy-MM-dd', 'en-US');
       this.end_date = formatDate(val.rangeValue[1], 'yyyy-MM-dd', 'en-US');
-      this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+      this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
       this.fetchProducts();
     });
   }
@@ -148,17 +147,18 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.fetchProducts();
-  }
+  } 
 
   getProduct(uuid: any) {
     this.ingredientService.get(uuid).subscribe(item => {
       this.ingredient = item.data;
-      // this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+      this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
     });
   }
 
   getStatsIngredientStock(currentUser: IUser, ingredient_id: string) {
-    this.ingStockService.GetStatsParIngredientStock(currentUser.entreprise!.code, ingredient_id, this.start_date, this.end_date).subscribe((res) => {
+    this.ingStockService.GetStatsParIngredientStock(currentUser.entreprise!.code,
+       ingredient_id, this.start_date, this.end_date).subscribe((res) => {
       this.montantTotalAchat.set(res.data.montanttotalachat);
       this.stockTotal.set(res.data.stocktotal);
       this.stockDispo.set(res.data.stockdispo);
@@ -228,10 +228,10 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
           pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.ingStockService.create(body).subscribe(res => {
+        this.ingStockService.create(body).subscribe(res => { 
           this.isLoading = false;
           this.formGroup.reset();
-          this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+          this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
           this.toastr.success('Stock ajouté avec succès!', 'Success!');
         });
       }
@@ -258,7 +258,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
       };
       this.ingStockService.update(this.uuidItem, body).subscribe(res => {
         this.formGroup.reset();
-        this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+        this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
       });

@@ -207,7 +207,7 @@ export class DashboardComponent {
 
   // getPosList(currentUser: IUser) {
   //   this.load = true;
-  //   this.posService.getAllById(currentUser.entreprise!.ID!).subscribe((res) => {
+  //   this.posService.getAllById(currentUser.entreprise!.uuid!).subscribe((res) => {
   //     this.posDropdownList = res.data;
   //     this.load = false;
   //   });

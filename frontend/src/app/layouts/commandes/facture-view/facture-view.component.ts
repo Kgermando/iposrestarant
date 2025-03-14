@@ -55,7 +55,7 @@ export class FactureViewComponent implements OnInit {
    getProduct(uuid: any) { 
     this.commandeService.get(uuid).subscribe(item => {
       this.commande = item.data;
-      this.commaneLineService.getAllById(this.commande!.ID!).subscribe((line) => {
+      this.commaneLineService.getAllById(this.commande!.uuid!).subscribe((line) => {
         this.commandeLineList = line.data; 
         this.isLoading = false;
       });

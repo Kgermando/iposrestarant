@@ -97,6 +97,7 @@ func GetPaginatedCommandeByTableBox(c *fiber.Ctx) error {
 	var length int64
 	db.Model(&models.Commande{}).Where("code_entreprise = ?", codeEntreprise).
 		Where("pos_uid = ?", posUUID).Where("table_box_uuid = ?", tableBoxUUID).Count(&length)
+	
 	db.Where("code_entreprise = ?", codeEntreprise).
 		Where("pos_uuid = ?", posUUID).
 		Where("table_box_uuid = ?", tableBoxUUID).
@@ -118,6 +119,7 @@ func GetPaginatedCommandeByTableBox(c *fiber.Ctx) error {
 	if remainder := int(length) % limit; remainder > 0 {
 		totalPages++
 	}
+	
 	pagination := map[string]interface{}{
 		"total_pages": totalPages,
 		"page":        page,

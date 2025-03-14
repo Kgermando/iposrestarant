@@ -360,7 +360,7 @@
                             <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
-                                <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
+                                <mat-option value="{{item.uuid}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
                             <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">
@@ -474,7 +474,7 @@
                             <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
-                                <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
+                                <mat-option value="{{item.uuid}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
                             <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">

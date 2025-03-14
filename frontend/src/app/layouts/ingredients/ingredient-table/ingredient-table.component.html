@@ -59,22 +59,21 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div> 
+                                    </div>
                                     @if (isLoading) {
-                                        <div class="spinner-border text-center d-flex justify-content-center align-items-center"
-                                            role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                        }@else {
-                                            @if(currentUser.permission === 'ALL' ||
-                                            currentUser.permission === 'AM' ||
-                                            currentUser.permission === 'A') {
-                                            <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="offcanvas"
-                                                data-bs-target="#offcanvas_add"><i
-                                                    class="ti ti-square-rounded-plus me-2"></i>Ajouter un ingredient </a>
-                                            }
+                                    <div class="spinner-border text-center d-flex justify-content-center align-items-center"
+                                        role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    }@else {
+                                    @if(currentUser.permission === 'ALL' ||
+                                    currentUser.permission === 'AM' ||
+                                    currentUser.permission === 'A') {
+                                    <a href="javascript:void(0);" class="btn btn-primary" data-bs-toggle="offcanvas"
+                                        data-bs-target="#offcanvas_add"><i
+                                            class="ti ti-square-rounded-plus me-2"></i>Ajouter un ingredient </a>
                                     }
-                                   
+                                    }
                                 </div>
                             </div>
                         </div>
@@ -90,7 +89,7 @@
                                 <ng-container matColumnDef="name">
                                     <th mat-header-cell *matHeaderCellDef> Nom </th>
                                     <td mat-cell *matCellDef="let element">
-                                        <a [routerLink]="['/web/ingredients', element.uuid, 'stocks']">
+                                        <a [routerLink]="['/web/ingredients', element.uuid!, 'stocks']">
                                             {{ element.name }}
                                         </a>
                                     </td>
@@ -100,18 +99,19 @@
                                 <ng-container matColumnDef="qty_dispo">
                                     <th mat-header-cell *matHeaderCellDef> Quantité disponible </th>
                                     <td mat-cell *matCellDef="let element">
-                                        <a [routerLink]="['/web/ingredients', element.uuid, 'stocks']">
-                                            <app-ingredient-item [ingredient]="element" [currentUser]="currentUser"></app-ingredient-item>
-                                        </a>
+                                        <a [routerLink]="['/web/ingredients', element.uuid!, 'stocks']">
+                                            <app-ingredient-item [ingredient]="element"
+                                                [currentUser]="currentUser"></app-ingredient-item>
+                                        </a> 
                                     </td>
                                 </ng-container>
 
                                 <!-- description Column -->
                                 <ng-container matColumnDef="description">
                                     <th mat-header-cell *matHeaderCellDef> Description </th>
-                                    <td mat-cell *matCellDef="let element"> 
-                                        <a [routerLink]="['/web/ingredients', element.uuid, 'stocks']">
-                                            {{ element.description }} 
+                                    <td mat-cell *matCellDef="let element">
+                                        <a [routerLink]="['/web/ingredients', element.uuid!, 'stocks']">
+                                            {{ element.description }}
                                         </a>
                                     </td>
                                 </ng-container>
@@ -144,8 +144,8 @@
                                             </div>
                                         </button>
                                         }@else {
-                                        <button mat-icon-button (click)="findValue(element.uuid!)" data-bs-toggle="modal"
-                                            data-bs-target="#delete_contact">
+                                        <button mat-icon-button (click)="findValue(element.uuid!)"
+                                            data-bs-toggle="modal" data-bs-target="#delete_contact">
                                             <mat-icon class="text-danger">delete</mat-icon>
                                         </button>
                                         }
@@ -181,8 +181,6 @@
                 </div>
                 }
                 }
-
-
             </div>
         </div>
     </div>

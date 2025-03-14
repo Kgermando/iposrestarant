@@ -10,6 +10,7 @@ export class CommandeService extends ApiService {
   endpoint: string = `${environment.apiUrl}/commandes`;
 
   GetTotalCommande(code_entreprise: number, table_box_uuid: string): Observable<any> {
-    return this.http.get<any>(`${this.endpoint}/${code_entreprise}/${table_box_uuid}/total`);
+    return this.http.get<any>(`${this.endpoint}/${code_entreprise}/${table_box_uuid}/total`); 
   }
 }
+ 

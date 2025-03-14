@@ -21,7 +21,7 @@
                 currentUser.permission === 'AM' ||
                 currentUser.permission === 'MS' ||
                 currentUser.permission === 'M') {
-                <button mat-icon-button data-bs-toggle="modal" (click)="findCaisseValue(caisse.ID!)"
+                <button mat-icon-button data-bs-toggle="modal" (click)="findCaisseValue(caisse.uuid!)"
                     data-bs-target="#upload-file-edit" tooltip="Modifier le nom de la caisse">
                     <mat-icon class="text-blue">edit</mat-icon>
                 </button>
@@ -148,7 +148,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @for (data of dataItemList; track data.ID!) {
+                            @for (data of dataItemList; track data.uuid!) {
                             <tr class="odd">
                                 <td>
                                     <span class="title-name">
@@ -192,7 +192,7 @@
                                             currentUser.permission === 'MS' ||
                                             currentUser.permission === 'M') {
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                                (click)="findValue(data.ID!)" data-bs-toggle="offcanvas"
+                                                (click)="findValue(data.uuid!)" data-bs-toggle="offcanvas"
                                                 data-bs-target="#offcanvas_edit">
                                                 <i class="ti ti-edit text-blue"></i>
                                                 Edit
@@ -201,7 +201,7 @@
                                             @if(currentUser.permission === 'ALL' ||
                                             currentUser.permission === 'MS') {
                                             <a class="dropdown-item" href="javascript:void(0);"
-                                                (click)="findValue(data.ID!)" data-bs-toggle="modal"
+                                                (click)="findValue(data.uuid!)" data-bs-toggle="modal"
                                                 data-bs-target="#delete_contact">
                                                 <i class="ti ti-trash text-danger"></i>
                                                 Delete

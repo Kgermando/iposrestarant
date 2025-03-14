@@ -83,22 +83,23 @@ export class LivraisonLineComponent implements OnInit {
     });
   }
 
-
   // Format de devise
   formatCurrency(price: number, currency: string): string {
     return this.currencyPipe.transform(price, currency, 'symbol', '1.2-2', 'fr-FR') || '';
   }
 
-
   // Get One commande
   getProduct(uuid: any) {
+    console.log("uuid", uuid);
     this.livraisonService.get(uuid).subscribe(res => {
       this.livraison = res.data;
+      console.log("livraison", this.livraison.uuid!);
       this.commaneLineService.getAllByIdLivraison(this.livraison.uuid!).subscribe((line) => {
         this.commandeLineList = line.data;
-        this.totalLength.set(this.commandeLineList.length);
+        console.log("commandeLineList", this.commandeLineList);
+        this.totalLength.set(this.commandeLineList.length); 
         this.loading = false;
-      }); 
+      });
     });
   }
 

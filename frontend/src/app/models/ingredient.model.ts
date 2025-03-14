@@ -6,7 +6,7 @@ export interface IIngredient {
     name: string;
     description: string; 
     unite: string;
-    pos_uuid: string;
+    pos_uuid: string;  
     CreatedAt?: Date;
     UpdatedAt?: Date;
     signature: string;

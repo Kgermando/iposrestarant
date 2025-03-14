@@ -180,7 +180,7 @@ export class StockTableComponent implements OnInit, AfterViewInit {
           this.profitAttendu.set(mbAttendu);
           this.profitObtenu.set(mbObtenu); 
           this.prixAchat.set(r.data.prix_achat);
-        }); 
+        });
       }); 
     });
   }

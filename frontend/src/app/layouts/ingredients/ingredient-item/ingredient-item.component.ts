@@ -23,7 +23,7 @@ export class IngredientItemComponent implements OnInit {
   constructor(private ingStockService: IngStockService) { }
 
   ngOnInit(): void {
-    this.getStatsIngredientStock(this.ingredient.ID!)
+    this.getStatsIngredientStock(this.ingredient.uuid!)
   }
 
 

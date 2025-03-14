@@ -525,7 +525,7 @@
                       @if(currentUser.permission === 'ALL' ||
                       currentUser.permission === 'MS') {
                       <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal"
-                        data-bs-target="#delete_contact_compsition" (click)="findValueComp(item.ID!)">
+                        data-bs-target="#delete_contact_compsition" (click)="findValueComp(item.uuid!)">
                         <i class="ti ti-trash text-danger"></i>
                         Delete
                       </a>
@@ -538,7 +538,7 @@
             </div>
           </li>
           } @empty {
-          <li>Pas encore de donnée </li>
+          <li>Pas encore d'ingredient </li>
           }
         </ul>
       </div>

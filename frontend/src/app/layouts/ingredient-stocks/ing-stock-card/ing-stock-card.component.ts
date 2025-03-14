@@ -82,7 +82,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
         });
         this.fetchProducts();
         this.getFournisseurs(this.currentUser);
-        this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+        this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
       },
       error: (error) => {
         this.isLoadingData = false;
@@ -127,7 +127,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
     this.dateRange.valueChanges.subscribe(val => {
       this.start_date = formatDate(val.rangeValue[0], 'yyyy-MM-dd', 'en-US');
       this.end_date = formatDate(val.rangeValue[1], 'yyyy-MM-dd', 'en-US');
-      this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+      this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
       this.fetchProducts();
     });
   }
@@ -143,7 +143,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
   getProduct(uuid: any) {
     this.ingredientService.get(uuid).subscribe(item => {
       this.ingredient = item.data;
-      // this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+      // this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
     });
   }
 
@@ -204,7 +204,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
         this.ingStockService.create(body).subscribe(res => {
           this.isLoading = false;
           this.formGroup.reset();
-          this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+          this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
           this.toastr.success('Stock ajouté avec succès!', 'Success!');
         });
       }
@@ -231,7 +231,7 @@ export class IngStockCardComponent implements OnInit, AfterViewInit {
       };
       this.ingStockService.update(this.uuidItem, body).subscribe(res => {
         this.formGroup.reset();
-        this.getStatsIngredientStock(this.currentUser, this.ingredient.ID!);
+        this.getStatsIngredientStock(this.currentUser, this.ingredient.uuid!);
         this.toastr.success('Modification enregistrée!', 'Success!');
         this.isLoading = false;
       });

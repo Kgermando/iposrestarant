@@ -323,6 +323,7 @@ export class CaisseItemComponent implements OnInit {
     this.isLoading = true;
     this.caisseService.delete(this.caisse.uuid!).subscribe(() => {
       this.formGroupCaisse.reset();
+      this.router.navigate(['/web/finances']); 
       this.toastr.info('Supprimé avec succès!', 'Success!');
       this.isLoading = false;
     });
@@ -338,7 +339,7 @@ export class CaisseItemComponent implements OnInit {
           pos_uuid: this.currentUser.pos!.uuid!,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.caisseService.update(this.caisse.ID!, body).subscribe((res) => {
+        this.caisseService.update(this.caisse.uuid!, body).subscribe((res) => {
           this.isLoading = false;
           this.formGroupCaisse.reset();
           this.toastr.success(`Caisse ${res.data.type_transaction} crée avec succès!`, 'Success!');

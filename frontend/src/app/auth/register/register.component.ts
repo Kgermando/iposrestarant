@@ -118,5 +118,4 @@ export class RegisterComponent implements OnInit {
     this.password[index] = !this.password[index]
   }
 
-
 }
