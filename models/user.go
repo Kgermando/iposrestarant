@@ -7,9 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
-	// ID        uuid.UUID `gorm:"primaryKey;default:uuid_generate_v4()"`
-
+type User struct { 
 	gorm.Model
 
 	UUID            string     `gorm:"not null;unique" json:"uuid"`
@@ -20,8 +18,7 @@ type User struct {
 	PasswordConfirm string     `json:"password_confirm" gorm:"-"`
 	Role            string     `json:"role" gorm:"default:'user'"`
 	Permission      string     `json:"permission" gorm:"default:'read'"`
-	Status          bool       `json:"status" gorm:"default:true"`
-	Currency        string     `json:"currency" gorm:"default:'USD'"`
+	Status          bool       `json:"status" gorm:"default:true"` 
 	EntrepriseUUID  string     `json:"entreprise_uuid"`
 	Entreprise      Entreprise `gorm:"foreignKey:EntrepriseUUID;references:UUID"`
 	PosUUID         string     `json:"pos_uuid"`
@@ -39,8 +36,7 @@ type UserResponse struct {
 	Telephone  string     `json:"telephone"`
 	Role       string     `json:"role"`
 	Permission string     `json:"permission"`
-	Status     bool       `json:"status"`
-	Currency   string     `json:"currency"`
+	Status     bool       `json:"status"` 
 	Entreprise Entreprise `json:"entreprise"`
 	Pos        Pos        `json:"pos"`
 	Signature  string     `json:"signature"`

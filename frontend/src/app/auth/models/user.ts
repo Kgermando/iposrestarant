@@ -11,8 +11,7 @@ export interface IUser {
   password_confirm?: string;
   role: string;
   permission: string;
-  status: boolean;
-  currency: string;
+  status: boolean; 
   entreprise_uuid: string;
   entreprise?: IEntreprise;
   pos_uuid?: string;

@@ -68,14 +68,30 @@ export class FactureViewComponent implements OnInit {
     this.pdfService.generateInvoice(this.commandeLineList);
   }
 
-  get subtotalTVA(): number {
-    return this.commandeLineList.filter((f) => f.Product!.tva === 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+   // Plat
+   get totalPlatTVA(): number {
+    return this.commandeLineList.filter((f) => f.Plat!.tva === 16).reduce((sum, item) => sum + (item.quantity * item.Plat!.prix_vente), 0);
+  }
+  get totalPlatSansTVA(): number {
+    return this.commandeLineList.filter((f) => f.Plat!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Plat!.prix_vente), 0);
   }
 
-  get subtotalSansTVA(): number {
+  //  Product
+  get totalProductTVA(): number {
+    return this.commandeLineList.filter((f) => f.Product!.tva === 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+  }
+  get totalProductSansTVA(): number {
     return this.commandeLineList.filter((f) => f.Product!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
   }
 
+
+  get subtotalTVA(): number {
+    return  this.totalPlatTVA + this.totalProductTVA;
+  }
+
+  get subtotalSansTVA(): number {
+    return  this.totalPlatSansTVA + this.totalProductSansTVA;
+  }
   get subtotal(): number {
     return this.subtotalSansTVA + this.subtotalTVA;
   }

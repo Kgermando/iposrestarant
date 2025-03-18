@@ -66,9 +66,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
 
   permissionList: IPermission[] = permissions;
 
-  entrepriseList: IEntreprise[] = [];
- 
-  currencyList: string[] = monnaies;
+  entrepriseList: IEntreprise[] = []; 
 
   posList: IPos[] = [];
   posListFilter: IPos[] = []; 
@@ -123,7 +121,6 @@ export class UserListComponent implements OnInit, AfterViewInit {
       role: ['', Validators.required], // Utilise deja Title
       permission: ['', Validators.required], 
       status: [''],
-      currency: ['', Validators.required],
       // pos_id: ['', Validators.required],
     });
 
@@ -167,6 +164,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
 
 
   fetchProducts(currentUser: IUser) {
+    console.log('currentUser', currentUser);
     if (currentUser.role == 'Support') {
       this.usersService.getPaginated(this.pageIndex, this.pageSize, this.search).subscribe(res => {
         this.dataList = res.data;
@@ -219,7 +217,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
   public togglePassword(index: number) {
     this.password[index] = !this.password[index]
   }
- 
+
 
   onSubmit() {
     try {
@@ -235,8 +233,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           password_confirm: this.formGroup.value.password_confirm,
           permission: this.formGroup.value.permission,
           status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
-          currency: this.formGroup.value.currency,
-          signature: this.currentUser.fullname,  
+          signature: this.currentUser.fullname,
           pos_uuid: this.posId,
         };
         this.usersService.create(body).subscribe({
@@ -271,7 +268,6 @@ export class UserListComponent implements OnInit, AfterViewInit {
           role: this.formGroup.value.role,
           permission: this.formGroup.value.permission,
           status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
-          currency: this.formGroup.value.currency,
           signature: this.currentUser.fullname,
           pos_uuid: this.dataItem.pos?.uuid!,
         };
@@ -296,8 +292,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
           telephone: this.formGroup.value.telephone,  
           role: this.formGroup.value.role, 
           permission: this.formGroup.value.permission, 
-          status: (this.formGroup.value.status) ? this.formGroup.value.status : false,
-          currency: this.formGroup.value.currency,
+          status: (this.formGroup.value.status) ? this.formGroup.value.status : false, 
           signature: this.currentUser.fullname, 
           pos_uuid: (this.posId) ? this.posId : "00000000-0000-0000-0000-000000000000",
         };
@@ -334,8 +329,7 @@ export class UserListComponent implements OnInit, AfterViewInit {
         password: this.dataItem.password, 
         role: this.dataItem.role,  
         permission: this.dataItem.permission, 
-        status: this.dataItem.status,
-        currency: this.dataItem.currency,
+        status: this.dataItem.status, 
         pos_uuid: this.dataItem.pos_uuid,
       });
     }

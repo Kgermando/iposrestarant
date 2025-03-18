@@ -87,24 +87,26 @@
                     currentUser.permission === 'AM' ||
                     currentUser.permission === 'A') {
                     <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="me-1 d-flex align-items-center"> 
                                 <i class="feather icon-upload feather-16 text-white"></i>
                             </span>
                             <span class="me-2"></span> 
                             Opérations
+                            <span class="me-2"></span> 
                         </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton text-white">
                             <li>
                                 <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="offcanvas" 
                                     data-bs-target="#offcanvas_add">
-                                    Ajouter une sortie
+                                    Dépense
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="offcanvas" 
                                         data-bs-target="#offcanvas_FondDeCaisse">
-                                    Ajouter fond de caisse
+                                    Fond de caisse
                                 </a>
                             </li>
                         </ul>
@@ -157,18 +159,21 @@
                                 </td>
                                 <td>
                                     <span class="badge badge-pill badge-status" [ngClass]="{
-                                'bg-success': data.type_transaction == 'Entrée',
-                                'bg-danger': data.type_transaction == 'Sortie'
-                            }">
+                                        'bg-success': data.type_transaction == 'Entrée',
+                                        'bg-danger': data.type_transaction == 'Sortie',
+                                        'bg-blue': data.type_transaction == 'FondDeCaisse'
+                                    }">
                                         @if (data.type_transaction == 'Entrée') {
-                                        Entrée
-                                        } @else {
-                                        Sortie
+                                            Entrée
+                                        } @else if(data.type_transaction == 'Sortie') {
+                                            Sortie
+                                        } @else if(data.type_transaction == 'FondDeCaisse') {
+                                            Fond De Caisse
                                         }
                                     </span>
                                 </td>
                                 <td>
-                                    {{ formatCurrency(data.montant, currentUser.currency ) }}
+                                    {{ formatCurrency(data.montant, currentUser.entreprise!.currency ) }}
                                 </td>
                                 <td>
                                     {{data.libelle}}
@@ -247,7 +252,7 @@
 <div class="offcanvas offcanvas-end offcanvas-large" tabindex="-1" id="offcanvas_add">
 
     <div class="offcanvas-header border-bottom">
-        <h4>Entrer une sortie</h4>
+        <h4>Effectuer une Sortie</h4>
         <button type="button"
             class="btn-close custom-btn-close border p-1 me-0 d-flex align-items-center justify-content-center rounded-circle"
             data-bs-dismiss="offcanvas" aria-label="Close">
@@ -260,14 +265,23 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label class="col-form-label" for="montant">Montant <span
-                                        class="text-danger">*</span></label>
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="col-form-label" for="montant">Montant de dépense <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <input type="text" class="form-control" formControlName="montant" required />
+                                    <mat-error *ngIf="formGroup.controls['montant'].hasError('required')">
+                                        Ce champs est obligatoire
+                                    </mat-error>
+                                </div>
+                                <div class="col-3">
+                                    @if(currentUser) {
+                                        {{ currentUser.entreprise!.currency }}
+                                    }
+                                </div>
                             </div>
-                            <input type="text" class="form-control" formControlName="montant" required />
-                            <mat-error *ngIf="formGroup.controls['montant'].hasError('required')">
-                                Ce champs est obligatoire
-                            </mat-error>
                         </div>
                     </div>
                     <div class="col-md-12">
@@ -282,7 +296,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-end">
-                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Cancel</button>
+                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Annuler</button>
                 @if (isLoading) {
                 <button disabled class="btn btn-primary">
                     <div class="spinner-border" role="status">
@@ -318,20 +332,38 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="col-form-label" for="montant">Montant de caisse <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <input type="text" class="form-control" formControlName="montant" required />
+                                    <mat-error *ngIf="formGroup.controls['montant'].hasError('required')">
+                                        Ce champs est obligatoire
+                                    </mat-error>
+                                </div>
+                                <div class="col-3">
+                                    @if(currentUser) {
+                                        {{ currentUser.entreprise!.currency }}
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
-                                <label class="col-form-label" for="montant">Montant <span
+                                <label class="col-form-label" for="libelle">Libelle <span
                                         class="text-danger">*</span></label>
                             </div>
-                            <input type="text" class="form-control" formControlName="montant" required />
-                            <mat-error *ngIf="formGroup.controls['montant'].hasError('required')">
-                                Ce champs est obligatoire
-                            </mat-error>
+                            <input type="text" class="form-control" formControlName="libelle" value="Fond de caisse" required />
                         </div>
                     </div>
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-end">
-                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Cancel</button>
+                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Annuler</button>
                 @if (isLoading) {
                 <button disabled class="btn btn-primary">
                     <div class="spinner-border" role="status">
@@ -367,14 +399,23 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label class="col-form-label" for="montant">Montant <span
-                                        class="text-danger">*</span></label>
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="col-form-label" for="montant">Montant <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <input type="text" class="form-control" formControlName="montant" required />
+                                    <mat-error *ngIf="formGroup.controls['montant'].hasError('required')">
+                                        Ce champs est obligatoire
+                                    </mat-error>
+                                </div>
+                                <div class="col-3">
+                                    @if(currentUser) {
+                                        {{ currentUser.entreprise!.currency }}
+                                    }
+                                </div>
                             </div>
-                            <input type="text" class="form-control" formControlName="montant" required />
-                            <mat-error *ngIf="formGroup.controls['montant'].hasError('required')">
-                                Ce champs est obligatoire
-                            </mat-error>
                         </div>
                     </div>
                     <div class="col-md-12">
@@ -389,7 +430,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-end">
-                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Cancel</button>
+                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Annuler</button>
                 @if (isLoading) {
                 <button disabled class="btn btn-primary">
                     <div class="spinner-border" role="status">

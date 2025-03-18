@@ -129,7 +129,7 @@
                                                 <p>Montant total achats</p>
                                             </div>
                                             <h4>
-                                                {{ formatCurrency(montantTotalAchat(), currentUser.currency) }}
+                                                {{ formatCurrency(montantTotalAchat(), currentUser.entreprise!.currency) }}
                                             </h4>
                                         </div>
                                     </div>
@@ -175,7 +175,7 @@
                                         <div class="task-actions">
                                             <ul>
                                                 <li>
-                                                    PAU: {{ formatCurrency(item.prix_achat, currentUser.currency) }}
+                                                    PAU: {{ formatCurrency(item.prix_achat, currentUser.entreprise!.currency) }}
                                                 </li>
                                                 <li class="task-owner">
                                                     <div class="dropdown table-action">
@@ -275,7 +275,7 @@
                                 </div>
                                 <div class="col-md-5">
                                     @if(currentUser) {
-                                        {{ currentUser.currency }} / {{ ingredient.unite }}
+                                        {{ currentUser.entreprise!.currency }} / {{ ingredient.unite }}
                                     }
                                 </div>
                             </div>
@@ -328,7 +328,7 @@
                             <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
-                                <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
+                                <mat-option value="{{item.uuid}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
                             <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">
@@ -389,7 +389,7 @@
                                 </div>
                                 <div class="col-md-5">
                                     @if(currentUser) {
-                                        {{ currentUser.currency }} / {{ ingredient.unite }}
+                                        {{ currentUser.entreprise!.currency }} / {{ ingredient.unite }}
                                     }
                                 </div>
                             </div>
@@ -442,7 +442,7 @@
                             <mat-select class="select custom-mat-select" formControlName="fournisseur_uuid"
                                 placeholder="Choose fournisseur">
                                 @for (item of fournisseurList; track item) {
-                                <mat-option value="{{item.ID}}">{{item.name}}</mat-option>
+                                <mat-option value="{{item.uuid}}">{{item.name}}</mat-option>
                                 }
                             </mat-select>
                             <mat-error *ngIf="formGroup.controls['fournisseur_uuid'].hasError('required')">
@@ -453,7 +453,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-end">
-                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Cancel</button>
+                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Annuler</button>
                 @if (isLoading) {
                 <button disabled class="btn btn-primary">
                     <div class="spinner-border" role="status">

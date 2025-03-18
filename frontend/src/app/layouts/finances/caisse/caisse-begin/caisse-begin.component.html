@@ -6,31 +6,31 @@
     <div class="col-xl-4 col-lg-6"> 
       <div class="dash-box" style="background-color: #fff7d8;">
         <h6>Total Caisse</h6>
-        <h4>{{ formatCurrency(totalCaisse, currentUser.currency) }}</h4>
+        <h4>{{ formatCurrency(totalCaisse, currentUser.entreprise!.currency) }}</h4> 
       </div>
     </div>
     <div class="col-xl-4 col-lg-6"> 
       <div class="dash-box" style="background-color: #d8f7ff;">
         <h6>Total des Entrées</h6>
-        <h4>{{ formatCurrency(totalEntres, currentUser.currency) }}</h4>
+        <h4>{{ formatCurrency(totalEntres, currentUser.entreprise!.currency) }}</h4>
       </div>
     </div>
     <div class="col-xl-4 col-lg-6">
       <div class="dash-box" style="background-color: #ffd8d8;">
         <h6>Total des Sorties</h6>
-        <h4>{{ formatCurrency(totalSorties, currentUser.currency) }}</h4>
+        <h4>{{ formatCurrency(totalSorties, currentUser.entreprise!.currency) }}</h4>
       </div>
     </div>
     <div class="col-xl-4 col-lg-6">
       <div class="dash-box" style="background-color: #d8ffd8;">
         <h6>Solde</h6>
-        <h4>{{ formatCurrency(soldes, currentUser.currency) }}</h4>
+        <h4>{{ formatCurrency(soldes, currentUser.entreprise!.currency) }}</h4>
       </div>
     </div>
     <div class="col-xl-4 col-lg-6">
       <div class="dash-box" style="background-color: #f7d8ff;">
         <h6>Fond de Caisse</h6>
-        <h4>{{ formatCurrency(totalFondDeCaisses, currentUser.currency) }}</h4>
+        <h4>{{ formatCurrency(totalFondDeCaisses, currentUser.entreprise!.currency) }}</h4>
       </div>
     </div>
 </div>

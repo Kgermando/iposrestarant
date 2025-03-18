@@ -31,7 +31,7 @@
             {{ item.Plat!.unite_vente }}
             }
           </td>
-          <td> {{ formatCurrency(item.Plat!.prix_vente, currentUser.currency) }} </td>
+          <td> {{ formatCurrency(item.Plat!.prix_vente, currentUser.entreprise!.currency) }} </td>
           <td>
             @if (item.Plat!.tva === 16) {
             {{ item.Plat!.tva }}%
@@ -40,7 +40,7 @@
             }
           </td>
           <td>
-            {{ formatCurrency(item.quantity * item.Plat!.prix_vente, currentUser.currency) }}
+            {{ formatCurrency(item.quantity * item.Plat!.prix_vente, currentUser.entreprise!.currency) }}
           </td>
         </tr>
         }@else if (item.Product!.uuid! != "00000000-0000-0000-0000-000000000000") {
@@ -55,7 +55,7 @@
             {{ item.Product!.unite_vente }}
             }
           </td>
-          <td> {{ formatCurrency(item.Product!.prix_vente, currentUser.currency) }} </td>
+          <td> {{ formatCurrency(item.Product!.prix_vente, currentUser.entreprise!.currency) }} </td>
           <td>
             @if (item.Product!.tva === 16) {
             {{ item.Product!.tva }}%
@@ -64,7 +64,7 @@
             }
           </td>
           <td>
-            {{ formatCurrency(item.quantity * item.Product!.prix_vente, currentUser.currency) }}
+            {{ formatCurrency(item.quantity * item.Product!.prix_vente, currentUser.entreprise!.currency) }}
           </td>
         </tr>
         }
@@ -78,15 +78,15 @@
       <tfoot>
         <tr>
           <td colspan="4">Sous-total</td>
-          <td>{{ formatCurrency(subtotal, currentUser.currency) }}</td>
+          <td>{{ formatCurrency(subtotal, currentUser.entreprise!.currency) }}</td>
         </tr>
         <tr>
           <td colspan="4">TVA (16%)</td>
-          <td>{{ formatCurrency(tax, currentUser.currency) }}</td>
+          <td>{{ formatCurrency(tax, currentUser.entreprise!.currency) }}</td>
         </tr>
         <tr>
           <td colspan="4">Total</td>
-          <td>{{ formatCurrency(total, currentUser.currency) }}</td>
+          <td>{{ formatCurrency(total, currentUser.entreprise!.currency) }}</td>
         </tr>
       </tfoot>
     </table>

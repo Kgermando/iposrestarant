@@ -13,8 +13,8 @@ import { CommandeLineService } from '../../commandes-lines/commande-line.service
 })
 export class FatureComponent implements OnInit {
   @Input() currentUser!: IUser;
-  @Input() commande: ICommande| undefined;
-  
+  @Input() commande: ICommande | undefined;
+
   isLoading = false;
   commandeLineList: ICommandeLine[] = [];
 
@@ -28,21 +28,38 @@ export class FatureComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading = true;
     this.commaneLineService.getAllById(this.commande!.uuid!).subscribe((line) => {
-      this.commandeLineList = line.data; 
+      this.commandeLineList = line.data;
       this.isLoading = false;
     });
   }
- 
+
   generatePdf() {
     this.pdfService.generateInvoice(this.commandeLineList);
   }
 
-  get subtotalTVA(): number {
+  // Plat
+  get totalPlatTVA(): number {
+    return this.commandeLineList.filter((f) => f.Plat!.tva === 16).reduce((sum, item) => sum + (item.quantity * item.Plat!.prix_vente), 0);
+  }
+  get totalPlatSansTVA(): number {
+    return this.commandeLineList.filter((f) => f.Plat!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Plat!.prix_vente), 0);
+  }
+
+  //  Product
+  get totalProductTVA(): number {
     return this.commandeLineList.filter((f) => f.Product!.tva === 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+  }
+  get totalProductSansTVA(): number {
+    return this.commandeLineList.filter((f) => f.Product!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+  }
+
+
+  get subtotalTVA(): number {
+    return this.totalPlatTVA + this.totalProductTVA;
   }
 
   get subtotalSansTVA(): number {
-    return this.commandeLineList.filter((f) => f.Product!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+    return this.totalPlatSansTVA + this.totalProductSansTVA;
   }
 
   get subtotal(): number {
@@ -57,7 +74,7 @@ export class FatureComponent implements OnInit {
     return this.subtotalSansTVA + this.subtotalTVA + this.tax;
   }
 
- 
+
   // Format de devise
   formatCurrency(price: number, currency: string): string {
     return this.currencyPipe.transform(price, currency, 'symbol', '1.2-2', 'fr-FR') || '';

@@ -9,6 +9,7 @@ import { ILivraison } from '../../../../models/livraison.model';
 import { LivraisonService } from '../../livraison.service';
 import { ICaisse, ICaisseItem } from '../../../../models/caisse.model';
 import { CaisseService } from '../../../finances/caisse/caisse.service';
+import { CaisseItemService } from '../../../finances/caisse/caisse-item.service';
 
 @Component({
   selector: 'app-liv-facture',
@@ -28,7 +29,7 @@ export class LivFactureComponent {
     private currencyPipe: CurrencyPipe,
     private livraisonService: LivraisonService,
     private commandeLineService: CommandeLineService,
-    private caisseService: CaisseService,
+    private caisseItemService: CaisseItemService,
     private toastr: ToastrService
   ) { }
 
@@ -101,7 +102,7 @@ export class LivFactureComponent {
           signature: this.currentUser.fullname,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
         };
-        this.caisseService.create(body).subscribe((res) => {
+        this.caisseItemService.create(body).subscribe((res) => {
           this.isLoading = false;
           this.toastr.success(`Facture ${status} effectuée avec succès!`, 'Success!');
           this.router.navigate(['/web/livraisons/livraison-list']);

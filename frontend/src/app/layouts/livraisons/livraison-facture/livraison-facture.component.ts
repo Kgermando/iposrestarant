@@ -56,7 +56,7 @@ export class LivraisonFactureComponent implements OnInit {
     this.livraisonService.get(uuid).subscribe(item => {
       this.livraison = item.data;
       this.commaneLineService.getAllByIdLivraison(this.livraison!.uuid!).subscribe((line) => {
-        this.commandeLineList = line.data; 
+        this.commandeLineList = line.data;  
         this.isLoading = false;
       });
     });
@@ -68,12 +68,29 @@ export class LivraisonFactureComponent implements OnInit {
     this.pdfService.generateInvoice(this.commandeLineList);
   }
 
-  get subtotalTVA(): number {
+  // Plat
+  get totalPlatTVA(): number {
+    return this.commandeLineList.filter((f) => f.Plat!.tva === 16).reduce((sum, item) => sum + (item.quantity * item.Plat!.prix_vente), 0);
+  }
+  get totalPlatSansTVA(): number {
+    return this.commandeLineList.filter((f) => f.Plat!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Plat!.prix_vente), 0);
+  }
+
+  //  Product
+  get totalProductTVA(): number {
     return this.commandeLineList.filter((f) => f.Product!.tva === 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+  }
+  get totalProductSansTVA(): number {
+    return this.commandeLineList.filter((f) => f.Product!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+  }
+
+
+  get subtotalTVA(): number {
+    return  this.totalPlatTVA + this.totalProductTVA;
   }
 
   get subtotalSansTVA(): number {
-    return this.commandeLineList.filter((f) => f.Product!.tva !== 16).reduce((sum, item) => sum + (item.quantity * item.Product!.prix_vente), 0);
+    return  this.totalPlatSansTVA + this.totalProductSansTVA;
   }
 
   get subtotal(): number {

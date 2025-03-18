@@ -104,7 +104,7 @@ func GetAllEntreprises(c *fiber.Ctx) error {
 func GetEntreprise(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
-	var entreprise models.Entreprise 
+	var entreprise models.Entreprise
 	db.Where("uuid = ?", uuid).Preload("Users").Preload("Pos").First(&entreprise)
 	if entreprise.Name == "" {
 		return c.Status(404).JSON(
@@ -133,7 +133,7 @@ func CreateEntreprise(c *fiber.Ctx) error {
 	}
 
 	p.UUID = uuid.New().String()
-	
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -162,6 +162,7 @@ func UpdateEntreprise(c *fiber.Ctx) error {
 		Telephone      string    `json:"telephone"` // Telephone officiel
 		Manager        string    `json:"manager"`
 		Status         bool      `json:"status"`
+		Currency       string    `json:"currency"`
 		TypeAbonnement string    `json:"type_abonnement"`
 		Abonnement     time.Time `json:"abonnement"`
 		Signature      string    `json:"signature"`
@@ -193,6 +194,7 @@ func UpdateEntreprise(c *fiber.Ctx) error {
 	entreprise.Telephone = updateData.Telephone
 	entreprise.Manager = updateData.Manager
 	entreprise.Status = updateData.Status
+	entreprise.Currency = updateData.Currency
 	entreprise.TypeAbonnement = updateData.TypeAbonnement
 	entreprise.Abonnement = updateData.Abonnement
 	entreprise.Signature = updateData.Signature

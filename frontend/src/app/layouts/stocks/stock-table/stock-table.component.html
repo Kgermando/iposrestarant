@@ -84,11 +84,11 @@
                                                 <p>Prix de vente</p>
                                             </div>
                                             <h4>
-                                                {{ formatCurrency(product.prix_vente, currentUser.currency) }}
+                                                {{ formatCurrency(product.prix_vente, currentUser.entreprise!.currency) }}
 
                                                 <br>
                                                 <h6 style="font-weight: 300;">
-                                                    {{ formatCurrency(prixAchat(), currentUser.currency) }} 
+                                                    {{ formatCurrency(prixAchat(), currentUser.entreprise!.currency) }} 
                                                 </h6>
                                             </h4>
                                         </div>
@@ -124,7 +124,7 @@
                                             </div>
                                             <h4>
                                                 {{ valeurProductObtenu() | number:'1.2-3' }}/
-                                                {{ formatCurrency(valeurProductAttendu(), currentUser.currency) }}
+                                                {{ formatCurrency(valeurProductAttendu(), currentUser.entreprise!.currency) }}
 
                                                 <br>
                                                 <h6 style="font-weight: 300;">{{ pourcentValeurProduit().toFixed(2) }}%
@@ -139,7 +139,7 @@
                                             </div>
                                             <h4>
                                                 {{ profitObtenu() | number:'1.2-3' }}/
-                                                {{ formatCurrency(profitAttendu(), currentUser.currency) }}
+                                                {{ formatCurrency(profitAttendu(), currentUser.entreprise!.currency) }}
 
                                                 <br>
                                                 <h6 style="font-weight: 300;">{{ pourcentProfit().toFixed(2) }}% </h6>
@@ -184,7 +184,7 @@
                                         <ng-container matColumnDef="prix_achat">
                                             <th mat-header-cell *matHeaderCellDef> Prix d'achat </th>
                                             <td mat-cell *matCellDef="let element">
-                                                {{ formatCurrency(element.prix_achat, currentUser.currency) }}
+                                                {{ formatCurrency(element.prix_achat, currentUser.entreprise!.currency) }}
                                             </td>
                                         </ng-container>
 
@@ -293,24 +293,42 @@
                     <div class="col-md-6">
                         @if (product) {
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label class="col-form-label" for="name">Prix de vente <span
-                                        class="text-danger">*</span></label>
-                            </div>
-                            <input type="number" class="form-control" [value]="product.prix_vente" [readOnly]="true" />
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="col-form-label" for="name">Prix de vente <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <input type="number" class="form-control" [value]="product.prix_vente" [readOnly]="true" />
+                                </div>
+                                <div class="col-3">
+                                    @if(currentUser) {
+                                        {{ currentUser.entreprise!.currency }}
+                                    }
+                                </div>
+                            </div> 
                         </div>
                         }
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label class="col-form-label" for="name">Prix d'achat <span
-                                        class="text-danger">*</span></label>
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="col-form-label" for="name">Prix d'achat <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <input type="number" class="form-control" formControlName="prix_achat" required />
+                                    <mat-error *ngIf="formGroup.controls['prix_achat'].hasError('required')">
+                                        Ce champs est obligatoire
+                                    </mat-error>
+                                </div>
+                                <div class="col-3">
+                                    @if(currentUser) {
+                                        {{ currentUser.entreprise!.currency }}
+                                    }
+                                </div>
                             </div>
-                            <input type="number" class="form-control" formControlName="prix_achat" required />
-                            <mat-error *ngIf="formGroup.controls['prix_achat'].hasError('required')">
-                                Ce champs est obligatoire
-                            </mat-error>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -407,24 +425,42 @@
                     <div class="col-md-6">
                         @if (product) {
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label class="col-form-label" for="name">Prix de vente <span
-                                        class="text-danger">*</span></label>
-                            </div>
-                            <input type="number" class="form-control" [value]="product.prix_vente" [readOnly]="true" />
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="col-form-label" for="name">Prix de vente <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <input type="number" class="form-control" [value]="product.prix_vente" [readOnly]="true" />
+                                </div>
+                                <div class="col-3">
+                                    @if(currentUser) {
+                                        {{ currentUser.entreprise!.currency }}
+                                    }
+                                </div>
+                            </div> 
                         </div>
                         }
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <label class="col-form-label" for="name">Prix d'achat <span
-                                        class="text-danger">*</span></label>
+                            <div class="row d-flex justify-content-between align-items-center">
+                                <div class="col-9">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <label class="col-form-label" for="name">Prix d'achat <span
+                                                class="text-danger">*</span></label>
+                                    </div>
+                                    <input type="number" class="form-control" formControlName="prix_achat" required />
+                                    <mat-error *ngIf="formGroup.controls['prix_achat'].hasError('required')">
+                                        Ce champs est obligatoire
+                                    </mat-error>
+                                </div>
+                                <div class="col-3">
+                                    @if(currentUser) {
+                                        {{ currentUser.entreprise!.currency }}
+                                    }
+                                </div>
                             </div>
-                            <input type="number" class="form-control" formControlName="prix_achat" required />
-                            <mat-error *ngIf="formGroup.controls['prix_achat'].hasError('required')">
-                                Ce champs est obligatoire
-                            </mat-error>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -485,7 +521,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-end">
-                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Cancel</button>
+                <button type="button" data-bs-dismiss="offcanvas" class="btn btn-light me-2">Annuler</button>
                 @if (isLoading) {
                 <button disabled class="btn btn-primary">
                     <div class="spinner-border" role="status">

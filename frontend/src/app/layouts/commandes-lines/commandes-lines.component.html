@@ -47,7 +47,7 @@
                                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                 {{ totalLength() }}
                             </span>
-                            <span>{{ formatCurrency(total, currentUser.currency) }}</span>
+                            <span>{{ formatCurrency(total, currentUser.entreprise!.currency) }}</span>
                         </a>
                     </div>
                     <div class="d-flex align-items-center flex-wrap row-gap-2 justify-content-between">
@@ -74,7 +74,7 @@
                                     class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
                                     {{ totalLength() }}
                                 </span>
-                                <span>{{ formatCurrency(total, currentUser.currency) }}</span>
+                                <span>{{ formatCurrency(total, currentUser.entreprise!.currency) }}</span>
                             </a>
                         </div>
                     </div>

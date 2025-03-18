@@ -93,10 +93,8 @@ export class LivraisonLineComponent implements OnInit {
     console.log("uuid", uuid);
     this.livraisonService.get(uuid).subscribe(res => {
       this.livraison = res.data;
-      console.log("livraison", this.livraison.uuid!);
       this.commaneLineService.getAllByIdLivraison(this.livraison.uuid!).subscribe((line) => {
         this.commandeLineList = line.data;
-        console.log("commandeLineList", this.commandeLineList);
         this.totalLength.set(this.commandeLineList.length); 
         this.loading = false;
       });

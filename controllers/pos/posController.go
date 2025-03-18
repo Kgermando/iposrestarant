@@ -19,7 +19,6 @@ func GetPaginatedPos(c *fiber.Ctx) error {
 	if utils.IsInternetAvailable() {
 		go SyncDataWithAPISupport()
 	}
-	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -78,7 +77,6 @@ func GetPaginatedPosByID(c *fiber.Ctx) error {
 	if utils.IsInternetAvailable() {
 		go SyncDataWithAPI(EntrepriseUUID)
 	}
-	
 
 	page, err := strconv.Atoi(c.Query("page", "1"))
 	if err != nil || page <= 0 {
@@ -161,7 +159,7 @@ func GetPos(c *fiber.Ctx) error {
 	uuid := c.Params("uuid")
 	db := database.DB
 	var pos models.Pos
-	
+
 	db.Where("uuid = ?", uuid).First(&pos)
 	if pos.Name == "" {
 		return c.Status(404).JSON(
@@ -190,7 +188,7 @@ func CreatePos(c *fiber.Ctx) error {
 	}
 
 	p.UUID = uuid.New().String()
-	
+
 	database.DB.Create(p)
 
 	return c.JSON(
@@ -209,13 +207,13 @@ func UpdatePos(c *fiber.Ctx) error {
 
 	type UpdateData struct {
 		// EntrepriseUUID string `json:"entreprise_uuid"` // ID de l'entreprise
-		Name         string `json:"name"`
-		Adresse      string `json:"adresse"`
-		Email        string `json:"email"`
-		Telephone    string `json:"telephone"`
-		Manager      string `json:"manager"`
-		Status       bool   `json:"status"` // Actif ou Inactif
-		Signature    string `json:"signature"`
+		Name      string `json:"name"`
+		Adresse   string `json:"adresse"`
+		Email     string `json:"email"`
+		Telephone string `json:"telephone"`
+		Manager   string `json:"manager"`
+		Status    bool   `json:"status"` // Actif ou Inactif 
+		Signature string `json:"signature"`
 	}
 
 	var updateData UpdateData
@@ -239,7 +237,7 @@ func UpdatePos(c *fiber.Ctx) error {
 	pos.Email = updateData.Email
 	pos.Telephone = updateData.Telephone
 	pos.Manager = updateData.Manager
-	pos.Status = updateData.Status
+	pos.Status = updateData.Status 
 	pos.Signature = updateData.Signature
 
 	db.Save(&pos)

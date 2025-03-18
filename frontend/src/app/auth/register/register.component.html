@@ -105,7 +105,23 @@
                                     </mat-error>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                  <label class="col-form-label" for="currency">
+                                    Monnaie
+                                    <span class="text-danger">*</span>
+                                  </label>
+                                  <mat-select class="select custom-mat-select" formControlName="currency" placeholder="Choose currency">
+                                    @for (item of currencyList; track item) {
+                                    <mat-option value="{{item}}">{{item}}</mat-option>
+                                    }
+                                  </mat-select>
+                                  <mat-error *ngIf="formGroup.controls['currency'].hasError('required')">
+                                    Ce champs est obligatoire
+                                  </mat-error>
+                                </div>
+                              </div>
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="col-form-label" for="manager">Manager général
                                         <span class="text-danger">*</span>
@@ -119,10 +135,13 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <label class="col-form-label" for="adresse">Adresse <span
+                                        <label class="col-form-label" for="adresse">Adresse physique de travail<span
                                                 class="text-danger">*</span></label>
                                     </div>
                                     <input type="text" class="form-control" formControlName="adresse" required />
+                                    <mat-error *ngIf="formGroup.controls['manager'].hasError('required')">
+                                        Ce champs est obligatoire
+                                    </mat-error>
                                 </div>
                             </div>
                         </div>
@@ -136,7 +155,7 @@
                             </button>
                         }
                        @if (!isLoading) {
-                        <button type="submit" class="btn btn-primary w-100">Soumettre la creation du compte</button>
+                        <button type="submit" class="btn btn-primary w-100">Soumettre la création du compte</button>
                        } 
                     </div>
                     <div class="mb-3">

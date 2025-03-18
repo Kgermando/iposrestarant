@@ -92,7 +92,7 @@ func GetAllCaisseItems(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "All caisses",
-		"data":    data,
+		"data":    data, 
 	})
 }
 
@@ -122,8 +122,8 @@ func GetTotalCaisseItemToday(c *fiber.Ctx) error {
 	caisseUUID := c.Params("caisse_uuid")
 	db := database.DB
 
-	startDate := c.Query("start_date", utils.GetCurrentDate())
-	endDate := c.Query("end_date", utils.GetCurrentDate())
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
 
 	var totalEntries float64 = 0
 	var totalSorties float64 = 0
@@ -132,7 +132,7 @@ func GetTotalCaisseItemToday(c *fiber.Ctx) error {
 	db.Model(&models.CaisseItem{}).
 		Where("caisse_uuid = ?", caisseUUID).
 		Where("created_at BETWEEN ? AND ?", startDate, endDate).
-		Where("type_transaction = ?", "Entree").
+		Where("type_transaction = ?", "Entrée").
 		Select("COALESCE(SUM(montant), 0) as total_amount").
 		Scan(&totalEntries)
 

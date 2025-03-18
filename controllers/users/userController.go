@@ -218,9 +218,9 @@ func CreateUser(c *fiber.Ctx) error {
 		Role:           p.Role,
 		Permission:     p.Permission,
 		Status:         p.Status,
-		Currency:       p.Currency,
 		EntrepriseUUID: p.EntrepriseUUID,
 		Entreprise:     p.Entreprise,
+		Pos:            p.Pos,
 		Signature:      p.Signature,
 	}
 
@@ -266,7 +266,6 @@ func UpdateUser(c *fiber.Ctx) error {
 		Role           string `json:"role"`
 		Permission     string `json:"permission"`
 		Status         bool   `json:"status"`
-		Currency       string `json:"currency"`
 		EntrepriseUUID string `json:"entreprise_uuid"`
 		PosUUID        string `json:"pos_uuid"`
 		Signature      string `json:"signature"`
@@ -292,7 +291,6 @@ func UpdateUser(c *fiber.Ctx) error {
 	user.Role = updateData.Role
 	user.Permission = updateData.Permission
 	user.Status = updateData.Status
-	user.Currency = updateData.Currency
 	user.EntrepriseUUID = updateData.EntrepriseUUID
 	user.PosUUID = updateData.PosUUID
 	user.Signature = updateData.Signature

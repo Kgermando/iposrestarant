@@ -15,6 +15,6 @@ type Pos struct {
 	Email          string     `json:"email"`
 	Telephone      string     `json:"telephone"`
 	Manager        string     `gorm:"not null" json:"manager"`
-	Status         bool       `gorm:"not null" json:"status"` // Actif ou Inactif
+	Status         bool       `gorm:"not null" json:"status"` // Actif ou Inactif 
 	Signature      string     `json:"signature"`
 }

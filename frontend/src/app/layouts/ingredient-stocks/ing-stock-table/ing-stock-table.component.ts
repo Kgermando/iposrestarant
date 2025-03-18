@@ -36,7 +36,7 @@ export class IngStockTableComponent implements OnInit, AfterViewInit {
   public search = '';
 
   // Table
-  displayedColumns: string[] = ['created', 'quantity', 'prix_achat', 'date_expiration', 'description', 'fournisseur_uuid', 'uuid'];
+  displayedColumns: string[] = ['created', 'quantity', 'prix_achat', 'date_expiration', 'description', 'fournisseur', 'uuid'];
   dataSource = new MatTableDataSource<IIngredientStock>(this.dataList);
 
   @ViewChild(MatSort) sort!: MatSort;

@@ -78,8 +78,9 @@ export class CaisseItemComponent implements OnInit {
     this.loadUserData = true;
     this.isLoadingData = true;
     const date = new Date();
-    const firstDay = new Date();
+    const firstDay = new Date(); 
     const lastDay = new Date();
+    lastDay.setDate(lastDay.getDate() + 1);
     this.rangeDate = [firstDay, lastDay];
 
     this.dateRange = this._formBuilder.group({
@@ -87,6 +88,7 @@ export class CaisseItemComponent implements OnInit {
     });
     this.start_date = formatDate(this.dateRange.value.rangeValue[0], 'yyyy-MM-dd', 'en-US');
     this.end_date = formatDate(this.dateRange.value.rangeValue[1], 'yyyy-MM-dd', 'en-US');
+
     this.route.params.subscribe(routeParams => {
       this.caisse_uuid = routeParams['uuid'];
       this.authService.user().subscribe({
@@ -97,9 +99,10 @@ export class CaisseItemComponent implements OnInit {
 
           this.caisseItemService.refreshDataList$.subscribe(() => {
             this.fetchProducts(this.currentUser);
+            this.getStat(this.caisse_uuid, this.start_date, this.end_date);
           });
           this.fetchProducts(this.currentUser);
-          this.getStat();
+          this.getStat(this.caisse_uuid, this.start_date, this.end_date);
 
           // Appel de la méthode onChanges
           this.onChanges();
@@ -120,7 +123,6 @@ export class CaisseItemComponent implements OnInit {
       montant: ['', Validators.required],
       libelle: ['', Validators.required],
     });
-
   }
 
 
@@ -128,9 +130,12 @@ export class CaisseItemComponent implements OnInit {
   onChanges(): void {
     this.dateRange.valueChanges.subscribe((val) => {
       this.start_date = formatDate(val.rangeValue[0], 'yyyy-MM-dd', 'en-US');
+
+      val.rangeValue[1].setDate(val.rangeValue[1].getDate() + 1);
       this.end_date = formatDate(val.rangeValue[1], 'yyyy-MM-dd', 'en-US');
 
       this.fetchProducts(this.currentUser);
+      this.getStat(this.caisse_uuid, this.start_date, this.end_date);
     });
   }
 
@@ -167,9 +172,9 @@ export class CaisseItemComponent implements OnInit {
   }
 
 
-  getStat() {
+  getStat(caisse_uuid: string, start_date: string, end_date: string) {
     this.caisseItemService.getTotalCaisseItemByCaisseID(
-      this.caisse_uuid, this.start_date, this.end_date).subscribe((res) => {
+      caisse_uuid, start_date, end_date).subscribe((res) => {
         this.totalCaisse = res.data.total_global;
         this.totalEntres = res.data.total_entries;
         this.totalSorties = res.data.total_sorties;
@@ -223,7 +228,7 @@ export class CaisseItemComponent implements OnInit {
         this.caisseItemService.create(body).subscribe((res) => {
           this.isLoading = false;
           this.formGroup.reset();
-          this.getStat();
+          this.getStat(this.caisse_uuid, this.start_date, this.end_date);
           this.toastr.success(`Transaction ${res.data.type_transaction} ajoutée avec succès!`, 'Success!');
         });
       }
@@ -240,9 +245,9 @@ export class CaisseItemComponent implements OnInit {
         var code = Math.floor(1000000000 + Math.random() * 90000000000);
         const body: ICaisseItem = {
           caisse_uuid: this.caisse_uuid,
-          type_transaction: 'FondDeCaisse', // this.formGroup.value.type_transaction,
+          type_transaction: 'FondDeCaisse',
           montant: parseFloat(this.formGroup.value.montant),
-          libelle: "Fond de caisse",
+          libelle: this.formGroup.value.libelle,
           reference: code.toString(),
           signature: this.currentUser.fullname,
           code_entreprise: parseInt(this.currentUser.entreprise!.code.toString()),
@@ -250,7 +255,7 @@ export class CaisseItemComponent implements OnInit {
         this.caisseItemService.create(body).subscribe((res) => {
           this.isLoading = false;
           this.formGroup.reset();
-          this.getStat();
+          this.getStat(this.caisse_uuid, this.start_date, this.end_date);
           this.toastr.success(`Transaction ${res.data.type_transaction} ajoutée avec succès!`, 'Success!');
         });
       }

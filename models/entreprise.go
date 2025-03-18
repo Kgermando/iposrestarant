@@ -21,6 +21,7 @@ type Entreprise struct {
 	Telephone      string    `gorm:"not null" json:"telephone"` // Telephone officiel
 	Manager        string    `gorm:"not null" json:"manager"`
 	Status         bool      `gorm:"not null" json:"status"`
+	Currency       string    `gorm:"default:'CDF'" json:"currency"`
 	TypeAbonnement string    `json:"type_abonnement"`
 	Abonnement     time.Time `json:"abonnement"`
 	Signature      string    `json:"signature"`
@@ -42,6 +43,7 @@ type EntrepriseInfos struct {
 	Telephone      string    `json:"telephone"` // Telephone officiel
 	Manager        string    `json:"manager"`
 	Status         bool      `json:"status"`
+	Currency       string    `json:"currency"`
 	TypeAbonnement string    `json:"type_abonnement"`
 	Abonnement     time.Time `json:"abonnement"`
 	Signature      string    `json:"signature"`

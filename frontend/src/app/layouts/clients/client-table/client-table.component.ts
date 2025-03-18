@@ -88,12 +88,12 @@ export class ClientTableComponent implements OnInit, AfterViewInit {
     this.formGroup = this._formBuilder.group({
       fullname: ['', Validators.required],
       telephone: ['', Validators.required],
-      telephone2: [''],
+      telephone2: ['-'],
       email: [''],
       adress: [''],
       // birthday: [''],
-      organisation: [''],
-      website: [''],
+      organisation: ['-'],
+      website: ['-'],
     });
   }
 

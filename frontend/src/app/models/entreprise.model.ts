@@ -16,6 +16,7 @@ export interface IEntreprise {
     telephone: string;
     manager: string;
     status: boolean;
+    currency: string;
     type_abonnement: string;
     abonnement: Date;
     signature: string;

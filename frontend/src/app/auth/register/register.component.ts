@@ -6,6 +6,7 @@ import { AuthService } from '../auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { formatDate } from '@angular/common';
 import { IEntreprise } from '../../models/entreprise.model';
+import { monnaies } from '../../utils/unite_vente_et_monnaie';
 
 @Component({
   selector: 'app-register',
@@ -22,6 +23,8 @@ export class RegisterComponent implements OnInit {
   typeEntrepriseList: string[] = ['PME', 'GE', 'Particulier'];
 
   type_abonnementList: string[] = ['Standard', 'Premium', 'Entreprise'];
+
+  currencyList: string[] = monnaies;
 
   constructor(
     private router: Router,
@@ -44,6 +47,7 @@ export class RegisterComponent implements OnInit {
       telephone: ['', Validators.required],
       manager: ['', Validators.required],
       type_abonnement: ['', Validators.required],
+      currency: ['', Validators.required],
     });
   }
 
@@ -65,11 +69,12 @@ export class RegisterComponent implements OnInit {
           telephone: this.formGroup.value.telephone,
           manager: this.formGroup.value.manager,
           status: false,
+          currency: this.formGroup.value.currency,
           type_abonnement: this.formGroup.value.type_abonnement,
           abonnement: new Date(),
           signature: 'Auto',
         };
-        this.authService.entreprise(body).subscribe({ 
+        this.authService.entreprise(body).subscribe({
           next: (res) => {
             const entreprise: IEntreprise = res.data;
             var dataUser = {
@@ -81,8 +86,7 @@ export class RegisterComponent implements OnInit {
               password: '1234',
               password_confirm: '1234',
               permission: 'V',
-              status: false,
-              currency: 'CDF',
+              status: false, 
               signature: 'Auto',
             };
             this.authService.register(dataUser).subscribe({
